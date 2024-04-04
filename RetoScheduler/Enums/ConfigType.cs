@@ -1,4 +1,4 @@
-﻿namespace RetoScheduler
+﻿namespace RetoScheduler.Enums
 {
     public enum ConfigType
     {
