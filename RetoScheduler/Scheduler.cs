@@ -1,52 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RetoScheduler
+﻿namespace RetoScheduler
 {
     public class Scheduler
     {
 
-        public Scheduler() { 
-        
-        }
-        public OutPut Init(Configuration config)
+        public Scheduler()
         {
 
-            DateTime dateTime = DateTime.Now;
-            string description = string.Empty;
+        }
+
+        public OutPut Execute(Configuration config)
+        {
+            ValidateConfiguration(config);
+
+            if (config.Type == ConfigType.Once)
+            {
+                return InOnce(config);
+            }
+            return InRecurring(config);
+        }
+
+        private void ValidateConfiguration(Configuration config)
+        {
             if (!config.Enabled)
             {
                 throw new Exception("You need to check field to Run Program");
             }
-            if (config.Type==ConfigType.Once)
+        }
+
+        private OutPut InOnce(Configuration config)
+        {
+            if (config.ConfigDateTime.HasValue == false)
             {
-                if (config.ConfigDateTime.HasValue==false)
-                {
-                    throw new Exception("Once Types requires an obligatory DateTime");
-                }
-                
-                dateTime = config.ConfigDateTime.Value;
-                string d =dateTime.ToString("dd/MM/yyyy");
-                string t = dateTime.ToString("HH:mm");
-                description = "Occurs once. Schedule will be used on "+ d + " at "+ t + " starting on 01/01/2020";
+                throw new Exception("Once Types requires an obligatory DateTime");
             }
-            else 
+
+            var dateTime = config.ConfigDateTime.Value;
+            string expectedDate = dateTime.ToString("dd/MM/yyyy");
+            string expectedTime = dateTime.ToString("HH:mm");
+            var description = "Occurs once. Schedule will be used on " + expectedDate + " at " + expectedTime + " starting on 01/01/2020";
+
+            return new OutPut(dateTime, description);
+
+        }
+
+        private OutPut InRecurring(Configuration config)
+        {
+            if (config.FrecuencyInDays <= 0)
             {
-                if (config.FrecuencyInDays<=0)
-                {
-                    throw new Exception("Don't should put negative numbers or zero in number field");
-                }
-                dateTime = config.CurrentDate.AddDays(config.FrecuencyInDays);
-                string d = dateTime.ToString("dd/MM/yyyy");
-                string t = dateTime.ToString("HH:mm");
-                description = "Occurs every day. Schedule will be used on " + d + " starting on 01/01/2020";
-                
+                throw new Exception("Don't should put negative numbers or zero in number field");
             }
+
+            var dateTime = config.CurrentDate.AddDays(config.FrecuencyInDays);
+            string expectedDate = dateTime.ToString("dd/MM/yyyy");
+            var description = "Occurs every day. Schedule will be used on " + expectedDate + " starting on 01/01/2020";
 
             return new OutPut(dateTime, description);
         }
+
     }
+
 }

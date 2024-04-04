@@ -1,14 +1,9 @@
 ﻿using RetoScheduler;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RetoSchedulerTest
 {
-    public class UnitTestsInputData : IEnumerable<object[]>
+    public class SchedulerTestConfiguration : IEnumerable<object[]>
     {
         public readonly List<object[]> data = new List<object[]>()
         {

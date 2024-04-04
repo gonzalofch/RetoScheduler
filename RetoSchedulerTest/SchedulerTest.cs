@@ -1,54 +1,49 @@
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using RetoScheduler;
-using System.Runtime.InteropServices;
 
 namespace RetoSchedulerTest
 {
-    public class UnitTest1
+    public class SchedulerTest
     {
-        [Theory, ClassData(typeof(UnitTestsInputData))]
-        public void
-            _Execution_Time_Should_Be_Once_And_Daily(Configuration configuration, OutPut outPut)
+        [Theory, ClassData(typeof(SchedulerTestConfiguration))]
+        public void OutPut_Should_Be_Expected(Configuration configuration, OutPut expectedoOutut)
         {
+            var scheduler = new Scheduler();
+            var output = scheduler.Execute(configuration);
 
-            var Scheduler = new Scheduler();
-            var res = Scheduler.Init(configuration);
-
-            res.NextExecutionTime.Should().Be(outPut.NextExecutionTime);
-            res.Description.Should().Be(outPut.Description);
+            output.NextExecutionTime.Should().Be(expectedoOutut.NextExecutionTime);
+            output.Description.Should().Be(expectedoOutut.Description);
         }
-
 
         [Fact]
         public void Next_Execution_Time_Should_Throw_Exception_And_Message()
         {
-
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily, 0);
 
             FluentActions
-                .Invoking(() => scheduler.Init(configuration))
+                .Invoking(() => scheduler.Execute(configuration))
                 .Should()
                 .Throw<Exception>()
                 .And.Message
                 .Should().Be("Once Types requires an obligatory DateTime");
         }
+
         [Theory]
         [InlineData(ConfigType.Once)]
         [InlineData(ConfigType.Recurring)]
-
         public void Should_Throw_Exception_Disabled_Check_And_Message(ConfigType configType)
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 5), configType, false, null, Occurs.Daily, 0);
             FluentActions
-               .Invoking(() => scheduler.Init(configuration))
+               .Invoking(() => scheduler.Execute(configuration))
                .Should()
                .Throw<Exception>()
                .And.Message
                .Should().Be("You need to check field to Run Program");
         }
+
         [Theory]
         [InlineData(-1)]
         [InlineData(0)]
@@ -57,7 +52,7 @@ namespace RetoSchedulerTest
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Recurring, true, null, Occurs.Daily, frecuencyInDays);
             FluentActions
-               .Invoking(() => scheduler.Init(configuration))
+               .Invoking(() => scheduler.Execute(configuration))
                .Should()
                .Throw<Exception>()
                .And.Message
@@ -72,7 +67,7 @@ namespace RetoSchedulerTest
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Once, true, DateTime.Now, Occurs.Daily, frecuencyInDays);
             FluentActions
-               .Invoking(() => scheduler.Init(configuration))
+               .Invoking(() => scheduler.Execute(configuration))
                .Should().NotThrow<Exception>();
         }
     }
