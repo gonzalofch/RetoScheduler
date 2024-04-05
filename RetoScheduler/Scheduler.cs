@@ -4,6 +4,7 @@ using RetoScheduler.Exceptions;
 using System;
 using System.Security.AccessControl;
 using System.Security.Authentication.ExtendedProtection;
+using System.Text;
 
 namespace RetoScheduler
 {
@@ -58,23 +59,35 @@ namespace RetoScheduler
 
         private string CalculateDescription(DateTime dateTime, Configuration config)
         {
+            StringBuilder description = new StringBuilder("Occurs ");
+
             string whenOccurs;
+            string atThisTime;
             if (config.Type == ConfigType.Once)
             {
                 whenOccurs = "once";
-                string onceExpectedDate = dateTime.ToString("dd/MM/yyyy");
-                string onceExpectedTime = dateTime.ToString("HH:mm");
-                string onceExpectedStartLimit = config.Limits.StartDate.ToString("dd/MM/yyyy");
-
-                return "Occurs " + whenOccurs + ". Schedule will be used on " + onceExpectedDate + " at " + onceExpectedTime + " starting on " + onceExpectedStartLimit;
+                string expectedTime = dateTime.ToString("HH:mm");
+                atThisTime = " at " + expectedTime;
+            }
+            else
+            {
+                whenOccurs = config.FrecuencyInDays == 1
+                ? "every day"
+                : "every " + config.FrecuencyInDays + " days";
+                atThisTime = string.Empty;
             }
 
-            whenOccurs= config.FrecuencyInDays == 1
-                ? "every day"
-                : "every "+ config.FrecuencyInDays + " days";
-            string recurringExpectedStartLimit = config.Limits.StartDate.ToString("dd/MM/yyyy");
-            string recurringExpectedDate = dateTime.ToString("dd/MM/yyyy");
-            return "Occurs " + whenOccurs + ". Schedule will be used on " + recurringExpectedDate + " starting on " + recurringExpectedStartLimit;
+            string expectedDate= dateTime.ToString("dd/MM/yyyy");
+            string expectedStartLimit = config.Limits.StartDate.ToString("dd/MM/yyyy");
+
+            description.Append(whenOccurs)
+                .Append(". Schedule will be used on ")
+                .Append(expectedDate)
+                .Append(atThisTime)
+                .Append(" starting on ")
+                .Append(expectedStartLimit);
+
+            return description.ToString();
         }
 
         private DateTime InOnce(Configuration config)
