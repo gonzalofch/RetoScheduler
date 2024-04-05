@@ -11,6 +11,5 @@
             StartDate = startDate;
             EndDate = endDate;
         }
-
     }
 }

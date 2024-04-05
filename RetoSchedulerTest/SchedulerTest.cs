@@ -75,6 +75,7 @@ namespace RetoSchedulerTest
                .Should()
                .NotThrow<SchedulerException>();
         }
+
         [Fact]
         public void Should_Throw_Exception_Configuration_Dont_Have_Limit()
         {
@@ -85,18 +86,18 @@ namespace RetoSchedulerTest
                .Should()
                .Throw<SchedulerException>("Limits Can`t be null");
         }
+
         [Fact]
-       public void Should_Throw_Exception_EndDate_Is_Before_StartDate()
-       {
-          var scheduler = new Scheduler();
-          var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Once, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
+        public void Should_Throw_Exception_EndDate_Is_Before_StartDate()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Once, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
 
-         FluentActions
-              .Invoking(() => scheduler.Execute(configuration))
-              .Should()
-              .Throw<SchedulerException>("The end date cannot be earlier than the initial date");
+            FluentActions
+                 .Invoking(() => scheduler.Execute(configuration))
+                 .Should()
+                 .Throw<SchedulerException>("The end date cannot be earlier than the initial date");
         }
-
 
         [Theory, ClassData(typeof(SchedulerLimitsConfiguration))]
         public void Should_Throw_Exception_If_Limits_Are_Out_Of_Range(Configuration configuration)
@@ -110,21 +111,17 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should()
+        public void Should_Validate_Next_Execution_Time()
         {
             var scheduler = new Scheduler();
 
             var configuration1 = new Configuration(new DateTime(2020, 1, 4), ConfigType.Recurring, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 1)));
+            var res1 = scheduler.Execute(configuration1);
+            var configuration2 = new Configuration(res1.NextExecutionTime, ConfigType.Recurring, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 1)));
+            var res2 = scheduler.Execute(configuration2);
 
-            var output1 = scheduler.Execute(configuration1);
-
-            var configuration2 = new Configuration(output1.NextExecutionTime, ConfigType.Recurring, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 1)));
-            var output2 = scheduler.Execute(configuration2);
-
-            output1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 5));
-
-            output2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 6));
+            res1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4));
+            res2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 5));
         }
-
     }
 }
