@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace RetoScheduler.Enums
 {
-    public enum DailyFrecuencyType
+    public enum DailyFrecuency
+
     {
         Hours = 1,
         Minutes = 2,

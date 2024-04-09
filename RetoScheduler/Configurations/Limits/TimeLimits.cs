@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RetoScheduler.Configurations
+namespace RetoScheduler.Configurations.Limits
 {
     public class TimeLimits
     {
-        public TimeLimits(OnlyTime startTime, OnlyTime? endTime = null)
+        public TimeLimits(TimeOnly startTime, TimeOnly endTime)
         {
             StartTime = startTime;
-            EndDate = endTime;
+            EndTime = endTime;
         }
-        public OnlyTime StartTime { get; set; }
+        public TimeOnly StartTime { get; set; }
 
-        public OnlyTime? EndDate { get; set; }
+        public TimeOnly EndTime { get; set; }
     }
 }

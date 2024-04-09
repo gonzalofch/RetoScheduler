@@ -1,4 +1,5 @@
-﻿using RetoScheduler.Enums;
+﻿using RetoScheduler.Configurations.Limits;
+using RetoScheduler.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +10,14 @@ namespace RetoScheduler.Configurations
 {
     public class DailyConfiguration
     {
-        public DailyConfiguration(ConfigType type,OnlyTime onceAt,int frecuency,DailyFrecuencyType dailyFrecuencyType, TimeLimits timeLimits)
+        public DailyConfiguration(DailyConfigType type,TimeOnly? onceAt,int frecuency,DailyFrecuency dailyFrecuencyType, TimeLimits? timeLimits)
         {
 
             Type = type;
 
-            if (type == ConfigType.Once)
+            if (type == DailyConfigType.Once && onceAt.HasValue)
             {
-                OnceAt = onceAt;
+                OnceAt = onceAt.Value;
             }
             else
             {
@@ -26,14 +27,14 @@ namespace RetoScheduler.Configurations
             }
         }
 
-        public ConfigType Type { get; set; } //once | recurring ( 1 day )
+        public DailyConfigType Type { get; set; } //once | recurring ( 1 day )
 
-        public OnlyTime OnceAt { get; set; }
+        public TimeOnly OnceAt { get; set; }
 
         public int Frecuency { get; set; } //just the number
 
-        public DailyFrecuencyType DailyFrecuencyType { get; set; } // Evey "X" Hours, minutes, etc
+        public DailyFrecuency DailyFrecuencyType { get; set; } // Evey "X" Hours, minutes, etc
 
-        public TimeLimits TimeLimits { get; set; }
+        public TimeLimits? TimeLimits { get; set; }
     }
 }

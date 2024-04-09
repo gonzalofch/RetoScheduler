@@ -1,4 +1,4 @@
-﻿namespace RetoScheduler.Configurations
+﻿namespace RetoScheduler.Configurations.Limits
 {
     public class DateLimits
     {
