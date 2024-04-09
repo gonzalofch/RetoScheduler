@@ -6,7 +6,7 @@ namespace RetoScheduler.Configurations
 {
     public class Configuration
     {
-        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs,int frecuencyInDays,  WeeklyConfiguration weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits) //bool tal vez por defecto true
+        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs,  WeeklyConfiguration? weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits) //bool tal vez por defecto true
         {
             CurrentDate = currentDate;
             Enabled = enabled;
@@ -27,9 +27,8 @@ namespace RetoScheduler.Configurations
         public DateTime? ConfigDateTime { get; }
 
         public Occurs Occurs { get; }
-        public int FrecuencyInDays { get; set; }
 
-        public WeeklyConfiguration WeeklyConfiguration { get; set; }
+        public WeeklyConfiguration? WeeklyConfiguration { get; set; }
 
         public DailyConfiguration DailyConfiguration { get; set; }
 

@@ -188,7 +188,7 @@ namespace RetoScheduler
 
             if (Executed)
             {
-                dateTime = dateTime.AddDays(config.FrecuencyInDays);
+                dateTime = dateTime.AddDays(1);
 
             }
             var dateBetweenLimits = dateTime >= config.DateLimits.StartDate && (config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate);
@@ -197,7 +197,7 @@ namespace RetoScheduler
                 throw new SchedulerException("DateTime can't be out of start and end range");
             }
 
-            if (config.WeeklyConfiguration.SelectedDays.Count() != 0)
+            if (config.WeeklyConfiguration!=null && config.WeeklyConfiguration.SelectedDays.Count() != 0)
             {
                 do
                 {
