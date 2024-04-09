@@ -1,12 +1,12 @@
 ﻿namespace RetoScheduler.Configurations
 {
-    public class Limits
+    public class DateLimits
     {
 
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
-        public Limits(DateTime startDate, DateTime? endDate = null)
+        public DateLimits(DateTime startDate, DateTime? endDate = null)
         {
             StartDate = startDate;
             EndDate = endDate;

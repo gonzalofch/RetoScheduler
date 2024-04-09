@@ -22,7 +22,7 @@ namespace RetoSchedulerTest
         public void Next_Execution_Time_Should_Throw_Exception_And_Message()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily, 0, new Limits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily, 0, new DateLimits(new DateTime(2020, 1, 1)));
 
             FluentActions
                 .Invoking(() => scheduler.Execute(configuration))
@@ -38,7 +38,7 @@ namespace RetoSchedulerTest
         public void Should_Throw_Exception_Disabled_Check_And_Message(ConfigType configType)
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 5), configType, false, null, Occurs.Daily, 0, new Limits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 5), configType, false, null, Occurs.Daily, 0, new DateLimits(new DateTime(2020, 1, 1)));
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
@@ -53,7 +53,7 @@ namespace RetoSchedulerTest
         public void Should_Throw_Exception_Negative_Number_Of_Days_In_Recurring_Type(int frecuencyInDays)
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Recurring, true, null, Occurs.Daily, frecuencyInDays, new Limits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Recurring, true, null, Occurs.Daily, frecuencyInDays, new DateLimits(new DateTime(2020, 1, 1)));
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
@@ -69,7 +69,7 @@ namespace RetoSchedulerTest
         public void Should_Not_Throw_Exception_Negative_Number_Of_Days_In_Once_Type(int frecuencyInDays)
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Once, true, DateTime.Now, Occurs.Daily, frecuencyInDays, new Limits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Once, true, DateTime.Now, Occurs.Daily, frecuencyInDays, new DateLimits(new DateTime(2020, 1, 1)));
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
@@ -91,7 +91,7 @@ namespace RetoSchedulerTest
         public void Should_Throw_Exception_EndDate_Is_Before_StartDate()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Once, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
+            var configuration = new Configuration(new DateTime(2020, 1, 5), ConfigType.Once, true, DateTime.Now, Occurs.Daily, 1, new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
 
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
@@ -115,9 +115,9 @@ namespace RetoSchedulerTest
         {
             var scheduler = new Scheduler();
 
-            var configuration1 = new Configuration(new DateTime(2020, 1, 4), ConfigType.Recurring, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 1)));
+            var configuration1 = new Configuration(new DateTime(2020, 1, 4), ConfigType.Recurring, true, DateTime.Now, Occurs.Daily, 1, new DateLimits(new DateTime(2020, 1, 1)));
             var res1 = scheduler.Execute(configuration1);
-            var configuration2 = new Configuration(res1.NextExecutionTime, ConfigType.Recurring, true, DateTime.Now, Occurs.Daily, 1, new Limits(new DateTime(2020, 1, 1)));
+            var configuration2 = new Configuration(res1.NextExecutionTime, ConfigType.Recurring, true, DateTime.Now, Occurs.Daily, 1, new DateLimits(new DateTime(2020, 1, 1)));
             var res2 = scheduler.Execute(configuration2);
 
             res1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4));
