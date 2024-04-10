@@ -12,5 +12,14 @@ namespace RetoScheduler.Extensions
         {
             return dateTime.AddDays(numberOfWeeks * 7);
         }
+        public static DateTime NextDayOfWeek(this DateTime dateTime, DayOfWeek nextDayOfWeek)
+            {
+            for (int addedDays=0;dateTime.DayOfWeek!=nextDayOfWeek;dateTime=dateTime.AddDays(1), addedDays++)
+            {
+
+            }
+            return dateTime.Date;
+        }
     }
+
 }
