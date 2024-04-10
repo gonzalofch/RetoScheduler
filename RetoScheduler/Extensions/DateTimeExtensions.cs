@@ -18,7 +18,7 @@ namespace RetoScheduler.Extensions
             {
 
             }
-            return dateTime.Date;
+            return dateTime;
         }
     }
 

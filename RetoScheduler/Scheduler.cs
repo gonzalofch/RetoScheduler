@@ -1,4 +1,5 @@
-﻿using RetoScheduler.Configurations;
+﻿using Microsoft.VisualBasic;
+using RetoScheduler.Configurations;
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
@@ -59,7 +60,8 @@ namespace RetoScheduler
                 throw new SchedulerException("The end date cannot be earlier than the initial date");
             }
         }
-        private void ValidateLimitsTimeRange(Configuration config) {
+        private void ValidateLimitsTimeRange(Configuration config)
+        {
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
             {
                 if ((config.CurrentDate.TimeOfDay > config.DailyConfiguration.OnceAt.ToTimeSpan()))
@@ -69,12 +71,12 @@ namespace RetoScheduler
             }
             else
             {
-                if (config.CurrentDate.TimeOfDay > config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() )
+                if (config.CurrentDate.TimeOfDay > config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
                 {
                     throw new SchedulerException("The EndTime cannot be earlier than Current Time");
                 }
                 //SI EL CURRENTDATE == ENDDATE YY si el current date es MAYOR QUE ENDTIME
-                if ((config.CurrentDate == config.DateLimits.EndDate && TimeSpan.Compare(config.CurrentDate.TimeOfDay, config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan())==0 
+                if ((config.CurrentDate == config.DateLimits.EndDate && TimeSpan.Compare(config.CurrentDate.TimeOfDay, config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()) == 0
                     && (config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() < config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan())))
                 {
                     throw new SchedulerException("The EndTime cannot be earlier than StartTime");
@@ -82,10 +84,7 @@ namespace RetoScheduler
             }
         }
 
-        private static DateTime AddWeeks(DateTime dateTime, int weeks)
-        {
-            return dateTime.AddDays(weeks*7);
-        }
+
         private string CalculateDescription(DateTime dateTime, Configuration config)
         {
             StringBuilder description = new StringBuilder("Occurs ");
@@ -240,120 +239,96 @@ namespace RetoScheduler
                 throw new SchedulerException("DateTime can't be out of start and end range");
             }
 
-            if (config.WeeklyConfiguration != null && config.WeeklyConfiguration.SelectedDays.Count() != 0)
+            dateTime = NextDayExecution(config, dateTime);
+
+            if (config.DailyConfiguration.Type == DailyConfigType.Once)
             {
-                //identificar en que dia estas, si es dayofweek seleccionado, sino sumar 1 día 
-                //luego identificar que el tiempo este dentro de timeLimits, si no esta, ir al timeLimits.startTime y que cambie el dateTime por ese.
-                //revisar si ya se ejecuto antes, si ya se ejecuto antes, sumar las horas O MINUTOS del config.DailyConfig.Frecuency y que cambie el dateTime por ese valor.
-                bool ejecutado = false;
-
-                do
+                TimeOnly dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second);
+                if (dateTimeTime > config.DailyConfiguration.OnceAt)
                 {
-                    if (config.WeeklyConfiguration.SelectedDays.Contains(dateTime.DayOfWeek))
-                    {
-                        var dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second);
-                        if (dateTimeTime < config.DailyConfiguration.TimeLimits.StartTime)
-                        {
-                            dateTime = dateTime + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
-                            ejecutado = true;
-                        }
-                        else
-                        {
-                            //realizar operacion de suma y luego verificar si esta dentro de los tiempos limite, si esta dentro delos tiempos limite, retornar ese dateTime
-                            //en caso de que la operacion sumar horas o minutos se salga del rango de tiempos limite, se suma un día y se realiza el do while otra vez (ejecutado =false)
-                            //cuando llegue al domingo, va a saltar la ejecucion de 2 semanas en adelante, osea cambia el currentDate por dos semanas en adelante al primer lunes que encuentre
-
-                            //if ( dateTimeTime > config.DailyConfiguration.TimeLimits.StartTime && dateTimeTime < config.DailyConfiguration.TimeLimits.EndTime )
-                            //{
-                            if (config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Hours)
-                            {
-                                dateTime = dateTime.AddHours(config.DailyConfiguration.Frecuency.Value);
-                                dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second); ;
-                                if (dateTimeTime <= config.DailyConfiguration.TimeLimits.EndTime)
-                                {
-                                    ejecutado = true;
-                                }
-                                else
-                                {
-                                    if (dateTime.DayOfWeek == DayOfWeek.Sunday)
-                                    {
-                                    }
-                                    else
-                                    {
-                                        dateTime = dateTime.Date.AddDays(1);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                dateTime = dateTime.AddMinutes(config.DailyConfiguration.Frecuency.Value);
-                                ejecutado = true;
-                                dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second); ;
-
-                                if (dateTimeTime <= config.DailyConfiguration.TimeLimits.EndTime)
-                                {
-                                    ejecutado = true;
-                                }
-                                else
-                                {
-                                    dateTime = dateTime.Date.AddDays(1);
-                                }
-
-                            }
-                        }
-                    }
-                    else
-                    {
-                        dateTime = dateTime.Date.AddDays(1);
-                        if (dateTime.DayOfWeek == DayOfWeek.Monday)
-                        {
-                            dateTime = dateTime.AddWeeks(config.WeeklyConfiguration.FrecuencyInWeeks);
-                        }
-                    }
-                } while (!ejecutado);
+                    throw new SchedulerException("Once time execution time can't be before than Current Time");
+                }
+                dateTime = dateTime.Date.Add(dateTimeTime.ToTimeSpan());
             }
             else
             {
-                if (config.DailyConfiguration.Type == DailyConfigType.Once)
+                var dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second);
+                TimeOnly nextExecutionTime;
+
+                nextExecutionTime = AddOccursEveryUnit(config, dateTimeTime);
+
+                if (nextExecutionTime < config.DailyConfiguration.TimeLimits.StartTime)
                 {
-                    TimeOnly dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second);
-                    if (dateTimeTime > config.DailyConfiguration.OnceAt)
-                    {
-                        throw new SchedulerException("Once time execution time can't be before than Current Time");
-                    }
-                    dateTime = dateTime.Date.Add(dateTimeTime.ToTimeSpan());
+                    dateTime = dateTime.Date + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
                 }
                 else
                 {
-                    var dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second);
-                    TimeOnly nextExecutionTime;
-                    //if (dateTimeTime <config.DailyConfiguration.TimeLimits.StartTime && dateTimeTime >config.DailyConfiguration.TimeLimits.EndTime)
-                    //{
-                    if (config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Hours)
-                    {
-                        nextExecutionTime = dateTimeTime.AddHours(config.DailyConfiguration.Frecuency.Value);
-                    }
-                    else if(config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Minutes)
-                    {
-                        nextExecutionTime = dateTimeTime.AddMinutes(config.DailyConfiguration.Frecuency.Value);
-                    }
-                    else
-                    {
-                        nextExecutionTime = dateTimeTime.AddSeconds(config.DailyConfiguration.Frecuency.Value);
-                    }
-
-                    if (nextExecutionTime < config.DailyConfiguration.TimeLimits.StartTime)
-                    {
-                        dateTime = dateTime.Date + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
-                    }
-                    else
-                    {
-                        dateTime = dateTime.Date + nextExecutionTime.ToTimeSpan();
-                    }
+                    dateTime = dateTime.Date + nextExecutionTime.ToTimeSpan();
                 }
-                //}
             }
+            //}
+
             return dateTime;
+        }
+
+        private static DateTime NextDayExecution(Configuration config, DateTime dateTime)
+        {
+            if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
+            {
+                return dateTime;
+            }
+
+            var sortedDays = config.WeeklyConfiguration.SelectedDays.OrderBy(_ => _).ToList();
+            var actualDay = config.CurrentDate.DayOfWeek;
+
+            var firstDayOfWeek = config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
+            ? sortedDays.FirstOrDefault(_ => _ > actualDay)
+            : sortedDays.FirstOrDefault(_ => _ >= actualDay);
+
+            return config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
+            ? GetNextDayInWeek(sortedDays, actualDay,dateTime)
+            : NextDay(sortedDays, actualDay, dateTime);
+        }
+
+        private static DateTime NextDay(List<DayOfWeek> sortedDays, DayOfWeek actualDay,DateTime dateTime)
+        {
+            var nextDay= sortedDays.FirstOrDefault(_ => _ >= actualDay);
+            return dateTime.NextDayOfWeek(nextDay);
+
+        }
+
+        private static DateTime GetNextDayInWeek(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime)
+        {
+            var nextDay=  sortedDays.FirstOrDefault(_ => _ > actualDay);
+
+            //Comprobar que nextday este contenido en sorted days, sino hacer el salto de semana a el siguiente en lista.
+
+            //DayOfWeek? dayWeek = sortedDays.FirstOrDefault(_ => _ > actualDay);
+            return dateTime.NextDayOfWeek(nextDay).Date;
+        }
+
+        private static TimeOnly AddOccursEveryUnit(Configuration config, TimeOnly dateTimeTime)
+        {
+            if (dateTimeTime == TimeOnly.MinValue)
+            {
+                return config.DailyConfiguration.TimeLimits.StartTime;
+
+            }
+            TimeOnly nextExecutionTime;
+            if (config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Hours)
+            {
+                nextExecutionTime = dateTimeTime.AddHours(config.DailyConfiguration.Frecuency.Value);
+            }
+            else if (config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Minutes)
+            {
+                nextExecutionTime = dateTimeTime.AddMinutes(config.DailyConfiguration.Frecuency.Value);
+            }
+            else
+            {
+                nextExecutionTime = dateTimeTime.AddSeconds(config.DailyConfiguration.Frecuency.Value);
+            }
+
+            return nextExecutionTime;
         }
     }
 }
