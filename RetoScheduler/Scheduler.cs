@@ -56,10 +56,6 @@ namespace RetoScheduler
                 throw new SchedulerException("The end date cannot be earlier than the initial date");
             }
         }
-        private void ApplyWeeklyConfiguration(Configuration config)
-        {
-
-        }
 
         private string CalculateDescription(DateTime dateTime, Configuration config)
         {
@@ -157,12 +153,6 @@ namespace RetoScheduler
 
             return description.ToString();
         }
-        private string FinalCalculateDescription(DateTime dateTime, Configuration config)
-        {
-
-
-            return "string";
-        }
 
         private DateTime InOnce(Configuration config)
         {
@@ -172,6 +162,15 @@ namespace RetoScheduler
             }
 
             var dateTime = config.ConfigDateTime.Value;
+            var occursOnceAt = config.DailyConfiguration.OnceAt;
+            if (config.DailyConfiguration.Type==DailyConfigType.Once)
+            {
+                dateTime = dateTime + occursOnceAt.ToTimeSpan();
+            }
+            else
+            {
+
+            }
 
             return dateTime;
         }
@@ -197,7 +196,7 @@ namespace RetoScheduler
                 throw new SchedulerException("DateTime can't be out of start and end range");
             }
 
-            if (config.WeeklyConfiguration!=null && config.WeeklyConfiguration.SelectedDays.Count() != 0)
+            if ( config.WeeklyConfiguration!=null && config.WeeklyConfiguration.SelectedDays.Count() != 0)
             {
                 do
                 {

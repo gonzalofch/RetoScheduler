@@ -13,11 +13,11 @@ namespace RetoSchedulerTest
         public readonly List<object[]> data = new List<object[]>()
         {
 
-        
+
 
             new object[]{
                 new Configuration
-                (new DateTime(2020,1,1,0,0,0), ConfigType.Recurring,true,null,Occurs.Weekly,new WeeklyConfiguration(2, new List<DayOfWeek>(){DayOfWeek.Monday,DayOfWeek.Thursday,DayOfWeek.Friday}),new DailyConfiguration(DailyConfigType.Recurring,null,2,DailyFrecuency.Hours,new TimeLimits(new TimeOnly(4,0,0),new TimeOnly(8,0,0))),new DateLimits(new DateTime(2020,1,1))),
+                (new DateTime(2020,1,1,0,0,0), ConfigType.Recurring,true,null,Occurs.Weekly,new WeeklyConfiguration(2, new List<DayOfWeek>(){DayOfWeek.Monday,DayOfWeek.Thursday,DayOfWeek.Friday}),new DailyConfiguration(DailyConfigType.Recurring,TimeOnly.MinValue,2,DailyFrecuency.Hours,new TimeLimits(new TimeOnly(4,0,0),new TimeOnly(8,0,0))),new DateLimits(new DateTime(2020,1,1))),
                 new OutPut(new DateTime(2020,1,2,4,0,0),"Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00 AM and 8:00 AM starting on 01/01/2020")
             },
 
@@ -29,7 +29,7 @@ namespace RetoSchedulerTest
             },
             new object[]
             {
-                new Configuration(new DateTime(2020, 1, 4), ConfigType.Recurring, true , null, Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Recurring,null,3,DailyFrecuency.Hours,new TimeLimits(new TimeOnly(10,0,0),new TimeOnly(15,0,0))), new DateLimits(new DateTime(2020,1,1),null)),
+                new Configuration(new DateTime(2020, 1, 4), ConfigType.Recurring, true , null, Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Recurring,TimeOnly.MinValue,3,DailyFrecuency.Hours,new TimeLimits(new TimeOnly(10,0,0),new TimeOnly(15,0,0))), new DateLimits(new DateTime(2020,1,1),null)),
                 new OutPut(new DateTime(2020, 1, 4),"Occurs every day. Schedule will be used on 04/01/2020 starting on 01/01/2020")
             },
             new object[]
@@ -46,7 +46,7 @@ namespace RetoSchedulerTest
             new object[]
             {
                 new Configuration
-                (new DateTime (2024,4,4), ConfigType.Once, true , new DateTime(2024,05,10,16,0,0),Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Recurring,null,30,DailyFrecuency.Minutes,new TimeLimits(new TimeOnly(),new TimeOnly())),new DateLimits(new DateTime(2020,5,10),null)),
+                (new DateTime (2024,4,4), ConfigType.Once, true , new DateTime(2024,05,10,16,0,0),Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Recurring,TimeOnly.MinValue,30,DailyFrecuency.Minutes,new TimeLimits(new TimeOnly(),new TimeOnly())),new DateLimits(new DateTime(2020,5,10),null)),
                 new OutPut (new DateTime(2024,5,10,16,0,0),"Occurs once. Schedule will be used on 10/05/2024 at 16:00 starting on 10/05/2020")
             },
             new object[]

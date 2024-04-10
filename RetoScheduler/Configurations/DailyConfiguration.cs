@@ -10,11 +10,11 @@ namespace RetoScheduler.Configurations
 {
     public class DailyConfiguration
     {
-        public DailyConfiguration(DailyConfigType type, TimeOnly? onceAt, int? frecuency, DailyFrecuency? dailyFrecuencyType, TimeLimits? timeLimits)
+        public DailyConfiguration(DailyConfigType type, TimeOnly onceAt , int? frecuency, DailyFrecuency? dailyFrecuencyType, TimeLimits? timeLimits)
         {
 
             Type = type;
-            OnceAt = (type == DailyConfigType.Once && onceAt.HasValue) ? onceAt.Value : null;
+            OnceAt = onceAt;
             Frecuency = (type == DailyConfigType.Recurring) ? frecuency : null;
             DailyFrecuencyType = (type == DailyConfigType.Recurring) ? dailyFrecuencyType : null;
             TimeLimits = (type == DailyConfigType.Recurring) ? timeLimits : null;
@@ -22,7 +22,7 @@ namespace RetoScheduler.Configurations
 
         public DailyConfigType Type { get; set; } //once | recurring ( 1 day )
 
-        public TimeOnly? OnceAt { get; set; }
+        public TimeOnly OnceAt { get; set; }
 
         public int? Frecuency { get; set; } //just the number
 
