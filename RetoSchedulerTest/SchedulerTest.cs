@@ -167,6 +167,7 @@ namespace RetoSchedulerTest
             res6.NextExecutionTime.Should().Be(new DateTime(2020, 1, 3, 8, 0, 0));
             res7.NextExecutionTime.Should().Be(new DateTime(2020, 1, 6, 4, 0, 0));
         }
+
         [Fact]
         public void Should_Validate_Execution_Time_Space_Between_Weeks()
         {
@@ -252,10 +253,6 @@ namespace RetoSchedulerTest
             res9.NextExecutionTime.Should().Be(new DateTime(2020, 1, 17, 8, 0, 0));
             res10.NextExecutionTime.Should().Be(new DateTime(2020, 2, 3, 4, 0, 0));
             res11.NextExecutionTime.Should().Be(new DateTime(2020, 2, 3, 6, 0, 0));
-
-
-
-
         }
     }
 }

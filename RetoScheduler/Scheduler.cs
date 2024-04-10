@@ -1,6 +1,7 @@
 ﻿using RetoScheduler.Configurations;
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
+using RetoScheduler.Extensions;
 using System;
 using System.Security.AccessControl;
 using System.Security.Authentication.ExtendedProtection;
@@ -46,6 +47,7 @@ namespace RetoScheduler
             {
                 throw new SchedulerException("Limits Can`t be null");
             }
+            
             ValidateLimitsRange(config);
         }
 
@@ -57,6 +59,10 @@ namespace RetoScheduler
             }
         }
 
+        private static DateTime AddWeeks(DateTime dateTime, int weeks)
+        {
+            return dateTime.AddDays(weeks*7);
+        }
         private string CalculateDescription(DateTime dateTime, Configuration config)
         {
             StringBuilder description = new StringBuilder("Occurs ");
@@ -279,10 +285,10 @@ namespace RetoScheduler
                         dateTime = dateTime.Date.AddDays(1);
                         if (dateTime.DayOfWeek == DayOfWeek.Monday)
                         {
-                            dateTime = dateTime.Date.AddDays((7 * (config.WeeklyConfiguration.FrecuencyInWeeks)));
+                            dateTime = dateTime.AddWeeks(config.WeeklyConfiguration.FrecuencyInWeeks);
                         }
                     }
-                } while (!ejecutado /*!config.WeeklyConfiguration.SelectedDays.Contains(dateTime.DayOfWeek)*/);
+                } while (!ejecutado);
             }
             else
             {
@@ -305,10 +311,15 @@ namespace RetoScheduler
                     {
                         nextExecutionTime = dateTimeTime.AddHours(config.DailyConfiguration.Frecuency.Value);
                     }
-                    else
+                    else if(config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Minutes)
                     {
                         nextExecutionTime = dateTimeTime.AddMinutes(config.DailyConfiguration.Frecuency.Value);
                     }
+                    else
+                    {
+                        nextExecutionTime = dateTimeTime.AddSeconds(config.DailyConfiguration.Frecuency.Value);
+                    }
+
                     if (nextExecutionTime < config.DailyConfiguration.TimeLimits.StartTime)
                     {
                         dateTime = dateTime.Date + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();

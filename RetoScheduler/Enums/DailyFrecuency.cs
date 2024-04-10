@@ -11,5 +11,6 @@ namespace RetoScheduler.Enums
     {
         Hours = 1,
         Minutes = 2,
+        Seconds=3,
     }
 }
