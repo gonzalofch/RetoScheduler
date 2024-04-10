@@ -47,8 +47,9 @@ namespace RetoScheduler
             {
                 throw new SchedulerException("Limits Can`t be null");
             }
-            
+
             ValidateLimitsRange(config);
+            ValidateLimitsTimeRange(config);
         }
 
         private void ValidateLimitsRange(Configuration config)
@@ -56,6 +57,28 @@ namespace RetoScheduler
             if (config.DateLimits.StartDate > config.DateLimits.EndDate)
             {
                 throw new SchedulerException("The end date cannot be earlier than the initial date");
+            }
+        }
+        private void ValidateLimitsTimeRange(Configuration config) {
+            if (config.DailyConfiguration.Type == DailyConfigType.Once)
+            {
+                if ((config.CurrentDate.TimeOfDay > config.DailyConfiguration.OnceAt.ToTimeSpan()))
+                {
+                    throw new SchedulerException("The execution time cannot be earlier than the Current Time");
+                }
+            }
+            else
+            {
+                if (config.CurrentDate.TimeOfDay > config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() )
+                {
+                    throw new SchedulerException("The EndTime cannot be earlier than Current Time");
+                }
+                //SI EL CURRENTDATE == ENDDATE YY si el current date es MAYOR QUE ENDTIME
+                if ((config.CurrentDate == config.DateLimits.EndDate && TimeSpan.Compare(config.CurrentDate.TimeOfDay, config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan())==0 
+                    && (config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() < config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan())))
+                {
+                    throw new SchedulerException("The EndTime cannot be earlier than StartTime");
+                }
             }
         }
 
@@ -254,7 +277,6 @@ namespace RetoScheduler
                                 {
                                     if (dateTime.DayOfWeek == DayOfWeek.Sunday)
                                     {
-                                        dateTime.Date.AddDays((7 * (config.WeeklyConfiguration.FrecuencyInWeeks)) + 1);
                                     }
                                     else
                                     {

@@ -88,6 +88,54 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
+        public void Should_Throw_Exception_If_EndTime_is_Before_StartTime()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration
+                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, 
+                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }), 
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, 
+                new TimeLimits(new TimeOnly(12, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
+
+            FluentActions
+                 .Invoking(() => scheduler.Execute(configuration))
+                 .Should()
+                 .Throw<SchedulerException>("The EndTime cannot be earlier than Start Time");
+        }
+        [Fact]
+        public void Should_Throw_Exception_If_EndTime_is_Before_CurrentTime()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration
+                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily,
+                null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 10, DailyFrecuency.Minutes,
+                new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2019, 12, 20), new DateTime(2020, 1, 1)));
+
+            FluentActions
+                 .Invoking(() => scheduler.Execute(configuration))
+                 .Should()
+                 .Throw<SchedulerException>("The EndTime cannot be earlier than Current Time");
+        }
+        [Fact]
+
+        public void Should_Throw_Exception_If_OnceAtTime_is_Before_CurrentTime()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration
+                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Once, true, new DateTime(2020,1,1), Occurs.Daily,
+                null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(1,0,0), null, null,
+                null), new DateLimits(new DateTime(2019, 12, 20), new DateTime(2020, 1, 12)));
+
+            FluentActions
+                 .Invoking(() => scheduler.Execute(configuration))
+                 .Should()
+                 .Throw<SchedulerException>("The execution time cannot be earlier than the Current Time");
+        }
+
+
+        [Fact]
         public void Should_Validate_Next_Execution_Time()
         {
             var scheduler = new Scheduler();
