@@ -238,7 +238,7 @@ namespace RetoScheduler
             {
                 throw new SchedulerException("DateTime can't be out of start and end range");
             }
-
+            
             dateTime = NextDayExecution(config, dateTime);
 
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
@@ -280,30 +280,33 @@ namespace RetoScheduler
 
             var sortedDays = config.WeeklyConfiguration.SelectedDays.OrderBy(_ => _).ToList();
             var actualDay = config.CurrentDate.DayOfWeek;
-
             var firstDayOfWeek = config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
             ? sortedDays.FirstOrDefault(_ => _ > actualDay)
             : sortedDays.FirstOrDefault(_ => _ >= actualDay);
-
+            
             return config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
-            ? GetNextDayInWeek(sortedDays, actualDay,dateTime)
+            ? GetNextDayInWeek(sortedDays, actualDay,dateTime,config)
             : NextDay(sortedDays, actualDay, dateTime);
         }
 
         private static DateTime NextDay(List<DayOfWeek> sortedDays, DayOfWeek actualDay,DateTime dateTime)
         {
             var nextDay= sortedDays.FirstOrDefault(_ => _ >= actualDay);
-            return dateTime.NextDayOfWeek(nextDay);
 
+            return dateTime.NextDayOfWeek(nextDay);
         }
 
-        private static DateTime GetNextDayInWeek(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime)
+        private static DateTime GetNextDayInWeek(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime,Configuration config)
         {
+
             var nextDay=  sortedDays.FirstOrDefault(_ => _ > actualDay);
+            if (!sortedDays.Contains(nextDay))
+            {
+                dateTime = dateTime.NextDayOfWeek(nextDay);
+                nextDay = sortedDays.FirstOrDefault(_ => _ > dateTime.DayOfWeek);
+                dateTime = dateTime.AddWeeks(config.WeeklyConfiguration.FrecuencyInWeeks);
+            }
 
-            //Comprobar que nextday este contenido en sorted days, sino hacer el salto de semana a el siguiente en lista.
-
-            //DayOfWeek? dayWeek = sortedDays.FirstOrDefault(_ => _ > actualDay);
             return dateTime.NextDayOfWeek(nextDay).Date;
         }
 
