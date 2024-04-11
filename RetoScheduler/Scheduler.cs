@@ -24,42 +24,43 @@ namespace RetoScheduler
         {
             ValidateConfiguration(config);
 
-            DateTime dateTime;
-            if (config.Type == ConfigType.Once)
-            {
-                dateTime = InOnce(config);
-            }
-            else
-            {
-                dateTime = InRecurring(config);
-            }
-            var description = CalculateDescription(dateTime, config);
+            DateTime dateTime = config.Type == ConfigType.Once
+                ? InOnce(config)
+                : InRecurring(config);
+
+            ValidateNextExecutionIsBetweenDateLimits(config, dateTime);
             Executed = true;
-            return new OutPut(dateTime, description);
+
+            return new OutPut(dateTime, CalculateDescription(dateTime, config));
         }
 
         private void ValidateConfiguration(Configuration config)
+        {
+            ValidadIsEnabled(config);
+            ValidateLimitsRange(config);
+            ValidateLimitsTimeRange(config);
+        }
+
+        private static void ValidadIsEnabled(Configuration config)
         {
             if (!config.Enabled)
             {
                 throw new SchedulerException("You need to check field to Run Program");
             }
-            if (config.DateLimits == null)
-            {
-                throw new SchedulerException("Limits Can`t be null");
-            }
-
-            ValidateLimitsRange(config);
-            ValidateLimitsTimeRange(config);
         }
 
         private void ValidateLimitsRange(Configuration config)
         {
+            if (config.DateLimits == null)
+            {
+                throw new SchedulerException("Limits Can`t be null");
+            }
             if (config.DateLimits.StartDate > config.DateLimits.EndDate)
             {
                 throw new SchedulerException("The end date cannot be earlier than the initial date");
             }
         }
+
         private void ValidateLimitsTimeRange(Configuration config)
         {
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
@@ -71,13 +72,12 @@ namespace RetoScheduler
             }
             else
             {
-                if (config.CurrentDate.TimeOfDay > config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
+                if (config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() < config.CurrentDate.TimeOfDay)
                 {
                     throw new SchedulerException("The EndTime cannot be earlier than Current Time");
                 }
-                //SI EL CURRENTDATE == ENDDATE YY si el current date es MAYOR QUE ENDTIME
-                if ((config.CurrentDate == config.DateLimits.EndDate && TimeSpan.Compare(config.CurrentDate.TimeOfDay, config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()) == 0
-                    && (config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() < config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan())))
+
+                if (config.DailyConfiguration.TimeLimits.EndTime < config.DailyConfiguration.TimeLimits.StartTime)
                 {
                     throw new SchedulerException("The EndTime cannot be earlier than StartTime");
                 }
@@ -126,10 +126,8 @@ namespace RetoScheduler
                                 whenOccurs += ", ";
                             }
                             whenOccurs += dayInLower;
-
                         }
                     }
-
                 }
                 //DAILY
                 else
@@ -138,9 +136,7 @@ namespace RetoScheduler
                     //     ? "every day"
                     //: "every " + config. + " days";
                     atThisTime = string.Empty;
-
                 }
-
             }
 
             string atThisTimeInDay = string.Empty;
@@ -151,8 +147,6 @@ namespace RetoScheduler
             }
             else
             {
-
-
                 TimeOnly startTime = config.DailyConfiguration.TimeLimits.StartTime; ;
                 string startTimeFormat = (startTime.Hour >= 12)
                 ? (startTime.AddHours(-12)).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
@@ -189,20 +183,16 @@ namespace RetoScheduler
                 throw new SchedulerException("Once Types requires an obligatory DateTime");
             }
 
-            var dateTime = config.ConfigDateTime.Value;
-            if (config.DailyConfiguration.Type == DailyConfigType.Once)
-            {
-                var occursOnceAt = config.DailyConfiguration.OnceAt;
+            return config.DailyConfiguration.Type == DailyConfigType.Once
+                ? config.ConfigDateTime.Value + config.DailyConfiguration.OnceAt.ToTimeSpan()
+                : config.ConfigDateTime.Value + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
+        }
 
-                dateTime = dateTime + occursOnceAt.ToTimeSpan();
-            }
-            else
-            {
-                var startingTime = config.DailyConfiguration.TimeLimits.StartTime;
-                dateTime = dateTime + startingTime.ToTimeSpan();
-            }
-
-            return dateTime;
+        private DateTime GetFirstExecutionDate(Configuration config)
+        {
+            return config.CurrentDate < config.DateLimits.StartDate
+               ? config.DateLimits.StartDate
+               : config.CurrentDate;
         }
 
         private DateTime InRecurring(Configuration config)
@@ -211,64 +201,38 @@ namespace RetoScheduler
             {
                 throw new SchedulerException("Don't should put negative numbers or zero in number field");
             }
-            DateTime dateTime;
-            if (Executed)
-            {
-                dateTime = config.CurrentDate;
-            }
-            else
-            {
-                dateTime = config.CurrentDate < config.DateLimits.StartDate
-               ? config.DateLimits.StartDate
-               : config.CurrentDate;
-            }
 
-            //if (Executed)
-            //{
-            //    dateTime = dateTime.AddDays(1);
+            var dateTime = Executed
+                ? config.CurrentDate
+                : GetFirstExecutionDate(config);
 
-            //}
-            //else
-            //{
-
-            //}
-
-            var dateBetweenLimits = dateTime >= config.DateLimits.StartDate && (config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate);
-            if (dateBetweenLimits == false)
-            {
-                throw new SchedulerException("DateTime can't be out of start and end range");
-            }
-            
             dateTime = NextDayExecution(config, dateTime);
 
+            TimeOnly dateTimeTime = TimeOnly.FromDateTime(dateTime);
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
             {
-                TimeOnly dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second);
                 if (dateTimeTime > config.DailyConfiguration.OnceAt)
                 {
                     throw new SchedulerException("Once time execution time can't be before than Current Time");
                 }
-                dateTime = dateTime.Date.Add(dateTimeTime.ToTimeSpan());
+
+                return dateTime.Date.Add(dateTimeTime.ToTimeSpan());
             }
-            else
+
+            TimeOnly nextExecutionTime = AddOccursEveryUnit(config, dateTimeTime);
+
+            return nextExecutionTime < config.DailyConfiguration.TimeLimits.StartTime
+                ? dateTime.Date + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan()
+                : dateTime.Date + nextExecutionTime.ToTimeSpan();
+        }
+
+        private static void ValidateNextExecutionIsBetweenDateLimits(Configuration config, DateTime dateTime)
+        {
+            var dateBetweenLimits = dateTime >= config.DateLimits.StartDate && (config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate);
+            if (dateBetweenLimits is false)
             {
-                var dateTimeTime = new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second);
-                TimeOnly nextExecutionTime;
-
-                nextExecutionTime = AddOccursEveryUnit(config, dateTimeTime);
-
-                if (nextExecutionTime < config.DailyConfiguration.TimeLimits.StartTime)
-                {
-                    dateTime = dateTime.Date + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
-                }
-                else
-                {
-                    dateTime = dateTime.Date + nextExecutionTime.ToTimeSpan();
-                }
+                throw new SchedulerException("DateTime can't be out of start and end range");
             }
-            //}
-
-            return dateTime;
         }
 
         private static DateTime NextDayExecution(Configuration config, DateTime dateTime)
@@ -283,27 +247,25 @@ namespace RetoScheduler
             var firstDayOfWeek = config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
             ? sortedDays.FirstOrDefault(_ => _ > actualDay)
             : sortedDays.FirstOrDefault(_ => _ >= actualDay);
-            
+
             return config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
-            ? GetNextDayInWeek(sortedDays, actualDay,dateTime,config)
+            ? GetNextDayInWeek(sortedDays, actualDay, dateTime, config)
             : NextDay(sortedDays, actualDay, dateTime);
         }
 
-        private static DateTime NextDay(List<DayOfWeek> sortedDays, DayOfWeek actualDay,DateTime dateTime)
+        private static DateTime NextDay(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime)
         {
-            var nextDay= sortedDays.FirstOrDefault(_ => _ >= actualDay);
+            var nextDay = sortedDays.FirstOrDefault(_ => _ >= actualDay);
 
             return dateTime.NextDayOfWeek(nextDay);
         }
 
-        private static DateTime GetNextDayInWeek(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime,Configuration config)
+        private static DateTime GetNextDayInWeek(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime, Configuration config)
         {
-
-            var nextDay=  sortedDays.FirstOrDefault(_ => _ > actualDay);
+            var nextDay = sortedDays.FirstOrDefault(_ => _ > actualDay);
             if (!sortedDays.Contains(nextDay))
             {
-                dateTime = dateTime.NextDayOfWeek(nextDay);
-                nextDay = sortedDays.FirstOrDefault(_ => _ > dateTime.DayOfWeek);
+                nextDay = sortedDays.FirstOrDefault(_ => _ > dateTime.NextDayOfWeek(nextDay).DayOfWeek);
                 dateTime = dateTime.AddWeeks(config.WeeklyConfiguration.FrecuencyInWeeks);
             }
 
@@ -315,23 +277,15 @@ namespace RetoScheduler
             if (dateTimeTime == TimeOnly.MinValue)
             {
                 return config.DailyConfiguration.TimeLimits.StartTime;
-
-            }
-            TimeOnly nextExecutionTime;
-            if (config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Hours)
-            {
-                nextExecutionTime = dateTimeTime.AddHours(config.DailyConfiguration.Frecuency.Value);
-            }
-            else if (config.DailyConfiguration.DailyFrecuencyType == DailyFrecuency.Minutes)
-            {
-                nextExecutionTime = dateTimeTime.AddMinutes(config.DailyConfiguration.Frecuency.Value);
-            }
-            else
-            {
-                nextExecutionTime = dateTimeTime.AddSeconds(config.DailyConfiguration.Frecuency.Value);
             }
 
-            return nextExecutionTime;
+            return config.DailyConfiguration.DailyFrecuencyType switch
+            {
+                DailyFrecuency.Hours => dateTimeTime.AddHours(config.DailyConfiguration.Frecuency.Value),
+                DailyFrecuency.Minutes => dateTimeTime.AddMinutes(config.DailyConfiguration.Frecuency.Value),
+                DailyFrecuency.Seconds => dateTimeTime.AddSeconds(config.DailyConfiguration.Frecuency.Value),
+                _ => dateTimeTime,
+            };
         }
     }
 }
