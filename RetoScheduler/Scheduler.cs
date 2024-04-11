@@ -63,14 +63,7 @@ namespace RetoScheduler
 
         private void ValidateLimitsTimeRange(Configuration config)
         {
-            if (config.DailyConfiguration.Type == DailyConfigType.Once)
-            {
-                if ((config.CurrentDate.TimeOfDay > config.DailyConfiguration.OnceAt.ToTimeSpan()))
-                {
-                    throw new SchedulerException("The execution time cannot be earlier than the Current Time");
-                }
-            }
-            else
+            if (config.DailyConfiguration.Type == DailyConfigType.Recurring)
             {
                 if (config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() < config.CurrentDate.TimeOfDay)
                 {
@@ -190,9 +183,10 @@ namespace RetoScheduler
 
         private DateTime GetFirstExecutionDate(Configuration config)
         {
+
             return config.CurrentDate < config.DateLimits.StartDate
-               ? config.DateLimits.StartDate
-               : config.CurrentDate;
+           ? config.DateLimits.StartDate
+           : config.CurrentDate;
         }
 
         private DateTime InRecurring(Configuration config)
@@ -211,12 +205,7 @@ namespace RetoScheduler
             TimeOnly dateTimeTime = TimeOnly.FromDateTime(dateTime);
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
             {
-                if (dateTimeTime > config.DailyConfiguration.OnceAt)
-                {
-                    throw new SchedulerException("Once time execution time can't be before than Current Time");
-                }
-
-                return dateTime.Date.Add(dateTimeTime.ToTimeSpan());
+                return dateTime.Date.Add(config.DailyConfiguration.OnceAt.ToTimeSpan());
             }
 
             TimeOnly nextExecutionTime = AddOccursEveryUnit(config, dateTimeTime);
@@ -233,9 +222,13 @@ namespace RetoScheduler
             {
                 throw new SchedulerException("DateTime can't be out of start and end range");
             }
+            if (dateTime < config.CurrentDate)
+            {
+                throw new SchedulerException("Execution Time can't be earlier than Current Date");
+            }
         }
 
-        private static DateTime NextDayExecution(Configuration config, DateTime dateTime)
+        private DateTime NextDayExecution(Configuration config, DateTime dateTime)
         {
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
             {
@@ -244,13 +237,17 @@ namespace RetoScheduler
 
             var sortedDays = config.WeeklyConfiguration.SelectedDays.OrderBy(_ => _).ToList();
             var actualDay = config.CurrentDate.DayOfWeek;
-            var firstDayOfWeek = config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
-            ? sortedDays.FirstOrDefault(_ => _ > actualDay)
-            : sortedDays.FirstOrDefault(_ => _ >= actualDay);
+            var hasLimits = config.DailyConfiguration.TimeLimits != null;
+            var excedsLimits = hasLimits && config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
+            var skipDay = excedsLimits || (config.DailyConfiguration.Type == DailyConfigType.Once && Executed);
 
-            return config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()
-            ? GetNextDayInWeek(sortedDays, actualDay, dateTime, config)
-            : NextDay(sortedDays, actualDay, dateTime);
+            var firstDayOfWeek = skipDay
+                ? sortedDays.FirstOrDefault(_ => _ > actualDay)
+                : sortedDays.FirstOrDefault(_ => _ >= actualDay);
+
+            return skipDay
+                ? GetNextDayInWeek(sortedDays, actualDay, dateTime, config)
+                : NextDay(sortedDays, actualDay, dateTime);
         }
 
         private static DateTime NextDay(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime)
