@@ -10,13 +10,13 @@ namespace RetoSchedulerTest
     public class SchedulerTest
     {
         [Theory, ClassData(typeof(SchedulerTestConfiguration))]
-        public void OutPut_Should_Be_Expected(Configuration configuration, OutPut expectedOutut)
+        public void OutPut_Should_Be_Expected(Configuration configuration, OutPut expectedOutput)
         {
             var scheduler = new Scheduler();
             var output = scheduler.Execute(configuration);
 
-            output.NextExecutionTime.Should().Be(expectedOutut.NextExecutionTime);
-            //output.Description.Should().Be(expectedOutut.Description);
+            output.NextExecutionTime.Should().Be(expectedOutput.NextExecutionTime);
+            output.Description.Should().Be(expectedOutput.Description);
         }
 
         [Fact]
@@ -189,7 +189,11 @@ namespace RetoSchedulerTest
             var res2 = scheduler.Execute(configuration2);
 
             res1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 4, 0, 0));
+            res1.Description.Should().Be("Occurs every day and every 3 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+
+
             res2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 7, 0, 0));
+            res2.Description.Should().Be("Occurs every day and every 3 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
         }
 
         [Fact]
@@ -249,6 +253,13 @@ namespace RetoSchedulerTest
             res5.NextExecutionTime.Should().Be(new DateTime(2020, 1, 3, 6, 0, 0));
             res6.NextExecutionTime.Should().Be(new DateTime(2020, 1, 3, 8, 0, 0));
             res7.NextExecutionTime.Should().Be(new DateTime(2020, 1, 6, 4, 0, 0));
+            res1.Description.Should().Be("Occurs every week on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res2.Description.Should().Be("Occurs every week on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res3.Description.Should().Be("Occurs every week on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res4.Description.Should().Be("Occurs every week on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res5.Description.Should().Be("Occurs every week on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res6.Description.Should().Be("Occurs every week on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res7.Description.Should().Be("Occurs every week on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
         }
 
         [Fact]
@@ -336,6 +347,17 @@ namespace RetoSchedulerTest
             res9.NextExecutionTime.Should().Be(new DateTime(2020, 1, 17, 8, 0, 0));
             res10.NextExecutionTime.Should().Be(new DateTime(2020, 2, 3, 4, 0, 0));
             res11.NextExecutionTime.Should().Be(new DateTime(2020, 2, 3, 6, 0, 0));
+            res1.Description.Should().Be( "Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res2.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res3.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res4.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res5.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res6.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res7.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res8.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res9.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res10.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res11.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
         }
 
         [Fact]
@@ -423,6 +445,17 @@ namespace RetoSchedulerTest
             res9.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 16, 0));
             res10.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 18, 0));
             res11.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 20, 0));
+            res1.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res2.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res3.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res4.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res5.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res6.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res7.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res8.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res9.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res10.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res11.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020S");
         }
 
         [Fact]
@@ -510,6 +543,17 @@ namespace RetoSchedulerTest
             res9.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 1, 30));
             res10.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 1, 35));
             res11.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 1, 40));
+            res1.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res2.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res3.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res4.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res5.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res6.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res7.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res8.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res9.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res10.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res11.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
         }
 
         [Fact]
@@ -552,6 +596,11 @@ namespace RetoSchedulerTest
             res3.NextExecutionTime.Should().Be(new DateTime(2020,1,17,5,0,0));
             res4.NextExecutionTime.Should().Be(new DateTime(2020,2,3,5,0,0));
             res5.NextExecutionTime.Should().Be(new DateTime(2020,2,6,5,0,0));
+            res1.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
+            res2.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
+            res3.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
+            res4.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
+            res5.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
         }
     }
 }
