@@ -88,7 +88,7 @@ namespace RetoScheduler
             }
             else
             {
-                description.Append(getWeeklyDescription(config));
+                description.Append(GetWeeklyDescription(config));
             }
 
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
@@ -98,15 +98,15 @@ namespace RetoScheduler
             }
             else
             {
-                description.Append(getDailyDescription(config));
+                description.Append(GetDailyDescription(config));
             }
 
-            description.Append(getDateLimitsDescription(config));
+            description.Append(GetDateLimitsDescription(config));
 
             return description.ToString();
         }
 
-        private static string getDateLimitsDescription(Configuration config)
+        private static string GetDateLimitsDescription(Configuration config)
         {
             string startDate = config.DateLimits.StartDate.Date.ToString("dd/MM/yyyy");
             string endDate = config.DateLimits.EndDate?.ToString("dd/MM/yyyy");
@@ -115,67 +115,68 @@ namespace RetoScheduler
                 : "starting on " + startDate;
         }
 
-        private static string getWeeklyDescription(Configuration config)
+        private static string GetWeeklyDescription(Configuration config)
         {
             return config.WeeklyConfiguration != null
-                ? "every " + getWeeklyFrecuencyMessage(config)
+                ? "every " + GetWeeklyFrecuencyMessage(config)
                 : "every day ";
         }
 
-        private static string getWeeklyFrecuencyMessage(Configuration config)
+        private static string GetWeeklyFrecuencyMessage(Configuration config)
         {
             return config.WeeklyConfiguration.FrecuencyInWeeks switch
             {
                 0 => "week ",
                 1 => config.WeeklyConfiguration.FrecuencyInWeeks + " week ",
                 > 1 => config.WeeklyConfiguration.FrecuencyInWeeks + " weeks ",
-                _ => "ERROR",
-            } + getStringListDayOfWeek(config.WeeklyConfiguration.SelectedDays);
+                _ => throw new SchedulerException("Not supported action for weekly frecuency message"),
+            } + GetStringListDayOfWeek(config.WeeklyConfiguration.SelectedDays);
         }
 
-        private static string getDailyDescription(Configuration config)
+        private static string GetDailyDescription(Configuration config)
         {
             string dailyDescription = config.WeeklyConfiguration == null ? "and " : string.Empty;
             string timeStartLimit = config.DailyConfiguration.TimeLimits.StartTime.ParseAmPm();
             string timeEndLimit = config.DailyConfiguration.TimeLimits.EndTime.ParseAmPm();
 
-            return dailyDescription + getDailyFrecuencyMessage(config) + timeStartLimit + " and " + timeEndLimit + " ";
+            return dailyDescription + GetDailyFrecuencyMessage(config) + timeStartLimit + " and " + timeEndLimit + " ";
         }
 
-        private static string getDailyFrecuencyMessage(Configuration config)
+        private static string GetDailyFrecuencyMessage(Configuration config)
         {
+
             return "every " + config.DailyConfiguration.Frecuency + " " +
                 config.DailyConfiguration.DailyFrecuencyType switch
                 {
                     DailyFrecuency.Hours => "hours",
                     DailyFrecuency.Minutes => "minutes",
                     DailyFrecuency.Seconds => "seconds",
-                    _ => "ERROR",
+                    _ => throw new SchedulerException("Not supported action for daily frecuency message"),
                 } + " between ";
         }
 
-        private static string getStringListDayOfWeek(List<DayOfWeek> selectedDays)
+        private static string GetStringListDayOfWeek(List<DayOfWeek> selectedDays)
         {
-            string listaDeDíasFormateada = "on";
+            string formattedList = "on";
 
             foreach (var item in selectedDays)
             {
                 string dayInLower = item.ToString().ToLower();
                 if (item == selectedDays.Last() && selectedDays.Count() >= 2)
                 {
-                    listaDeDíasFormateada += " and " + dayInLower + " ";
+                    formattedList += " and " + dayInLower + " ";
                 }
                 else
                 {
-                    listaDeDíasFormateada = item == selectedDays.First()
-                        ? listaDeDíasFormateada += " "
-                        : listaDeDíasFormateada += ", ";
+                    formattedList = item == selectedDays.First()
+                        ? formattedList += " "
+                        : formattedList += ", ";
 
-                    listaDeDíasFormateada += dayInLower;
+                    formattedList += dayInLower;
                 }
             }
 
-            return listaDeDíasFormateada;
+            return formattedList;
         }
 
         private DateTime InOnce(Configuration config)
