@@ -161,7 +161,7 @@ namespace RetoSchedulerTest
                 new DateTime(2020, 1, 1),
                 Occurs.Daily,
                 null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 3,DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10,0,0),new TimeOnly(9,20,20))),
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(9, 20, 20))),
                 new DateLimits(new DateTime(2020, 1, 1), new DateTime(2020, 1, 1)));
 
             FluentActions
@@ -347,7 +347,7 @@ namespace RetoSchedulerTest
             res9.NextExecutionTime.Should().Be(new DateTime(2020, 1, 17, 8, 0, 0));
             res10.NextExecutionTime.Should().Be(new DateTime(2020, 2, 3, 4, 0, 0));
             res11.NextExecutionTime.Should().Be(new DateTime(2020, 2, 3, 6, 0, 0));
-            res1.Description.Should().Be( "Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
+            res1.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
             res2.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
             res3.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
             res4.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
@@ -455,7 +455,7 @@ namespace RetoSchedulerTest
             res8.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
             res9.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
             res10.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
-            res11.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020S");
+            res11.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 2 minutes between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
         }
 
         [Fact]
@@ -474,63 +474,63 @@ namespace RetoSchedulerTest
             var configuration2 = new Configuration
                 (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res2 = scheduler.Execute(configuration2);
 
             var configuration3 = new Configuration
                 (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res3 = scheduler.Execute(configuration3);
 
             var configuration4 = new Configuration
                 (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res4 = scheduler.Execute(configuration4);
 
             var configuration5 = new Configuration
                 (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res5 = scheduler.Execute(configuration5);
 
             var configuration6 = new Configuration
                 (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res6 = scheduler.Execute(configuration6);
 
             var configuration7 = new Configuration
                 (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res7 = scheduler.Execute(configuration7);
 
 
             var configuration8 = new Configuration
                 (res7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res8 = scheduler.Execute(configuration8);
 
             var configuration9 = new Configuration
                 (res8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res9 = scheduler.Execute(configuration9);
 
             var configuration10 = new Configuration
                 (res9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res10 = scheduler.Execute(configuration10);
 
             var configuration11 = new Configuration
                 (res10.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res11 = scheduler.Execute(configuration11);
             res1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 0, 50));
             res2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 0, 55));
@@ -543,17 +543,17 @@ namespace RetoSchedulerTest
             res9.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 1, 30));
             res10.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 1, 35));
             res11.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 1, 40));
-            res1.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res2.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res3.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res4.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res5.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res6.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res7.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res8.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res9.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res10.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
-            res11.Description.Should().Be("Occurs every 2 weeks on monday, thrusday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res1.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res2.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res3.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res4.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res5.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res6.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res7.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res8.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res9.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res10.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
+            res11.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
         }
 
         [Fact]
@@ -564,7 +564,7 @@ namespace RetoSchedulerTest
             var configuration1 = new Configuration
                 (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Weekly,
                 weeklyConfig,
-                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5,0,0), null,null,null), new DateLimits(new DateTime(2020, 1, 1)));
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var res1 = scheduler.Execute(configuration1);
 
             var configuration2 = new Configuration
@@ -591,11 +591,11 @@ namespace RetoSchedulerTest
                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var res5 = scheduler.Execute(configuration5);
 
-            res1.NextExecutionTime.Should().Be(new DateTime(2020,1,13,5,0,0));
-            res2.NextExecutionTime.Should().Be(new DateTime(2020,1,16,5,0,0));
-            res3.NextExecutionTime.Should().Be(new DateTime(2020,1,17,5,0,0));
-            res4.NextExecutionTime.Should().Be(new DateTime(2020,2,3,5,0,0));
-            res5.NextExecutionTime.Should().Be(new DateTime(2020,2,6,5,0,0));
+            res1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 5, 0, 0));
+            res2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 16, 5, 0, 0));
+            res3.NextExecutionTime.Should().Be(new DateTime(2020, 1, 17, 5, 0, 0));
+            res4.NextExecutionTime.Should().Be(new DateTime(2020, 2, 3, 5, 0, 0));
+            res5.NextExecutionTime.Should().Be(new DateTime(2020, 2, 6, 5, 0, 0));
             res1.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
             res2.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
             res3.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");

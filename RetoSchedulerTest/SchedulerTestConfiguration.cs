@@ -15,12 +15,12 @@ namespace RetoSchedulerTest
             new object[]{
                 new Configuration
                 (new DateTime(2020,1,1,0,0,0), ConfigType.Recurring,true,null,Occurs.Weekly,new WeeklyConfiguration(2, new List<DayOfWeek>(){DayOfWeek.Monday,DayOfWeek.Thursday,DayOfWeek.Friday}),new DailyConfiguration(DailyConfigType.Recurring,TimeOnly.MinValue,2,DailyFrecuency.Hours,new TimeLimits(new TimeOnly(4,0,0),new TimeOnly(8,0,0))),new DateLimits(new DateTime(2020,1,1))),
-                new OutPut(new DateTime(2020,1,2,4,0,0),"Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00 AM and 8:00 AM starting on 01/01/2020")
+                new OutPut(new DateTime(2020,1,2,4,0,0),"Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020")
             },
             new object[]{
                 new Configuration
                 (new DateTime(2020,1,4), ConfigType.Once, true,new DateTime(2020,1,8),Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Once,new TimeOnly(14,0,0),null,null,null), new DateLimits(new DateTime(2020,1,1))),
-                new OutPut(new DateTime(2020,1,8,14,0,0),"Occurs once at 04/01/2020 one time at 14:00:00 starting on 01/01/2020")
+                new OutPut(new DateTime(2020,1,8,14,0,0),"Occurs once at 08/01/2020 one time at 2:00:00 PM starting on 01/01/2020")
             },
             new object[]
             {
@@ -33,7 +33,7 @@ namespace RetoSchedulerTest
                 new Configuration
                 (new DateTime (2024,4,4), ConfigType.Once, true , new DateTime(2024,05,10),Occurs.Daily,null,
                     new DailyConfiguration(DailyConfigType.Once,new TimeOnly(16,0,0),null,null,null),new DateLimits(new DateTime(2020,5,12))),
-                new OutPut (new DateTime(2024,5,10,16,0,0),"Occurs once at 10/05/2024 one time at 16:00:00 starting on 12/05/12")
+                new OutPut (new DateTime(2024,5,10,16,0,0),"Occurs once at 10/05/2024 one time at 4:00:00 PM starting on 12/05/2020")
             },
 
 
@@ -41,21 +41,21 @@ namespace RetoSchedulerTest
             {
                 new Configuration(new DateTime(2023,12,24), ConfigType.Recurring, true , null, Occurs.Daily,null,
                     new DailyConfiguration(DailyConfigType.Once,new TimeOnly(16,0,0),null,null,null),new DateLimits(new DateTime(2023,12,30),new DateTime(2024,1,1))),
-                new OutPut(new DateTime(2023,12,30,16,0,0),"Occurs every day one time at 16:00:00 starting on 30/12/2023 and finishing on 01/01/2024")
+                new OutPut(new DateTime(2023,12,30,16,0,0),"Occurs every day one time at 4:00:00 PM starting on 30/12/2023 and finishing on 01/01/2024")
             },
 
             new object[]
             {
                 new Configuration
-                (new DateTime (2024,4,4), ConfigType.Once, true , new DateTime(2024,05,10,16,0,0),Occurs.Daily,null,
-                    new DailyConfiguration(DailyConfigType.Recurring,TimeOnly.MinValue,30,DailyFrecuency.Minutes,new TimeLimits(new TimeOnly(16,0,0),new TimeOnly(19,0,0))),new DateLimits(new DateTime(2020,5,10),null)),
-                new OutPut (new DateTime(2024,5,10,16,0,0),"Occurs once at 10/05/2024 every 30 minutes between 4:00 PM and 7:00 PM starting on 10/05/2020")
+                (new DateTime (2024,4,4,10,0,0), ConfigType.Once, true , new DateTime(2024,5,10),Occurs.Daily,null,
+                    new DailyConfiguration(DailyConfigType.Recurring,TimeOnly.MinValue,30,DailyFrecuency.Minutes,new TimeLimits(new TimeOnly(15,0,0),new TimeOnly(19,0,0))),new DateLimits(new DateTime(2020,5,10),null)),
+                new OutPut (new DateTime(2024,5,10,15,0,0),"Occurs once at 10/05/2024 and every 30 minutes between 3:00:00 PM and 7:00:00 PM starting on 10/05/2020")
             },
 
             new object[]
             {
                 new Configuration(new DateTime(2023,12,24), ConfigType.Recurring, true , null, Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Once,new TimeOnly(10,0,0),null,null,null),new DateLimits(new DateTime(2020,12,27))),
-                new OutPut(new DateTime(2023,12,24,10,0,0),"Occurs every day one time at 10:00 AM starting on 27/12/2020")
+                new OutPut(new DateTime(2023,12,24,10,0,0),"Occurs every day one time at 10:00:00 AM starting on 27/12/2020")
             },
 
             new object[]
@@ -63,7 +63,7 @@ namespace RetoSchedulerTest
 
                 new Configuration(
                 new DateTime(2020, 1, 4), ConfigType.Recurring, true, new DateTime(2020, 1, 8), Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Once,new TimeOnly(14, 0, 0),null,null,null),new DateLimits(new DateTime(2020, 1, 7),new DateTime(2020,1,9))),
-                new OutPut(new DateTime(2020,1,7,14, 0, 0),"Occurs every day one time at 2:00 PM starting on 09/01/2020 ")
+                new OutPut(new DateTime(2020,1,7,14, 0, 0),"Occurs every day one time at 2:00:00 PM starting on 07/01/2020 and finishing on 09/01/2020")
             },
 
             new object[]
@@ -71,7 +71,7 @@ namespace RetoSchedulerTest
                 new Configuration(
                     new DateTime(2020, 1, 4), ConfigType.Recurring, true, new DateTime(2020, 1, 8), Occurs.Daily,null,new DailyConfiguration(DailyConfigType.Once,new TimeOnly(14,0,0),null,null,null),
                     new DateLimits(new DateTime(2020, 1, 9),new DateTime(2020,1,10))),
-                    new OutPut(new DateTime(2020,1,9,14,0,0),"Occurs every day one time at 2:00 PM starting on 09/01/2020 and finishing on 10/01/2020")
+                    new OutPut(new DateTime(2020,1,9,14,0,0),"Occurs every day one time at 2:00:00 PM starting on 09/01/2020 and finishing on 10/01/2020")
             },
 
             new object[]
