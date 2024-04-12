@@ -13,14 +13,14 @@ namespace RetoSchedulerTest.Extensions
         [Fact]
         public void Should_Be_Expected_String()
         {
-            var res1 = new TimeOnly(5,0,0).parseAmPm();
-            var res2 = new TimeOnly(8, 5, 55).parseAmPm();
-            var res3 = new TimeOnly(10, 30, 43).parseAmPm();
-            var res4 = new TimeOnly(12, 0, 0).parseAmPm();
-            var res5 = new TimeOnly(12, 30, 40).parseAmPm();
-            var res6 = new TimeOnly(16, 40, 0).parseAmPm();
-            var res7 = new TimeOnly(23, 45, 10).parseAmPm();
-            var res8 = new TimeOnly(0, 0, 0).parseAmPm();
+            var res1 = new TimeOnly(5,0,0).ParseAmPm();
+            var res2 = new TimeOnly(8, 5, 55).ParseAmPm();
+            var res3 = new TimeOnly(10, 30, 43).ParseAmPm();
+            var res4 = new TimeOnly(12, 0, 0).ParseAmPm();
+            var res5 = new TimeOnly(12, 30, 40).ParseAmPm();
+            var res6 = new TimeOnly(16, 40, 0).ParseAmPm();
+            var res7 = new TimeOnly(23, 45, 10).ParseAmPm();
+            var res8 = new TimeOnly(0, 0, 0).ParseAmPm();
 
             res1.Should().Be("5:00:00 AM");
             res2.Should().Be("8:05:55 AM");

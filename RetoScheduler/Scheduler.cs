@@ -4,6 +4,7 @@ using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
 using System;
+using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Authentication.ExtendedProtection;
 using System.Text;
@@ -76,142 +77,105 @@ namespace RetoScheduler
                 }
             }
         }
- 
+
         private string CalculateDescription(DateTime dateTime, Configuration config)
         {
-            //ACOTACIONES NECESARIAS 
-            /** 
-             * CASOS POSIBLES:
-             * 
-             * CONFIGURACION:
-             * --------ONCE
-             * SE LEE ONCE TIME AT  (SOLO FECHA)
-             * PARA ESTE CASO TAMBIEN TENGO QUE AGREGAR NEXT EXECUTION TIME (CUANDO SE UTILIZARA EL SCHEDULER)
-             * 
-             * --------RECURRING
-             * 
-             * ||| si es que hay-------------- WEEKLY
-             * |||SE LEE FRECUENCY IN WEEKS
-             * |||SE LEEN LOS DIAS DE LA SEMANA DE LA LISTA
-             * 
-             * siempre-------------- DAILY
-             * -------------------- OCCURS ONCE
-             * SE LEE EL TIEMPO
-             * -------------------- OCCURS EVERY
-             * SE LEE LA FRECUENCIA, FRECUENCIA EN (HORAS,MINS,SECS)
-             * 
-             * siempre SE LEE START TIME 
-             * ||| SE LEE END TIME SI ES QUE HAY
-             * 
-             **/
+            StringBuilder description = new StringBuilder("Occurs ");
 
-            StringBuilder description = new StringBuilder();
-            description.Append("Occurs ");
             if (config.Type == ConfigType.Once)
             {
-                //CONFIGURATION ONCE
-                description.Append("once at ");
-                var configurationOnceTimeAt = config.ConfigDateTime.Value.ToString("dd/MM/yyyy");
-                var fechaDeEjecucion = dateTime.Date.ToString("dd/MM/yyyy");
-                description.Append(configurationOnceTimeAt + " ");
+                description.Append("once at " + config.ConfigDateTime.Value.ToString("dd/MM/yyyy "));
             }
             else
             {
-                description.Append("every ");
-                //CONFIGURATION RECURRING
-
-                if (config.WeeklyConfiguration != null)
-                {
-
-                    //weeklyconfig
-                    var frecuenciaSemanal = config.WeeklyConfiguration.FrecuencyInWeeks;
-                    string listaDeDíasFormateada = string.Empty;
-                    listaDeDíasFormateada += "on";
-                    var selectedDays = config.WeeklyConfiguration.SelectedDays;
-                    //foreach para volver string de que dias estan seleccionados
-                    foreach (var item in selectedDays)
-                    {
-                        string dayInLower = item.ToString().ToLower();
-                        if (item == selectedDays.Last() && selectedDays.Count() >= 2)
-                        {
-                            listaDeDíasFormateada += " and " + dayInLower + " ";
-                        }
-                        else
-                        {
-                            if (item == selectedDays.First())
-                            {
-                                listaDeDíasFormateada += " ";
-                            }
-                            else
-                            {
-                                listaDeDíasFormateada += ", ";
-                            }
-                            listaDeDíasFormateada += dayInLower;
-                        }
-                    }
-                    if (config.WeeklyConfiguration.FrecuencyInWeeks == 0)
-                    {
-                        description.Append("week ");
-                    }
-                    else if (config.WeeklyConfiguration.FrecuencyInWeeks == 1)
-                    {
-                        description.Append(frecuenciaSemanal + " week ");
-                    }
-                    else
-                    {
-                        description.Append(frecuenciaSemanal + " weeks ");
-                    }
-                    description.Append(listaDeDíasFormateada);
-                }
-                else
-                {
-                    //NO HAY WEEK CONFIG (daily diario)
-                    description.Append("day ");
-                }
+                description.Append(getWeeklyDescription(config));
             }
 
-            //EN TODOS LOS CASOS HACER ESTO:
-
-            //dailyconfig
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
             {
-
-                //OCCURS ONCE AT
-                var tiempoDeEjecucion = config.DailyConfiguration.OnceAt.parseAmPm();
-                description.Append("one time at " + tiempoDeEjecucion+ " ");
+                string tiempoDeEjecucion = config.DailyConfiguration.OnceAt.ParseAmPm();
+                description.Append("one time at " + tiempoDeEjecucion + " ");
             }
             else
             {
-                //OCCURS EVERY
-                var frecuencyInDay = config.DailyConfiguration.Frecuency;
-                string frecuenciaSeleccionadaFormateada = string.Empty;
-                frecuenciaSeleccionadaFormateada = config.DailyConfiguration.DailyFrecuencyType switch
+                description.Append(getDailyDescription(config));
+            }
+
+            description.Append(getDateLimitsDescription(config));
+
+            return description.ToString();
+        }
+
+        private static string getDateLimitsDescription(Configuration config)
+        {
+            string startDate = config.DateLimits.StartDate.Date.ToString("dd/MM/yyyy");
+            string endDate = config.DateLimits.EndDate?.ToString("dd/MM/yyyy");
+            return config.DateLimits.EndDate.HasValue
+                ? "starting on " + startDate + " and finishing on "+endDate
+                : "starting on " + startDate;
+        }
+
+        private static string getWeeklyDescription(Configuration config)
+        {
+            return config.WeeklyConfiguration != null
+                ? "every " + getWeeklyFrecuencyMessage(config)
+                : "every day ";
+        }
+
+        private static string getWeeklyFrecuencyMessage(Configuration config)
+        {
+            return config.WeeklyConfiguration.FrecuencyInWeeks switch
+            {
+                0 => "week ",
+                1 => config.WeeklyConfiguration.FrecuencyInWeeks + " week ",
+                > 1 => config.WeeklyConfiguration.FrecuencyInWeeks + " weeks ",
+                _ => "ERROR",
+            } + getStringListDayOfWeek(config.WeeklyConfiguration.SelectedDays);
+        }
+
+        private static string getDailyDescription(Configuration config)
+        {
+            string dailyDescription = config.WeeklyConfiguration == null ? "and " : string.Empty;
+            string timeStartLimit = config.DailyConfiguration.TimeLimits.StartTime.ParseAmPm();
+            string timeEndLimit = config.DailyConfiguration.TimeLimits.EndTime.ParseAmPm();
+
+            return dailyDescription + getDailyFrecuencyMessage(config) + timeStartLimit + " and " + timeEndLimit + " ";
+        }
+
+        private static string getDailyFrecuencyMessage(Configuration config)
+        {
+            return "every " + config.DailyConfiguration.Frecuency + " " +
+                config.DailyConfiguration.DailyFrecuencyType switch
                 {
                     DailyFrecuency.Hours => "hours",
                     DailyFrecuency.Minutes => "minutes",
                     DailyFrecuency.Seconds => "seconds",
                     _ => "ERROR",
-                };
-                var horaLimiteInicio= config.DailyConfiguration.TimeLimits.StartTime.parseAmPm();
-                var horaLimiteFin =   config.DailyConfiguration.TimeLimits.EndTime.parseAmPm();
-                if (config.WeeklyConfiguration == null)
-                {
-                    description.Append("and ");
-                }
-                description.Append("every " + frecuencyInDay + " " + frecuenciaSeleccionadaFormateada + " between " + horaLimiteInicio + " and " + horaLimiteFin + " ");
-            }
-            //LIMITES FECHA
+                } + " between ";
+        }
 
-            var fechaLimiteInicio = config.DateLimits.StartDate.Date.ToString("dd/MM/yyyy");
-            
+        private static string getStringListDayOfWeek(List<DayOfWeek> selectedDays)
+        {
+            string listaDeDíasFormateada = "on";
 
-            description.Append("starting on " + fechaLimiteInicio);
-            if (config.DateLimits.EndDate.HasValue)
+            foreach (var item in selectedDays)
             {
-                description.Append(" and finishing on " + config.DateLimits.EndDate.Value.ToString("dd/MM/yyyy"));
+                string dayInLower = item.ToString().ToLower();
+                if (item == selectedDays.Last() && selectedDays.Count() >= 2)
+                {
+                    listaDeDíasFormateada += " and " + dayInLower + " ";
+                }
+                else
+                {
+                    listaDeDíasFormateada = item == selectedDays.First()
+                        ? listaDeDíasFormateada += " "
+                        : listaDeDíasFormateada += ", ";
+
+                    listaDeDíasFormateada += dayInLower;
+                }
             }
 
-            return description.ToString();
+            return listaDeDíasFormateada;
         }
 
         private DateTime InOnce(Configuration config)
@@ -224,14 +188,6 @@ namespace RetoScheduler
             return config.DailyConfiguration.Type == DailyConfigType.Once
                 ? config.ConfigDateTime.Value + config.DailyConfiguration.OnceAt.ToTimeSpan()
                 : config.ConfigDateTime.Value + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
-        }
-
-        private DateTime GetFirstExecutionDate(Configuration config)
-        {
-
-            return config.CurrentDate < config.DateLimits.StartDate
-           ? config.DateLimits.StartDate
-           : config.CurrentDate;
         }
 
         private DateTime InRecurring(Configuration config)
@@ -258,6 +214,13 @@ namespace RetoScheduler
             return nextExecutionTime < config.DailyConfiguration.TimeLimits.StartTime
                 ? dateTime.Date + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan()
                 : dateTime.Date + nextExecutionTime.ToTimeSpan();
+        }
+        private DateTime GetFirstExecutionDate(Configuration config)
+        {
+
+            return config.CurrentDate < config.DateLimits.StartDate
+           ? config.DateLimits.StartDate
+           : config.CurrentDate;
         }
 
         private static void ValidateNextExecutionIsBetweenDateLimits(Configuration config, DateTime dateTime)
