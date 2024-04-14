@@ -8,8 +8,8 @@ namespace RetoScheduler.Configurations
             SelectedDays = selectedDays;
         }
 
-        public int FrecuencyInWeeks { get; set; }
+        public int FrecuencyInWeeks { get; }
 
-        public List<DayOfWeek> SelectedDays { get; set; }
+        public List<DayOfWeek> SelectedDays { get; }
     }
 }

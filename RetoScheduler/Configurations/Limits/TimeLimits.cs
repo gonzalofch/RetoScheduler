@@ -13,8 +13,8 @@ namespace RetoScheduler.Configurations.Limits
             StartTime = startTime;
             EndTime = endTime;
         }
-        public TimeOnly StartTime { get; set; }
+        public TimeOnly StartTime { get; }
 
-        public TimeOnly EndTime { get; set; }
+        public TimeOnly EndTime { get; }
     }
 }

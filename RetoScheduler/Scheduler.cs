@@ -64,7 +64,7 @@ namespace RetoScheduler
 
         private void ValidateLimitsTimeRange(Configuration config)
         {
-            if (config.DailyConfiguration.Type == DailyConfigType.Recurring)
+            if (config.DailyConfiguration.Type == DailyConfigType.Recurring && config.DailyConfiguration.TimeLimits != null)
             {
                 if (config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() < config.CurrentDate.TimeOfDay)
                 {
@@ -82,16 +82,16 @@ namespace RetoScheduler
         {
             StringBuilder description = new StringBuilder("Occurs ");
 
-            if (config.Type == ConfigType.Once)
+            if (config.Type == ConfigType.Once && config.ConfigDateTime.HasValue)
             {
-                description.Append("once at " + config.ConfigDateTime.Value.ToString("dd/MM/yyyy "));
+                description.Append("once at " + dateTime.ToString("dd/MM/yyyy "));
             }
             else
             {
                 description.Append(GetWeeklyDescription(config));
             }
 
-            if (config.DailyConfiguration.Type == DailyConfigType.Once)
+            if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != new TimeOnly(0, 0, 0))
             {
                 string tiempoDeEjecucion = config.DailyConfiguration.OnceAt.ParseAmPm();
                 description.Append("one time at " + tiempoDeEjecucion + " ");
@@ -111,7 +111,7 @@ namespace RetoScheduler
             string startDate = config.DateLimits.StartDate.Date.ToString("dd/MM/yyyy");
             string endDate = config.DateLimits.EndDate?.ToString("dd/MM/yyyy");
             return config.DateLimits.EndDate.HasValue
-                ? "starting on " + startDate + " and finishing on "+endDate
+                ? "starting on " + startDate + " and finishing on " + endDate
                 : "starting on " + startDate;
         }
 
@@ -124,13 +124,18 @@ namespace RetoScheduler
 
         private static string GetWeeklyFrecuencyMessage(Configuration config)
         {
-            return config.WeeklyConfiguration.FrecuencyInWeeks switch
+            if (config.WeeklyConfiguration == null)
+            {
+                return "";
+            }
+            string weeklyMessage = config.WeeklyConfiguration.FrecuencyInWeeks switch
             {
                 0 => "week ",
                 1 => config.WeeklyConfiguration.FrecuencyInWeeks + " week ",
                 > 1 => config.WeeklyConfiguration.FrecuencyInWeeks + " weeks ",
                 _ => throw new SchedulerException("Not supported action for weekly frecuency message"),
-            } + GetStringListDayOfWeek(config.WeeklyConfiguration.SelectedDays);
+            };
+            return weeklyMessage + GetStringListDayOfWeek(config.WeeklyConfiguration.SelectedDays);
         }
 
         private static string GetDailyDescription(Configuration config)
@@ -144,15 +149,15 @@ namespace RetoScheduler
 
         private static string GetDailyFrecuencyMessage(Configuration config)
         {
+            string timeUnit = config.DailyConfiguration.DailyFrecuencyType switch
+            {
+                DailyFrecuency.Hours => "hours",
+                DailyFrecuency.Minutes => "minutes",
+                DailyFrecuency.Seconds => "seconds",
+                _ => throw new SchedulerException("Not supported action for daily frecuency message"),
+            };
 
-            return "every " + config.DailyConfiguration.Frecuency + " " +
-                config.DailyConfiguration.DailyFrecuencyType switch
-                {
-                    DailyFrecuency.Hours => "hours",
-                    DailyFrecuency.Minutes => "minutes",
-                    DailyFrecuency.Seconds => "seconds",
-                    _ => throw new SchedulerException("Not supported action for daily frecuency message"),
-                } + " between ";
+            return "every " + config.DailyConfiguration.Frecuency + " " + timeUnit + " between ";
         }
 
         private static string GetStringListDayOfWeek(List<DayOfWeek> selectedDays)
@@ -280,6 +285,11 @@ namespace RetoScheduler
 
         private static TimeOnly AddOccursEveryUnit(Configuration config, TimeOnly dateTimeTime)
         {
+            if (config.DailyConfiguration.Frecuency==null)
+            {
+                return dateTimeTime;
+            }
+
             if (dateTimeTime == TimeOnly.MinValue)
             {
                 return config.DailyConfiguration.TimeLimits.StartTime;
