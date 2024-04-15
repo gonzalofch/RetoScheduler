@@ -10,24 +10,24 @@ namespace RetoScheduler.Configurations
 {
     public class DailyConfiguration
     {
-        public DailyConfiguration(DailyConfigType type, TimeOnly onceAt , int? frecuency, DailyFrecuency? dailyFrecuencyType, TimeLimits? timeLimits)
+        public DailyConfiguration(DailyConfigType type, TimeOnly onceAt, int? frecuency, DailyFrecuency? dailyFrecuencyType, TimeLimits? timeLimits=null)
         {
 
             Type = type;
-            OnceAt = onceAt;
+            OnceAt = (type == DailyConfigType.Once) ? onceAt : new TimeOnly(0,0,0);
             Frecuency = (type == DailyConfigType.Recurring) ? frecuency : null;
             DailyFrecuencyType = (type == DailyConfigType.Recurring) ? dailyFrecuencyType : null;
-            TimeLimits = (type == DailyConfigType.Recurring) ? timeLimits : null;
+            TimeLimits = timeLimits;
         }
 
-        public DailyConfigType Type { get; set; } //once | recurring ( 1 day )
+        public DailyConfigType Type { get; } //once | recurring ( 1 day )
 
-        public TimeOnly OnceAt { get; set; }
+        public TimeOnly OnceAt { get; }
 
-        public int? Frecuency { get; set; } //just the number
+        public int? Frecuency { get; } //just the number
 
-        public DailyFrecuency? DailyFrecuencyType { get; set; } // Evey "X" Hours, minutes, etc
+        public DailyFrecuency? DailyFrecuencyType { get; } // Evey "X" Hours, minutes, etc
 
-        public TimeLimits? TimeLimits { get; set; }
+        public TimeLimits TimeLimits { get; }
     }
 }
