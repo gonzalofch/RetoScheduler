@@ -126,7 +126,7 @@ namespace RetoScheduler
         {
             if (config.WeeklyConfiguration == null)
             {
-                return "";
+                return string.Empty;
             }
             string weeklyMessage = config.WeeklyConfiguration.FrecuencyInWeeks switch
             {
@@ -236,14 +236,14 @@ namespace RetoScheduler
             {
                 throw new SchedulerException("DateTime can't be out of start and end range");
             }
-            if (dateTime < config.CurrentDate)
-            {
-                throw new SchedulerException("Execution Time can't be earlier than Current Date");
-            }
         }
 
         private DateTime NextDayExecution(Configuration config, DateTime dateTime)
         {
+            if (config.MonthlyConfiguration != null && config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
+            {
+                return NextDayInMonth(config);
+            }
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
             {
                 return dateTime;
@@ -282,10 +282,28 @@ namespace RetoScheduler
 
             return dateTime.NextDayOfWeek(nextDay).Date;
         }
+     
+        public static DateTime NextDayInMonth(Configuration config)
+        {
+            var dateTime = config.CurrentDate;
+            var numberOfMonth = config.MonthlyConfiguration.DayNumber;
+            if (numberOfMonth <= 0)
+            {
+                throw new SchedulerException("The number of Month can't be less than 1");
+            }
 
+            try
+            {
+                return new DateTime(dateTime.Year, dateTime.Month, numberOfMonth);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new SchedulerException ("The selected Monthly day is not valid");
+            }
+        }
         private static TimeOnly AddOccursEveryUnit(Configuration config, TimeOnly dateTimeTime)
         {
-            if (config.DailyConfiguration.Frecuency==null)
+            if (config.DailyConfiguration.Frecuency == null)
             {
                 return dateTimeTime;
             }

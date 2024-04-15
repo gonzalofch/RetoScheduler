@@ -1,9 +1,12 @@
 using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serialization;
 using RetoScheduler;
 using RetoScheduler.Configurations;
 using RetoScheduler.Configurations.Limits;
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
+using RetoScheduler.Extensions;
+
 
 namespace RetoSchedulerTest
 {
@@ -23,7 +26,7 @@ namespace RetoSchedulerTest
         public void Next_Execution_Time_Should_Throw_Exception_And_Message()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily, null, new DailyConfiguration(DailyConfigType.Once, new TimeOnly(16, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily, null, null, new DailyConfiguration(DailyConfigType.Once, new TimeOnly(16, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
 
             FluentActions
                 .Invoking(() => scheduler.Execute(configuration))
@@ -39,7 +42,8 @@ namespace RetoSchedulerTest
         public void Should_Throw_Exception_Disabled_Check_And_Message(ConfigType configType)
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 4), configType, false, null, Occurs.Daily, null, new DailyConfiguration(DailyConfigType.Once, new TimeOnly(16, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 4), configType, false, null, Occurs.Daily, null, null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(16, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
 
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
@@ -54,7 +58,8 @@ namespace RetoSchedulerTest
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
+                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), null);
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
@@ -67,7 +72,7 @@ namespace RetoSchedulerTest
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }), new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
+                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }), new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
 
 
             FluentActions
@@ -92,7 +97,7 @@ namespace RetoSchedulerTest
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly,
+                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
                 new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours,
                 new TimeLimits(new TimeOnly(12, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
@@ -108,7 +113,7 @@ namespace RetoSchedulerTest
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily,
+                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily, null,
                 null,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 10, DailyFrecuency.Minutes,
                 new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2019, 12, 20), new DateTime(2020, 1, 1)));
@@ -124,7 +129,7 @@ namespace RetoSchedulerTest
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Once, true, new DateTime(2020, 1, 1), Occurs.Daily,
+                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Once, true, new DateTime(2020, 1, 1), Occurs.Daily, null,
                 null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(2, 0, 0), null, null,
                 null), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2020, 1, 1)));
@@ -140,7 +145,7 @@ namespace RetoSchedulerTest
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, new DateTime(2020, 1, 1), Occurs.Daily, null,
+                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, -10, DailyFrecuency.Minutes,
                 new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(10, 0, 0))),
                 new DateLimits(new DateTime(2019, 12, 20), new DateTime(2020, 1, 12)));
@@ -159,7 +164,7 @@ namespace RetoSchedulerTest
                 ConfigType.Recurring,
                 true,
                 new DateTime(2020, 1, 1),
-                Occurs.Daily,
+                Occurs.Daily, null,
                 null,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(9, 20, 20))),
                 new DateLimits(new DateTime(2020, 1, 1), new DateTime(2020, 1, 1)));
@@ -169,6 +174,31 @@ namespace RetoSchedulerTest
                  .Should()
                  .Throw<SchedulerException>("The EndTime cannot be earlier than StartTime");
         }
+        [Fact]
+        public void Should_Throw_Exception_If_Number_Of_Day_Is_Negative_Or_Zero()
+        {
+            var scheduler = new Scheduler();
+            var config = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, -2, null, null, 3), null,
+                            new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            FluentActions
+                 .Invoking(() => scheduler.Execute(config))
+                 .Should()
+                 .Throw<SchedulerException>("The number of Month can't be less than 1");
+        }
+
+        [Fact]
+        public void Shoud_Throw_Exception_If_Monthly_Day_Is_Not_Valid()
+        {
+            var scheduler = new Scheduler();
+            var config = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption,52, null, null, 3), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            FluentActions
+                 .Invoking(() => scheduler.Execute(config))
+                 .Should()
+                 .Throw<SchedulerException>()
+                 .And.Message
+                 .Should().Be("The selected Monthly day is not valid");
+        }
 
         [Fact]
         public void Should_Validate_Next_Execution_Time()
@@ -177,20 +207,19 @@ namespace RetoSchedulerTest
 
 
             var configuration1 = new Configuration
-                (new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily, null,
+                (new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily, null, null,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res1 = scheduler.Execute(configuration1);
 
             var configuration2 = new Configuration
-                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
+                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null, null,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res2 = scheduler.Execute(configuration2);
 
             res1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 4, 0, 0));
             res1.Description.Should().Be("Occurs every day and every 3 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
-
 
             res2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 7, 0, 0));
             res2.Description.Should().Be("Occurs every day and every 3 hours between 4:00:00 AM and 8:00:00 AM starting on 01/01/2020");
@@ -203,45 +232,45 @@ namespace RetoSchedulerTest
             var weeklyConfig = new WeeklyConfiguration(0, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday });
 
             var configuration1 = new Configuration
-                (new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Daily,
+                (new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res1 = scheduler.Execute(configuration1);
 
             var configuration2 = new Configuration
-                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res2 = scheduler.Execute(configuration2);
 
             var configuration3 = new Configuration
-                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res3 = scheduler.Execute(configuration3);
 
             var configuration4 = new Configuration
-                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res4 = scheduler.Execute(configuration4);
 
             var configuration5 = new Configuration
-                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res5 = scheduler.Execute(configuration5);
 
             var configuration6 = new Configuration
-                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res6 = scheduler.Execute(configuration6);
 
             var configuration7 = new Configuration
-                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res7 = scheduler.Execute(configuration7);
@@ -269,70 +298,70 @@ namespace RetoSchedulerTest
             var weeklyConfig = new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday });
 
             var configuration1 = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily,
+                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res1 = scheduler.Execute(configuration1);
 
             var configuration2 = new Configuration
-                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res2 = scheduler.Execute(configuration2);
 
             var configuration3 = new Configuration
-                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res3 = scheduler.Execute(configuration3);
 
             var configuration4 = new Configuration
-                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res4 = scheduler.Execute(configuration4);
 
             var configuration5 = new Configuration
-                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res5 = scheduler.Execute(configuration5);
 
             var configuration6 = new Configuration
-                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res6 = scheduler.Execute(configuration6);
 
             var configuration7 = new Configuration
-                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res7 = scheduler.Execute(configuration7);
 
 
             var configuration8 = new Configuration
-                (res7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res8 = scheduler.Execute(configuration8);
 
             var configuration9 = new Configuration
-                (res8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res9 = scheduler.Execute(configuration9);
 
             var configuration10 = new Configuration
-                (res9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res10 = scheduler.Execute(configuration10);
 
             var configuration11 = new Configuration
-                (res10.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res10.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res11 = scheduler.Execute(configuration11);
@@ -367,70 +396,70 @@ namespace RetoSchedulerTest
             var weeklyConfig = new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday });
             var dailyFrecuencyType = DailyFrecuency.Minutes;
             var configuration1 = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily,
+                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res1 = scheduler.Execute(configuration1);
 
             var configuration2 = new Configuration
-                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res2 = scheduler.Execute(configuration2);
 
             var configuration3 = new Configuration
-                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res3 = scheduler.Execute(configuration3);
 
             var configuration4 = new Configuration
-                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res4 = scheduler.Execute(configuration4);
 
             var configuration5 = new Configuration
-                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res5 = scheduler.Execute(configuration5);
 
             var configuration6 = new Configuration
-                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res6 = scheduler.Execute(configuration6);
 
             var configuration7 = new Configuration
-                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res7 = scheduler.Execute(configuration7);
 
 
             var configuration8 = new Configuration
-                (res7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res8 = scheduler.Execute(configuration8);
 
             var configuration9 = new Configuration
-                (res8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res9 = scheduler.Execute(configuration9);
 
             var configuration10 = new Configuration
-                (res9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res10 = scheduler.Execute(configuration10);
 
             var configuration11 = new Configuration
-                (res10.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res10.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res11 = scheduler.Execute(configuration11);
@@ -465,70 +494,70 @@ namespace RetoSchedulerTest
             var weeklyConfig = new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday });
             var dailyFrecuencyType = DailyFrecuency.Seconds;
             var configuration1 = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily,
+                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res1 = scheduler.Execute(configuration1);
 
             var configuration2 = new Configuration
-                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var res2 = scheduler.Execute(configuration2);
 
             var configuration3 = new Configuration
-                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res3 = scheduler.Execute(configuration3);
 
             var configuration4 = new Configuration
-                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res4 = scheduler.Execute(configuration4);
 
             var configuration5 = new Configuration
-                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res5 = scheduler.Execute(configuration5);
 
             var configuration6 = new Configuration
-                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res6 = scheduler.Execute(configuration6);
 
             var configuration7 = new Configuration
-                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res7 = scheduler.Execute(configuration7);
 
 
             var configuration8 = new Configuration
-                (res7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res8 = scheduler.Execute(configuration8);
 
             var configuration9 = new Configuration
-                (res8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res9 = scheduler.Execute(configuration9);
 
             var configuration10 = new Configuration
-                (res9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res10 = scheduler.Execute(configuration10);
 
             var configuration11 = new Configuration
-                (res10.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily,
+                (res10.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 5, dailyFrecuencyType, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res11 = scheduler.Execute(configuration11);
@@ -562,31 +591,31 @@ namespace RetoSchedulerTest
             var scheduler = new Scheduler();
             var weeklyConfig = new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday });
             var configuration1 = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Weekly,
+                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Weekly, null,
                 weeklyConfig,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var res1 = scheduler.Execute(configuration1);
 
             var configuration2 = new Configuration
-               (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly,
+               (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly, null,
                weeklyConfig,
                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var res2 = scheduler.Execute(configuration2);
 
             var configuration3 = new Configuration
-               (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly,
+               (res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly, null,
                weeklyConfig,
                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var res3 = scheduler.Execute(configuration3);
 
             var configuration4 = new Configuration
-               (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly,
+               (res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly, null,
                weeklyConfig,
                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var res4 = scheduler.Execute(configuration4);
 
             var configuration5 = new Configuration
-               (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly,
+               (res4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Weekly, null,
                weeklyConfig,
                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(5, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var res5 = scheduler.Execute(configuration5);
@@ -602,5 +631,16 @@ namespace RetoSchedulerTest
             res4.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
             res5.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday one time at 5:00:00 AM starting on 01/01/2020");
         }
+        [Fact]
+        public void Shoud_Be_Next_Execution_Month()
+        {
+            var scheduler = new Scheduler();
+            var config = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 8, null, null, 3), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            var res1 = scheduler.Execute(config);
+            res1.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
+
+        }
+
     }
 }

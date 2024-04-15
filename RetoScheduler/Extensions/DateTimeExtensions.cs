@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RetoScheduler.Configurations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,8 +15,8 @@ namespace RetoScheduler.Extensions
         }
 
         public static DateTime NextDayOfWeek(this DateTime dateTime, DayOfWeek nextDayOfWeek)
-            {
-            for (int addedDays=0;dateTime.DayOfWeek!=nextDayOfWeek;dateTime=dateTime.AddDays(1), addedDays++)
+        {
+            for (int addedDays = 0; dateTime.DayOfWeek != nextDayOfWeek; dateTime = dateTime.AddDays(1), addedDays++)
             {
 
             }

@@ -11,10 +11,10 @@ namespace RetoScheduler.Configurations
     public class MonthlyConfiguration
     {
 
-        public MonthlyConfiguration(MonthlyConfigType type, int dayNumber, Ordinal ordinalNumber, KindOfDay kindOfDay, int frecuency)
+        public MonthlyConfiguration(MonthlyConfigType type, int dayNumber, Ordinal? ordinalNumber, KindOfDay? kindOfDay, int frecuency)
         {
             Type = type;
-            DayNumber = (type == MonthlyConfigType.DayNumberOption) ? dayNumber : null;
+            DayNumber =  dayNumber;
             OrdinalNumber = (type == MonthlyConfigType.WeekDayOption) ? ordinalNumber : null;
             SelectedDay = (type == MonthlyConfigType.WeekDayOption) ? kindOfDay : null;
             Frecuency = frecuency;
@@ -22,7 +22,7 @@ namespace RetoScheduler.Configurations
 
         public MonthlyConfigType Type { get; set; }
 
-        public int? DayNumber { get; set; }
+        public int DayNumber { get; set; }
 
         public Ordinal? OrdinalNumber { get; set; }
 
