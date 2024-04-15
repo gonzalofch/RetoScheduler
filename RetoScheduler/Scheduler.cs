@@ -5,9 +5,11 @@ using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Authentication.ExtendedProtection;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RetoScheduler
 {
@@ -239,10 +241,11 @@ namespace RetoScheduler
         }
 
         private DateTime NextDayExecution(Configuration config, DateTime dateTime)
+
         {
             if (config.MonthlyConfiguration != null && config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                return NextDayInMonth(config);
+                return GetNextMonthDate(config);
             }
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
             {
@@ -282,25 +285,54 @@ namespace RetoScheduler
 
             return dateTime.NextDayOfWeek(nextDay).Date;
         }
-     
-        public static DateTime NextDayInMonth(Configuration config)
+        public DateTime GetNextMonthDate(Configuration config)
         {
-            var dateTime = config.CurrentDate;
-            var numberOfMonth = config.MonthlyConfiguration.DayNumber;
+            var nextMonthDate = config.CurrentDate;
+            if (config.CurrentDate.Day > config.MonthlyConfiguration.DayNumber)
+            {
+                DateTime nextMonth = config.CurrentDate.AddMonths(1);//esto para que no se pase de 12
+                //aqui da error antes por ser una fecha no valida que por ser menor que cero, lo cual hace que el test no sea necesario
+                nextMonthDate = new DateTime(nextMonth.Year, nextMonth.Month, config.MonthlyConfiguration.DayNumber);
+
+            }
+            if (Executed)
+            {
+                nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency + 1);
+            }
+            nextMonthDate = NextDayInMonth(nextMonthDate, config.MonthlyConfiguration.DayNumber);
+
+            return nextMonthDate;
+        }
+        public static DateTime NextDayInMonth(DateTime dateTime, int numberOfMonth)
+        {
             if (numberOfMonth <= 0)
             {
                 throw new SchedulerException("The number of Month can't be less than 1");
             }
-
             try
             {
-                return new DateTime(dateTime.Year, dateTime.Month, numberOfMonth);
+                if (dateTime.Day <= numberOfMonth && DateTime.DaysInMonth(dateTime.Year, dateTime.Month) >= numberOfMonth)
+                {
+                    return new DateTime(dateTime.Year, dateTime.Month, numberOfMonth);
+                }
+                else
+                {
+                    DateTime nextMonth = dateTime.AddMonths(1);
+                    DateTime nextDate = new DateTime(nextMonth.Year, nextMonth.Month, 1);
+
+                    while (nextDate.Day != numberOfMonth && nextDate.Day <= DateTime.DaysInMonth(nextDate.Year, nextDate.Month))
+                    {
+                        nextDate = nextDate.AddDays(1);
+                    }
+                    return nextDate;
+                }
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new SchedulerException ("The selected Monthly day is not valid");
+                throw new SchedulerException("The selected Monthly day is not valid");
             }
         }
+
         private static TimeOnly AddOccursEveryUnit(Configuration config, TimeOnly dateTimeTime)
         {
             if (config.DailyConfiguration.Frecuency == null)
