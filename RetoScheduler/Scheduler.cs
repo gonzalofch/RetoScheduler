@@ -243,7 +243,7 @@ namespace RetoScheduler
         private DateTime NextDayExecution(Configuration config, DateTime dateTime)
 
         {
-            if (config.MonthlyConfiguration != null && config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
+            if (config.MonthlyConfiguration != null)
             {
                 return GetNextMonthDate(config);
             }
@@ -288,21 +288,29 @@ namespace RetoScheduler
         public DateTime GetNextMonthDate(Configuration config)
         {
             var nextMonthDate = config.CurrentDate;
-            if (config.CurrentDate.Day > config.MonthlyConfiguration.DayNumber)
+            if (config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                DateTime nextMonth = config.CurrentDate.AddMonths(1);//esto para que no se pase de 12
-                //aqui da error antes por ser una fecha no valida que por ser menor que cero, lo cual hace que el test no sea necesario
-                nextMonthDate = new DateTime(nextMonth.Year, nextMonth.Month, config.MonthlyConfiguration.DayNumber);
+                if (config.CurrentDate.Day > config.MonthlyConfiguration.DayNumber)
+                {
+                    DateTime nextMonth = config.CurrentDate.AddMonths(1);
+                    nextMonthDate = new DateTime(nextMonth.Year, nextMonth.Month, config.MonthlyConfiguration.DayNumber);
 
+                }
+                if (Executed)
+                {
+                    nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency + 1);
+                }
+                nextMonthDate = NextDayInMonth(nextMonthDate, config.MonthlyConfiguration.DayNumber);
             }
-            if (Executed)
+            else
             {
-                nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency + 1);
+                //OPCION THE ORDINAL, WEEKDAY, FRECUENCY
+                nextMonthDate=nextMonthDate.NextKindOfDay(config.MonthlyConfiguration.OrdinalNumber, config.MonthlyConfiguration.SelectedDay);
             }
-            nextMonthDate = NextDayInMonth(nextMonthDate, config.MonthlyConfiguration.DayNumber);
 
             return nextMonthDate;
         }
+        
         public static DateTime NextDayInMonth(DateTime dateTime, int numberOfMonth)
         {
             if (numberOfMonth <= 0)
