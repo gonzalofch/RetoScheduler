@@ -294,15 +294,17 @@ namespace RetoScheduler
 
             if (config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                if (config.CurrentDate.Day > config.MonthlyConfiguration.DayNumber)
+                if (nextMonthDate.Day > config.MonthlyConfiguration.DayNumber)
                 {
-                    DateTime nextMonth = config.CurrentDate.AddMonths(1);
+                    DateTime nextMonth = nextMonthDate.AddMonths(1);
                     nextMonthDate = new DateTime(nextMonth.Year, nextMonth.Month, config.MonthlyConfiguration.DayNumber);
 
                 }
                 if (Executed)
                 {
+
                     nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency + 1);
+
                 }
                 return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration.DayNumber);
             }
@@ -310,9 +312,12 @@ namespace RetoScheduler
             {
                 if (Executed)
                 {
-                    return NextDayOfWeekInMonth(config.CurrentDate.AddDays(1), config.MonthlyConfiguration);
+                    
+                    nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency);
+                    nextMonthDate = NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
+                    return nextMonthDate;
                 }
-                return NextDayOfWeekInMonth(config.CurrentDate, config.MonthlyConfiguration);
+                return NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
             }
         }
         private static DateTime NextDayOfWeekInMonth(DateTime currentDate, MonthlyConfiguration monthlyConfig)
@@ -337,7 +342,7 @@ namespace RetoScheduler
             IReadOnlyList<DateTime> month;
             if (selectedDays.Count == 1)
             {
-                month = selectedMonth.GetMonthDays(selectedDays[0]).Where(x => x.Day >= currentDate.Day).ToList();
+                month = selectedMonth.GetMonthDays(selectedDays.First()).Where(x => x.Day >= currentDate.Day).ToList();
             }
             else
             {
@@ -351,16 +356,14 @@ namespace RetoScheduler
 
         private static DateTime ObtainOrdinalsFromList(IReadOnlyList<DateTime> list, MonthlyConfiguration monthlyConfig)
         {
-            var monthDays = list;
-            bool greaterThanIndex1 = (Ordinal.First == monthlyConfig.OrdinalNumber || Ordinal.Last == monthlyConfig.OrdinalNumber) && monthDays.Count < 1;
-            bool greaterThanIndex2 = Ordinal.Second == monthlyConfig.OrdinalNumber && monthDays.Count < 2;
-            bool greaterThanIndex3 = Ordinal.Third == monthlyConfig.OrdinalNumber && monthDays.Count < 3;
-            bool greaterThanIndex4 = Ordinal.Fourth == monthlyConfig.OrdinalNumber && monthDays.Count < 4;
+            bool greaterThanIndex1 = (Ordinal.First == monthlyConfig.OrdinalNumber || Ordinal.Last == monthlyConfig.OrdinalNumber) && list.Count < 1;
+            bool greaterThanIndex2 = Ordinal.Second == monthlyConfig.OrdinalNumber && list.Count < 2;
+            bool greaterThanIndex3 = Ordinal.Third == monthlyConfig.OrdinalNumber && list.Count < 3;
+            bool greaterThanIndex4 = Ordinal.Fourth == monthlyConfig.OrdinalNumber && list.Count < 4;
             if (greaterThanIndex1 || greaterThanIndex2 || greaterThanIndex3 || greaterThanIndex4)
             {
                 throw new SchedulerException("The index is greater than the number of days");
             }
-            //funcionalidad para obtener el index seleccionado de la lista
             var dateTime = monthlyConfig.OrdinalNumber switch
             {
                 Ordinal.First => list[0],
