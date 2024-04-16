@@ -36,10 +36,6 @@ namespace RetoSchedulerTest.Extensions
         [Fact]
         public void Should_Be_Next_Date_With_Ordinal()
         {
-
-
-
-
             var monday1 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.First, KindOfDay.Monday);
             var monday2 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.Second, KindOfDay.Monday);
             var monday3 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.Third, KindOfDay.Monday);
@@ -159,6 +155,15 @@ namespace RetoSchedulerTest.Extensions
             weekendDay3.Should().Be(new DateTime(2020, 1, 11));
             weekendDay4.Should().Be(new DateTime(2020, 1, 12));
             weekendDay5.Should().Be(new DateTime(2020, 1, 26));
+        }
+        [Fact]
+        public void Should_Be_Next_Date_With_Ordina_And_Datel()
+        {
+            var monday1 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.First, KindOfDay.Monday);
+            var monday2 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.Second, KindOfDay.Monday);
+            var monday3 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.Third, KindOfDay.Monday);
+            var monday4 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.Fourth, KindOfDay.Monday);
+            var monday5 = new DateTime(2020, 1, 1).NextKindOfDay(Ordinal.Last, KindOfDay.Monday);
 
         }
     }

@@ -20,3 +20,4 @@ namespace RetoScheduler.Enums
         WeekEndDay = 9,
     }
 }
+

@@ -20,13 +20,19 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Get_Days_In_Month_Di()
+        public void Should_Get_Days_In_Month_Selected()
+        {
+            Month february2024 = new Month(2024, 2);
+            var days = february2024.GetMonthDays();
+            days.Should().HaveCount(29);
+        }
+
+        [Fact]
+        public void Should_Get_Days_In_Month_Selected_DayOfWeek()
         {
             Month february2024 = new Month(2024, 2);
             var days = february2024.GetMonthDays(DayOfWeek.Monday);
-            days.Should().HaveCount(29);
-
-
+            days.Should().HaveCount(4);
         }
     }
 

@@ -4,6 +4,7 @@ using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -245,7 +246,9 @@ namespace RetoScheduler
         {
             if (config.MonthlyConfiguration != null)
             {
+
                 return GetNextMonthDate(config);
+
             }
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
             {
@@ -288,6 +291,7 @@ namespace RetoScheduler
         public DateTime GetNextMonthDate(Configuration config)
         {
             var nextMonthDate = config.CurrentDate;
+
             if (config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
                 if (config.CurrentDate.Day > config.MonthlyConfiguration.DayNumber)
@@ -300,17 +304,75 @@ namespace RetoScheduler
                 {
                     nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency + 1);
                 }
-                nextMonthDate = NextDayInMonth(nextMonthDate, config.MonthlyConfiguration.DayNumber);
+                return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration.DayNumber);
             }
             else
             {
-                //OPCION THE ORDINAL, WEEKDAY, FRECUENCY
-                nextMonthDate=nextMonthDate.NextKindOfDay(config.MonthlyConfiguration.OrdinalNumber, config.MonthlyConfiguration.SelectedDay);
+                if (Executed)
+                {
+                    return NextDayOfWeekInMonth(config.CurrentDate.AddDays(1), config.MonthlyConfiguration);
+                }
+                return NextDayOfWeekInMonth(config.CurrentDate, config.MonthlyConfiguration);
             }
-
-            return nextMonthDate;
         }
-        
+        private static DateTime NextDayOfWeekInMonth(DateTime currentDate, MonthlyConfiguration monthlyConfig)
+        {
+            Month selectedMonth = new Month(currentDate.Year, currentDate.Month);
+
+            List<DayOfWeek> selectedDays = monthlyConfig.SelectedDay switch
+            {
+                KindOfDay.Day => new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday },
+                KindOfDay.WeekDay => new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday },
+                KindOfDay.WeekEndDay => new List<DayOfWeek>() { DayOfWeek.Saturday, DayOfWeek.Sunday },
+                KindOfDay.Monday => new List<DayOfWeek>() { DayOfWeek.Monday },
+                KindOfDay.Tuesday => new List<DayOfWeek>() { DayOfWeek.Tuesday },
+                KindOfDay.Wednesday => new List<DayOfWeek>() { DayOfWeek.Wednesday },
+                KindOfDay.Thursday => new List<DayOfWeek>() { DayOfWeek.Thursday },
+                KindOfDay.Friday => new List<DayOfWeek>() { DayOfWeek.Friday },
+                KindOfDay.Saturday => new List<DayOfWeek>() { DayOfWeek.Saturday },
+                KindOfDay.Sunday => new List<DayOfWeek>() { DayOfWeek.Sunday },
+                _ => throw new SchedulerException("The selected Kind of Day is not supported"),
+            };
+
+            IReadOnlyList<DateTime> month;
+            if (selectedDays.Count == 1)
+            {
+                month = selectedMonth.GetMonthDays(selectedDays[0]).Where(x => x.Day >= currentDate.Day).ToList();
+            }
+            else
+            {
+                //sacar los dias de la semana de la lista selectedDays con linq
+                month = selectedMonth.GetMonthDays().Where(x => x.Day >= currentDate.Day).ToList();
+
+                return ObtainOrdinalsFromList(month.Where(x => selectedDays.Contains(x.DayOfWeek)).ToList(), monthlyConfig);
+            }
+            return ObtainOrdinalsFromList(month, monthlyConfig);
+        }
+
+        private static DateTime ObtainOrdinalsFromList(IReadOnlyList<DateTime> list, MonthlyConfiguration monthlyConfig)
+        {
+            var monthDays = list;
+            bool greaterThanIndex1 = (Ordinal.First == monthlyConfig.OrdinalNumber || Ordinal.Last == monthlyConfig.OrdinalNumber) && monthDays.Count < 1;
+            bool greaterThanIndex2 = Ordinal.Second == monthlyConfig.OrdinalNumber && monthDays.Count < 2;
+            bool greaterThanIndex3 = Ordinal.Third == monthlyConfig.OrdinalNumber && monthDays.Count < 3;
+            bool greaterThanIndex4 = Ordinal.Fourth == monthlyConfig.OrdinalNumber && monthDays.Count < 4;
+            if (greaterThanIndex1 || greaterThanIndex2 || greaterThanIndex3 || greaterThanIndex4)
+            {
+                throw new SchedulerException("The index is greater than the number of days");
+            }
+            //funcionalidad para obtener el index seleccionado de la lista
+            var dateTime = monthlyConfig.OrdinalNumber switch
+            {
+                Ordinal.First => list[0],
+                Ordinal.Second => list[1],
+                Ordinal.Third => list[2],
+                Ordinal.Fourth => list[3],
+                Ordinal.Last => list.Last(),
+                _ => DateTime.MinValue,
+            };
+            return dateTime;
+
+        }
         public static DateTime NextDayInMonth(DateTime dateTime, int numberOfMonth)
         {
             if (numberOfMonth <= 0)
