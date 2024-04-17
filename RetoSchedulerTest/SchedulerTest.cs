@@ -13,8 +13,11 @@ namespace RetoSchedulerTest
 {
     public class SchedulerTest
     {
-        [Theory, ClassData(typeof(SchedulerTestConfiguration))]
-        public void OutPut_Should_Be_Expected(Configuration configuration, OutPut expectedOutput)
+
+        [Theory]
+        [ClassData(typeof(SchedulerTestConfiguration))]
+        [ClassData(typeof(SchedulerTestMonthlyConfiguration))]
+        public void OutPut_Should_Be_Expected_Configurations(Configuration configuration, OutPut expectedOutput)
         {
             var scheduler = new Scheduler();
             var output = scheduler.Execute(configuration);
@@ -1057,5 +1060,7 @@ namespace RetoSchedulerTest
             var dayExampleSecondResult3 = dayExample2.Execute(dayExampleSecondConfig3);
             dayExampleSecondResult3.NextExecutionTime.Date.Should().Be(new DateTime(2024, 8, 2));
         }
+
+        
     }
 }
