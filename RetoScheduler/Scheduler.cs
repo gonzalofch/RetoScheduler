@@ -5,6 +5,7 @@ using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -102,9 +103,9 @@ namespace RetoScheduler
             else
             {
                 description.Append(GetDailyDescription(config));
+                description.Append(GetDateLimitsDescription(config));
             }
 
-            description.Append(GetDateLimitsDescription(config));
 
             return description.ToString();
         }
@@ -212,18 +213,26 @@ namespace RetoScheduler
 
             dateTime = NextDayExecution(config, dateTime);
 
+            return NextExecutionTime(config, dateTime);
+        }
+
+        private DateTime NextExecutionTime(Configuration config, DateTime dateTime)
+        {
+            //revisar si es once o si es recurring
             TimeOnly dateTimeTime = TimeOnly.FromDateTime(dateTime);
+
             if (config.DailyConfiguration.Type == DailyConfigType.Once)
             {
                 return dateTime.Date.Add(config.DailyConfiguration.OnceAt.ToTimeSpan());
             }
-
+            // es recurring
             TimeOnly nextExecutionTime = AddOccursEveryUnit(config, dateTimeTime);
 
             return nextExecutionTime < config.DailyConfiguration.TimeLimits.StartTime
                 ? dateTime.Date + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan()
                 : dateTime.Date + nextExecutionTime.ToTimeSpan();
         }
+
         private DateTime GetFirstExecutionDate(Configuration config)
         {
 
@@ -246,9 +255,7 @@ namespace RetoScheduler
         {
             if (config.MonthlyConfiguration != null)
             {
-
-                return GetNextMonthDate(config);
-
+                return GetNextMonthDate(config, dateTime);
             }
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
             {
@@ -288,39 +295,75 @@ namespace RetoScheduler
 
             return dateTime.NextDayOfWeek(nextDay).Date;
         }
-        public DateTime GetNextMonthDate(Configuration config)
+        public DateTime GetNextMonthDate(Configuration config, DateTime dateTime)
         {
-            var nextMonthDate = config.CurrentDate;
-
+            //llega {10/01/2020 3:00:00} 
+            var nextMonthDate = dateTime;
+            DateTime tempNextMonth;
             if (config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                if (nextMonthDate.Day > config.MonthlyConfiguration.DayNumber)
+                if (nextMonthDate.Day > config.MonthlyConfiguration.DayNumber) //false
                 {
                     DateTime nextMonth = nextMonthDate.AddMonths(1);
                     nextMonthDate = new DateTime(nextMonth.Year, nextMonth.Month, config.MonthlyConfiguration.DayNumber);
-
                 }
-                if (Executed)
+
+                if (config.DailyConfiguration.Type == DailyConfigType.Once)
                 {
-
-                    nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency + 1);
+                    return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration);
 
                 }
-                return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration.DayNumber);
+                else
+                {//si se ha ejecutado
+                 //si esta dentro de los rangos del recurring
+                 //si se ha ejecutado devolver nextexecutiontime
+                 //si no se  ha ejecutado y esta en el rango,devolver la fecha igual
+
+                    //si no esta dentro de los rangos, devolver el startTime
+                    if (Executed)
+                    {
+                        if (NextExecutionTime(config, nextMonthDate).TimeOfDay <= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan())//false
+                        {
+                            var retornar = new DateTime(nextMonthDate.Year, nextMonthDate.Month, config.MonthlyConfiguration.DayNumber, nextMonthDate.Hour, nextMonthDate.Minute, nextMonthDate.Second);
+                            return retornar;
+                        }
+                        else
+                        {
+
+                            return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration);
+                        }
+                    }
+                    else
+                    {
+                        //tempNextMonth = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency + 1);
+                        //nextMonthDate = new DateTime(tempNextMonth.Year, tempNextMonth.Month, 1, 0, 0, 0); //nextmonthdate== {01/05/2020 0:00:00}
+                    }
+                }
+                return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration);
             }
             else
             {
+
                 if (Executed)
                 {
-                    var tempNextMonth = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency);
-                    //si salta meses y ha sido ejecutado antes, se va al primer dia del mes hacia el que hizo skip
-                    nextMonthDate = new DateTime(tempNextMonth.Year, tempNextMonth.Month,1);
+                    if (NextExecutionTime(config, nextMonthDate).TimeOfDay <= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
+                    {
+                        return nextMonthDate;
+                    }
+                    else
+                    {
+                        tempNextMonth = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency);
+                        nextMonthDate = new DateTime(tempNextMonth.Year, tempNextMonth.Month, 1, 0, 0, 0);
 
-                    nextMonthDate = NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
-                    return nextMonthDate;
+                        //si salta meses y ha sido ejecutado antes, se va al primer dia del mes hacia el que hizo skip
+                        var variablereturn = NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
+                        return variablereturn;
+                    }
                 }
-
-                return NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
+                else
+                {
+                    return NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
+                }
             }
         }
         private static DateTime NextDayOfWeekInMonth(DateTime currentDate, MonthlyConfiguration monthlyConfig)
@@ -345,12 +388,18 @@ namespace RetoScheduler
             IReadOnlyList<DateTime> month;
             if (selectedDays.Count == 1)
             {
-                month = selectedMonth.GetMonthDays(selectedDays.First()).Where(x => x.Day >= currentDate.Day).ToList();
+                month = selectedMonth.GetMonthDays(selectedDays.First())
+                    .Where(x => x >= currentDate)
+                    .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
+                    .ToList();
             }
             else
             {
                 //sacar los dias de la semana de la lista selectedDays con linq
-                month = selectedMonth.GetMonthDays().Where(x => x.Day >= currentDate.Day).ToList();
+                month = selectedMonth.GetMonthDays()
+                    .Where(x => x >= currentDate)
+                    .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
+                    .ToList();
 
                 return ObtainOrdinalsFromList(month.Where(x => selectedDays.Contains(x.DayOfWeek)).ToList(), monthlyConfig);
             }
@@ -379,24 +428,46 @@ namespace RetoScheduler
             return dateTime;
 
         }
-        public static DateTime NextDayInMonth(DateTime dateTime, int numberOfMonth)
+        public DateTime NextDayInMonth(DateTime dateTime, MonthlyConfiguration monthlyConfig)
         {
-            if (numberOfMonth <= 0)
+            //solucionar problema al instanciar una fecha que no exista
+
+            int dayNumber = monthlyConfig.DayNumber;
+            if (dayNumber <= 0)
             {
                 throw new SchedulerException("The number of Month can't be less than 1");
             }
             try
             {
-                if (dateTime.Day <= numberOfMonth && DateTime.DaysInMonth(dateTime.Year, dateTime.Month) >= numberOfMonth)
+
+                if (dateTime.Day <= dayNumber && DateTime.DaysInMonth(dateTime.Year, dateTime.Month) >= dayNumber)
                 {
-                    return new DateTime(dateTime.Year, dateTime.Month, numberOfMonth);
+                    string dateString = string.Empty;
+                    DateTime dateValue;
+                    dateTime.ToShortDateString();
+                    string[] subStrings = dateString.Split("/");
+                    int mes;
+                    bool success = int.TryParse(subStrings[1], out mes);
+                    mes++;
+                    subStrings[1] = mes.ToString();
+                    string newParsedDate = subStrings.Join('/');
+                    do
+                    {
+
+                    } while (!DateTime.TryParse("", out dateTime));
+);
+                    if (Executed)
+                    {
+                        dateTime = dateTime.AddMonths(monthlyConfig.Frecuency + 1);
+                    }
+                    return new DateTime(dateTime.Year, dateTime.Month, dayNumber);
                 }
                 else
                 {
-                    DateTime nextMonth = dateTime.AddMonths(1);
+                    DateTime nextMonth = dateTime.AddMonths(monthlyConfig.Frecuency);
                     DateTime nextDate = new DateTime(nextMonth.Year, nextMonth.Month, 1);
 
-                    while (nextDate.Day != numberOfMonth && nextDate.Day <= DateTime.DaysInMonth(nextDate.Year, nextDate.Month))
+                    while (nextDate.Day != dayNumber && nextDate.Day <= DateTime.DaysInMonth(nextDate.Year, nextDate.Month))
                     {
                         nextDate = nextDate.AddDays(1);
                     }
@@ -405,6 +476,7 @@ namespace RetoScheduler
             }
             catch (ArgumentOutOfRangeException)
             {
+
                 throw new SchedulerException("The selected Monthly day is not valid");
             }
         }
