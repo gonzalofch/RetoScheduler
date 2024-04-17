@@ -312,11 +312,14 @@ namespace RetoScheduler
             {
                 if (Executed)
                 {
-                    
-                    nextMonthDate = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency);
+                    var tempNextMonth = nextMonthDate.AddMonths(config.MonthlyConfiguration.Frecuency);
+                    //si salta meses y ha sido ejecutado antes, se va al primer dia del mes hacia el que hizo skip
+                    nextMonthDate = new DateTime(tempNextMonth.Year, tempNextMonth.Month,1);
+
                     nextMonthDate = NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
                     return nextMonthDate;
                 }
+
                 return NextDayOfWeekInMonth(nextMonthDate, config.MonthlyConfiguration);
             }
         }
