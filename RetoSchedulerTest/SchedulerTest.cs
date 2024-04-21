@@ -714,30 +714,39 @@ namespace RetoSchedulerTest
         public void Shoud_Be_Next_Execution_Month_Skipping_Months_And_Dates_That_Doesnt_Exist()
         {
             var scheduler = new Scheduler();
-            var config1 = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            var config1 = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res1 = scheduler.Execute(config1);
             res1.NextExecutionTime.Date.Should().Be(new DateTime(2024, 1, 30));
 
-            var config2 = new Configuration(res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            var config2 = new Configuration(res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res2 = scheduler.Execute(config2);
             res2.NextExecutionTime.Date.Should().Be(new DateTime(2024, 3, 30));
 
-            var config3 = new Configuration(res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            var config3 = new Configuration(res2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res3 = scheduler.Execute(config3);
             res3.NextExecutionTime.Date.Should().Be(new DateTime(2024, 4, 30));
 
-            var config4 = new Configuration(res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            var config4 = new Configuration(res3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Monday, 0), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res4 = scheduler.Execute(config4);
             res4.NextExecutionTime.Date.Should().Be(new DateTime(2024, 5, 30));
 
 
 
             var schedulerExample = new Scheduler();
-            var exampleConfig1 = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 31, Ordinal.First, KindOfDay.Monday, 0), null,
+            var exampleConfig1 = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 31, Ordinal.First, KindOfDay.Monday, 0), null,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var exampleRes1 = schedulerExample.Execute(exampleConfig1);
             exampleRes1.NextExecutionTime.Date.Should().Be(new DateTime(2023, 12, 31));
@@ -1059,6 +1068,75 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var dayExampleSecondResult3 = dayExample2.Execute(dayExampleSecondConfig3);
             dayExampleSecondResult3.NextExecutionTime.Date.Should().Be(new DateTime(2024, 8, 2));
+        }
+
+        [Fact]
+        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_FebruaryCase()
+        {
+            var schedulerExample2 = new Scheduler();
+            var schedulerExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Thursday, 0), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerExampleSecondResult1 = schedulerExample2.Execute(schedulerExampleSecondConfig1);
+            schedulerExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 30, 8, 0, 0));
+
+            var schedulerExampleSecondConfig2 = new Configuration(schedulerExampleSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Thursday, 0), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerExampleSecondResult2 = schedulerExample2.Execute(schedulerExampleSecondConfig2);
+            schedulerExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 8, 0, 0));
+        }
+
+        [Fact]
+        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_Skip_First_Month()
+        {
+            var scheduler = new Scheduler();
+            var schedulerSecondConfig1 = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 31, Ordinal.First, KindOfDay.Thursday, 3), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerSecondResult1 = scheduler.Execute(schedulerSecondConfig1);
+            schedulerSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 12, 0, 0));
+
+            var schedulerSecondConfig2 = new Configuration(schedulerSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 31, Ordinal.First, KindOfDay.Thursday, 3), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerSecondResult2 = scheduler.Execute(schedulerSecondConfig2);
+            schedulerSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 10, 31, 12, 0, 0));
+        }
+        //queda probar un caso con hora menor al onceAt en ese dia
+        [Fact]
+        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_RegularCases()
+        {
+            var scheduler = new Scheduler();
+            var schedulerSecondConfig1 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerSecondResult1 = scheduler.Execute(schedulerSecondConfig1);
+            schedulerSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 20, 12, 0, 0));
+
+            var schedulerSecondConfig2 = new Configuration(schedulerSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerSecondResult2 = scheduler.Execute(schedulerSecondConfig2);
+            schedulerSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 4, 20, 12, 0, 0));
+
+            var schedulerSecondConfig3 = new Configuration(schedulerSecondResult2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerSecondResult3 = scheduler.Execute(schedulerSecondConfig3);
+            schedulerSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 7, 20, 12, 0, 0));
+
+            var schedulerSecondConfig4 = new Configuration(schedulerSecondResult3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerSecondResult4 = scheduler.Execute(schedulerSecondConfig4);
+            schedulerSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 10, 20, 12, 0, 0));
+
+            var schedulerSecondConfig5 = new Configuration(schedulerSecondResult4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
+                new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
+            var schedulerSecondResult5 = scheduler.Execute(schedulerSecondConfig5);
+            schedulerSecondResult5.NextExecutionTime.Should().Be(new DateTime(2025, 1, 20, 12, 0, 0));
         }
 
         [Fact]

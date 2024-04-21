@@ -302,23 +302,17 @@ namespace RetoScheduler
             DateTime tempNextMonth;
             if (config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                if (nextMonthDate.Day > config.MonthlyConfiguration.DayNumber) //false
-                {
-                    DateTime nextMonth = nextMonthDate.AddMonths(1);
-                    nextMonthDate = new DateTime(nextMonth.Year, nextMonth.Month, config.MonthlyConfiguration.DayNumber);
-                }
-
                 if (config.DailyConfiguration.Type == DailyConfigType.Once)
+                //ONCE
                 {
                     return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration);
-
                 }
                 else
+                //RECURRING
                 {//si se ha ejecutado
                  //si esta dentro de los rangos del recurring
                  //si se ha ejecutado devolver nextexecutiontime
                  //si no se  ha ejecutado y esta en el rango,devolver la fecha igual
-
                     //si no esta dentro de los rangos, devolver el startTime
                     if (Executed)
                     {
@@ -329,7 +323,6 @@ namespace RetoScheduler
                         }
                         else
                         {
-
                             return NextDayInMonth(nextMonthDate, config.MonthlyConfiguration);
                         }
                     }
@@ -343,7 +336,6 @@ namespace RetoScheduler
             }
             else
             {
-
                 if (Executed)
                 {
                     if (NextExecutionTime(config, nextMonthDate).TimeOfDay <= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
@@ -433,45 +425,28 @@ namespace RetoScheduler
             //solucionar problema al instanciar una fecha que no exista
 
             int dayNumber = monthlyConfig.DayNumber;
-            if (dayNumber <= 0)
-            {
-                throw new SchedulerException("The number of Month can't be less than 1");
-            }
             try
             {
-
-                if (dateTime.Day <= dayNumber && DateTime.DaysInMonth(dateTime.Year, dateTime.Month) >= dayNumber)
+                if (Executed)
                 {
-                    string dateString = string.Empty;
-                    DateTime dateValue;
-                    dateTime.ToShortDateString();
-                    string[] subStrings = dateString.Split("/");
-                    int mes;
-                    bool success = int.TryParse(subStrings[1], out mes);
-                    mes++;
-                    subStrings[1] = mes.ToString();
-                    string newParsedDate = subStrings.Join('/');
-                    do
-                    {
+                    dateTime = dateTime.AddMonths(monthlyConfig.Frecuency + 1);
+                }
 
-                    } while (!DateTime.TryParse("", out dateTime));
-);
-                    if (Executed)
-                    {
-                        dateTime = dateTime.AddMonths(monthlyConfig.Frecuency + 1);
-                    }
-                    return new DateTime(dateTime.Year, dateTime.Month, dayNumber);
+                if (dateTime.Day <= dayNumber && dayNumber<= DateTime.DaysInMonth(dateTime.Year, dateTime.Month))
+                {
+                    //revisar si el dayNumber existe o no en ese mes
+                    return new DateTime(dateTime.Year, dateTime.Month, dayNumber,dateTime.Hour,dateTime.Minute,dateTime.Second);
                 }
                 else
                 {
-                    DateTime nextMonth = dateTime.AddMonths(monthlyConfig.Frecuency);
-                    DateTime nextDate = new DateTime(nextMonth.Year, nextMonth.Month, 1);
-
-                    while (nextDate.Day != dayNumber && nextDate.Day <= DateTime.DaysInMonth(nextDate.Year, nextDate.Month))
+                    //si el dayNumber no existe en ese mes entra aqui
+                    //si el numero de dia es 31 y el mes del dateTime no tiene 31, entonces se realiza esto de aqui
+                    DateTime nextMonth = dateTime;
+                    while (DateTime.DaysInMonth(nextMonth.Year,nextMonth.Month)<dayNumber)
                     {
-                        nextDate = nextDate.AddDays(1);
+                        nextMonth = nextMonth.AddMonths(1);
                     }
-                    return nextDate;
+                    return new DateTime(nextMonth.Year, nextMonth.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second);
                 }
             }
             catch (ArgumentOutOfRangeException)
@@ -480,7 +455,14 @@ namespace RetoScheduler
                 throw new SchedulerException("The selected Monthly day is not valid");
             }
         }
+        public static DateTime NextValidDay(DateTime dateTime)
+        {
 
+            string dateTimeString = dateTime.ToString("dd/MM/yyyy");
+
+
+            return dateTime;
+        }
         private static TimeOnly AddOccursEveryUnit(Configuration config, TimeOnly dateTimeTime)
         {
             if (config.DailyConfiguration.Frecuency == null)
