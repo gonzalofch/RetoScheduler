@@ -87,7 +87,14 @@ namespace RetoScheduler
             }
             else
             {
-                description.Append(GetWeeklyDescription(config));
+                if (config.MonthlyConfiguration != null)
+                {
+                    description.Append(GetMonthlyDescription(config));
+                }
+                else
+                {
+                    description.Append(GetWeeklyDescription(config));
+                }
             }
 
             if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != new TimeOnly(0, 0, 0))
@@ -98,8 +105,8 @@ namespace RetoScheduler
             else
             {
                 description.Append(GetDailyDescription(config));
-                description.Append(GetDateLimitsDescription(config));
             }
+            description.Append(GetDateLimitsDescription(config));
 
 
             return description.ToString();
@@ -113,7 +120,56 @@ namespace RetoScheduler
                 ? "starting on " + startDate + " and finishing on " + endDate
                 : "starting on " + startDate;
         }
+        private static string GetMonthlyDescription(Configuration config)
+        {
+            string monthlyDescription = "the ";
+            if (config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
+            {
+                monthlyDescription += GetMonthlyDayOfNumber(config);
+            }
+            else
+            {
+                monthlyDescription += GetMonthlyWeekdaysMessage(config);
+            }
+            monthlyDescription += "of very ";
+            monthlyDescription += GetMonthlyFrecuencyMessage(config);
 
+            return monthlyDescription;
+        }
+        private static string GetMonthlyDayOfNumber(Configuration config)
+        {
+            string monthlyMessage = string.Empty;
+            monthlyMessage += config.MonthlyConfiguration.DayNumber switch
+            {
+                1 => config.MonthlyConfiguration.DayNumber + "st ",
+                21 => config.MonthlyConfiguration.DayNumber + "st ",
+                31 => config.MonthlyConfiguration.DayNumber + "st ",
+                2 => "2nd ",
+                3 => "3rd ",
+                > 4 and < 32 => config.MonthlyConfiguration.DayNumber + "th ",
+                _ => throw new SchedulerException("Not supported action for monthly day number message"),
+            };
+            return monthlyMessage;
+        }
+        private static string GetMonthlyWeekdaysMessage(Configuration config)
+        {
+
+            string monthlyMessage = string.Empty;
+            monthlyMessage += config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + " ";
+            monthlyMessage += config.MonthlyConfiguration.SelectedDay.ToString().ToLower() + " ";
+
+            return monthlyMessage;
+        }
+        private static string GetMonthlyFrecuencyMessage(Configuration config)
+        {
+            return config.MonthlyConfiguration.Frecuency switch
+            {
+                0 => "months ",
+                1 => config.MonthlyConfiguration.Frecuency + " month ",
+                > 1 => config.MonthlyConfiguration.Frecuency + " months ",
+                _ => throw new SchedulerException("Not supported action for monthly frecuency message"),
+            };
+        }
         private static string GetWeeklyDescription(Configuration config)
         {
             return config.WeeklyConfiguration != null

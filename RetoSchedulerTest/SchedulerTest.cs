@@ -23,7 +23,7 @@ namespace RetoSchedulerTest
             var output = scheduler.Execute(configuration);
 
             output.NextExecutionTime.Date.Should().Be(expectedOutput.NextExecutionTime.Date);
-            //output.Description.Should().Be(expectedOutput.Description);
+            output.Description.Should().Be(expectedOutput.Description);
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace RetoSchedulerTest
             var configuration = new Configuration
                 (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
                 new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))),  new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
@@ -877,6 +877,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleResult1 = schedulerExample1.Execute(schedulerExampleConfig1);
             schedulerExampleResult1.NextExecutionTime.Date.Should().Be(new DateTime(2020, 1, 2));
+            //schedulerExampleResult1.Description.Should().Be("Occurs every 2 weeks on monday, thursday and friday every 5 seconds between 4:00:50 AM and 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleConfig2 = new Configuration(schedulerExampleResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
                 new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.First, KindOfDay.Thursday, 3), null,
