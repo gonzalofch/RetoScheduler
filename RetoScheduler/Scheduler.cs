@@ -324,9 +324,6 @@ namespace RetoScheduler
             var excedsLimits = hasLimits && config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
             var skipDay = excedsLimits || (config.DailyConfiguration.Type == DailyConfigType.Once && Executed);
 
-            var firstDayOfWeek = skipDay
-                ? sortedDays.FirstOrDefault(_ => _ > actualDay)
-                : sortedDays.FirstOrDefault(_ => _ >= actualDay);
 
             return skipDay
                 ? GetNextDayInWeek(sortedDays, actualDay, dateTime, config)
