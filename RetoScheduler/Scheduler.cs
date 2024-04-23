@@ -384,23 +384,18 @@ namespace RetoScheduler
         private static DateTime NextDayOfWeekInMonth(MonthlyConfiguration monthlyConfig, DateTime currentDate)
         {
             Month month = new Month(currentDate.Year, currentDate.Month);
-
-            List<DayOfWeek> selectedDays = monthlyConfig.SelectedDay switch
-            {
-                KindOfDay.Day => new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday },
-                KindOfDay.WeekDay => new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday },
-                KindOfDay.WeekEndDay => new List<DayOfWeek>() { DayOfWeek.Saturday, DayOfWeek.Sunday },
-                KindOfDay.Monday => new List<DayOfWeek>() { DayOfWeek.Monday },
-                KindOfDay.Tuesday => new List<DayOfWeek>() { DayOfWeek.Tuesday },
-                KindOfDay.Wednesday => new List<DayOfWeek>() { DayOfWeek.Wednesday },
-                KindOfDay.Thursday => new List<DayOfWeek>() { DayOfWeek.Thursday },
-                KindOfDay.Friday => new List<DayOfWeek>() { DayOfWeek.Friday },
-                KindOfDay.Saturday => new List<DayOfWeek>() { DayOfWeek.Saturday },
-                KindOfDay.Sunday => new List<DayOfWeek>() { DayOfWeek.Sunday },
-                _ => throw new SchedulerException("The selected Kind of Day is not supported"),
-            };
-
+            List<DayOfWeek> selectedDays = GetSelectedDays(monthlyConfig);
             IReadOnlyList<DateTime> listOfDays;
+
+            //bool manyDays = selectedDays.Count != 1;
+
+            //    //de month obtener lista de meses donde se contenga algun elemento de listofdays
+            //    listOfDays = month.GetMonthDays()
+            //        .Where(x => x >= currentDate)
+            //        .WhereIf(manyDays, x => selectedDays.Contains(x.DayOfWeek))
+            //        .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
+            //        .ToList();
+
             if (selectedDays.Count != 1)
             {
                 listOfDays = month.GetMonthDays()
@@ -417,6 +412,24 @@ namespace RetoScheduler
                     .ToList();
 
             return ObtainOrdinalsFromList(listOfDays, monthlyConfig);
+        }
+
+        private static List<DayOfWeek> GetSelectedDays(MonthlyConfiguration monthlyConfig)
+        {
+            return monthlyConfig.SelectedDay switch
+            {
+                KindOfDay.Day => new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday },
+                KindOfDay.WeekDay => new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday },
+                KindOfDay.WeekEndDay => new List<DayOfWeek>() { DayOfWeek.Saturday, DayOfWeek.Sunday },
+                KindOfDay.Monday => new List<DayOfWeek>() { DayOfWeek.Monday },
+                KindOfDay.Tuesday => new List<DayOfWeek>() { DayOfWeek.Tuesday },
+                KindOfDay.Wednesday => new List<DayOfWeek>() { DayOfWeek.Wednesday },
+                KindOfDay.Thursday => new List<DayOfWeek>() { DayOfWeek.Thursday },
+                KindOfDay.Friday => new List<DayOfWeek>() { DayOfWeek.Friday },
+                KindOfDay.Saturday => new List<DayOfWeek>() { DayOfWeek.Saturday },
+                KindOfDay.Sunday => new List<DayOfWeek>() { DayOfWeek.Sunday },
+                _ => throw new SchedulerException("The selected Kind of Day is not supported"),
+            };
         }
 
         private static DateTime ObtainOrdinalsFromList(IReadOnlyList<DateTime> list, MonthlyConfiguration monthlyConfig)
