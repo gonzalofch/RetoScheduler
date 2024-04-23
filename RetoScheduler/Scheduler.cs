@@ -451,10 +451,20 @@ namespace RetoScheduler
 
         public DateTime NextDayInMonth(DateTime dateTime, MonthlyConfiguration monthlyConfig, DailyConfiguration dailyConfiguration)
         {
+
             int dayNumber = monthlyConfig.DayNumber;
-            bool exceedsTheDateTime = !(dailyConfiguration.Type == DailyConfigType.Recurring
-                && dateTime <= new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second)
+            if (dailyConfiguration.Type == DailyConfigType.Once)
+            {
+                while (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) < dayNumber)
+                {
+                    dateTime = dateTime.AddMonths(1);
+                }
+
+                return new DateTime(dateTime.Year, dateTime.Month, dayNumber);
+            }
+            bool exceedsTheDateTime = !(dateTime <= new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second)
                 && NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan());
+
 
             if (exceedsTheDateTime)
             {
