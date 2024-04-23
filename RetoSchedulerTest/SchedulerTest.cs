@@ -1200,18 +1200,18 @@ namespace RetoSchedulerTest
         {
             var schedulerExample2 = new Scheduler();
             var schedulerExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Thursday, 0), null,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Thursday, 1), null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
             var schedulerExampleSecondResult1 = schedulerExample2.Execute(schedulerExampleSecondConfig1);
             schedulerExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 30, 8, 0, 0));
-            schedulerExampleSecondResult1.Description.Should().Be("Occurs the 30th of very months one time at 8:00:00 AM starting on 01/01/2024");
+            schedulerExampleSecondResult1.Description.Should().Be("Occurs the 30th of very 1 month one time at 8:00:00 AM starting on 01/01/2024");
 
             var schedulerExampleSecondConfig2 = new Configuration(schedulerExampleSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Thursday, 0), null,
+                new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Thursday, 1), null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
             var schedulerExampleSecondResult2 = schedulerExample2.Execute(schedulerExampleSecondConfig2);
             schedulerExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 8, 0, 0));
-            schedulerExampleSecondResult2.Description.Should().Be("Occurs the 30th of very months one time at 8:00:00 AM starting on 01/01/2024");
+            schedulerExampleSecondResult2.Description.Should().Be("Occurs the 30th of very 1 month one time at 8:00:00 AM starting on 01/01/2024");
         }
 
         [Fact]
@@ -1229,7 +1229,7 @@ namespace RetoSchedulerTest
                 new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 31, Ordinal.First, KindOfDay.Thursday, 3), null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
             var schedulerSecondResult2 = scheduler.Execute(schedulerSecondConfig2);
-            schedulerSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 10, 31, 12, 0, 0));
+            schedulerSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 8, 31, 12, 0, 0));
             schedulerSecondResult2.Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 PM starting on 01/01/2024");
         }
 
@@ -1249,28 +1249,28 @@ namespace RetoSchedulerTest
                 new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
             var schedulerSecondResult2 = scheduler.Execute(schedulerSecondConfig2);
-            schedulerSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 4, 20, 12, 0, 0));
+            schedulerSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 3, 20, 12, 0, 0));
             schedulerSecondResult2.Description.Should().Be("Occurs the 20th of very 2 months one time at 12:00:00 PM starting on 01/01/2024");
 
             var schedulerSecondConfig3 = new Configuration(schedulerSecondResult2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
                 new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
             var schedulerSecondResult3 = scheduler.Execute(schedulerSecondConfig3);
-            schedulerSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 7, 20, 12, 0, 0));
+            schedulerSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 5, 20, 12, 0, 0));
             schedulerSecondResult3.Description.Should().Be("Occurs the 20th of very 2 months one time at 12:00:00 PM starting on 01/01/2024");
 
             var schedulerSecondConfig4 = new Configuration(schedulerSecondResult3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
                 new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
             var schedulerSecondResult4 = scheduler.Execute(schedulerSecondConfig4);
-            schedulerSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 10, 20, 12, 0, 0));
+            schedulerSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 7, 20, 12, 0, 0));
             schedulerSecondResult4.Description.Should().Be("Occurs the 20th of very 2 months one time at 12:00:00 PM starting on 01/01/2024");
 
             var schedulerSecondConfig5 = new Configuration(schedulerSecondResult4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
                 new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 20, Ordinal.First, KindOfDay.Thursday, 2), null,
                 new DailyConfiguration(DailyConfigType.Once, new TimeOnly(12, 0, 0), null, null, null), new DateLimits(new DateTime(2024, 1, 1)));
             var schedulerSecondResult5 = scheduler.Execute(schedulerSecondConfig5);
-            schedulerSecondResult5.NextExecutionTime.Should().Be(new DateTime(2025, 1, 20, 12, 0, 0));
+            schedulerSecondResult5.NextExecutionTime.Should().Be(new DateTime(2024, 9, 20, 12, 0, 0));
             schedulerSecondResult5.Description.Should().Be("Occurs the 20th of very 2 months one time at 12:00:00 PM starting on 01/01/2024");
         }
         [Fact]
@@ -1316,56 +1316,56 @@ namespace RetoSchedulerTest
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult2 = schedulerExample2.Execute(schedulerExampleSecondConfig2);
-            schedulerExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2020, 5, 10, 8, 0, 0));
+            schedulerExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2020, 4, 10, 8, 0, 0));
             schedulerExampleSecondResult2.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleSecondConfig3 = new Configuration(schedulerExampleSecondResult2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult3 = schedulerExample2.Execute(schedulerExampleSecondConfig3);
-            schedulerExampleSecondResult3.NextExecutionTime.Should().Be(new DateTime(2020, 9, 10, 8, 0, 0));
+            schedulerExampleSecondResult3.NextExecutionTime.Should().Be(new DateTime(2020, 7, 10, 8, 0, 0));
             schedulerExampleSecondResult3.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleSecondConfig4 = new Configuration(schedulerExampleSecondResult3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult4 = schedulerExample2.Execute(schedulerExampleSecondConfig4);
-            schedulerExampleSecondResult4.NextExecutionTime.Should().Be(new DateTime(2021, 1, 10, 8, 0, 0));
+            schedulerExampleSecondResult4.NextExecutionTime.Should().Be(new DateTime(2020, 10, 10, 8, 0, 0));
             schedulerExampleSecondResult4.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleSecondConfig5 = new Configuration(schedulerExampleSecondResult4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult5 = schedulerExample2.Execute(schedulerExampleSecondConfig5);
-            schedulerExampleSecondResult5.NextExecutionTime.Should().Be(new DateTime(2021, 5, 10, 8, 0, 0));
+            schedulerExampleSecondResult5.NextExecutionTime.Should().Be(new DateTime(2021, 1, 10, 8, 0, 0));
             schedulerExampleSecondResult5.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleSecondConfig6 = new Configuration(schedulerExampleSecondResult5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult6 = schedulerExample2.Execute(schedulerExampleSecondConfig6);
-            schedulerExampleSecondResult6.NextExecutionTime.Should().Be(new DateTime(2021, 9, 10, 8, 0, 0));
+            schedulerExampleSecondResult6.NextExecutionTime.Should().Be(new DateTime(2021, 4, 10, 8, 0, 0));
             schedulerExampleSecondResult6.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleSecondConfig7 = new Configuration(schedulerExampleSecondResult6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult7 = schedulerExample2.Execute(schedulerExampleSecondConfig7);
-            schedulerExampleSecondResult7.NextExecutionTime.Should().Be(new DateTime(2022, 1, 10, 8, 0, 0));
+            schedulerExampleSecondResult7.NextExecutionTime.Should().Be(new DateTime(2021, 7, 10, 8, 0, 0));
             schedulerExampleSecondResult7.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleSecondConfig8 = new Configuration(schedulerExampleSecondResult7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult8 = schedulerExample2.Execute(schedulerExampleSecondConfig8);
-            schedulerExampleSecondResult8.NextExecutionTime.Should().Be(new DateTime(2022, 5, 10, 8, 0, 0));
+            schedulerExampleSecondResult8.NextExecutionTime.Should().Be(new DateTime(2021, 10, 10, 8, 0, 0));
             schedulerExampleSecondResult8.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
 
             var schedulerExampleSecondConfig9 = new Configuration(schedulerExampleSecondResult8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
             new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 10, Ordinal.First, KindOfDay.Thursday, 3), null,
             new DailyConfiguration(DailyConfigType.Once, new TimeOnly(8, 0, 0), null, null, null), new DateLimits(new DateTime(2020, 1, 1)));
             var schedulerExampleSecondResult9 = schedulerExample2.Execute(schedulerExampleSecondConfig9);
-            schedulerExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2022, 9, 10, 8, 0, 0));
+            schedulerExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2022, 1, 10, 8, 0, 0));
             schedulerExampleSecondResult9.Description.Should().Be("Occurs the 10th of very 3 months one time at 8:00:00 AM starting on 01/01/2020");
         }
 

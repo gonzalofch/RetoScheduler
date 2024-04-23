@@ -448,13 +448,26 @@ namespace RetoScheduler
             int dayNumber = monthlyConfig.DayNumber;
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
-                while (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) < dayNumber)
+                var daysDiff = DateTime.DaysInMonth(dateTime.Year, dateTime.Month) - dayNumber;
+                
+                if (daysDiff >= 0)
                 {
-                    dateTime = dateTime.AddMonths(1);
+                    if (Executed)
+                    {
+                        dateTime = dateTime.AddMonths(monthlyConfig.Frecuency);
+                    }                    
                 }
-
-                return new DateTime(dateTime.Year, dateTime.Month, dayNumber);
+                try
+                {
+                    return new DateTime(dateTime.Year, dateTime.Month, dayNumber);
+                }
+                catch (Exception)
+                {
+                    return new DateTime(dateTime.Year, dateTime.Month+1, dayNumber);
+                }
             }
+
+
             bool exceedsTheDateTime = !(dateTime <= new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second)
                 && NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan());
 
