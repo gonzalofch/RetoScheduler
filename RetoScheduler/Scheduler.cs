@@ -186,8 +186,8 @@ namespace RetoScheduler
 
             if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != TimeOnly.MinValue)
             {
-                string tiempoDeEjecucion = config.DailyConfiguration.OnceAt.ParseAmPm();
-                return "one time at " + tiempoDeEjecucion + Space;
+                string dailyExecutionTime = config.DailyConfiguration.OnceAt.ParseAmPm();
+                return "one time at " + dailyExecutionTime + Space;
             }
             var limits = config.DailyConfiguration.TimeLimits;
             string dailyDescription = config.WeeklyConfiguration == null ? "and " : string.Empty;
@@ -242,7 +242,7 @@ namespace RetoScheduler
                 throw new SchedulerException("Once Types requires an obligatory DateTime");
             }
 
-            TimeSpan addedTime =config.DailyConfiguration.Type == DailyConfigType.Once
+            TimeSpan addedTime = config.DailyConfiguration.Type == DailyConfigType.Once
                 ? config.DailyConfiguration.OnceAt.ToTimeSpan()
                 : config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
 
@@ -332,7 +332,6 @@ namespace RetoScheduler
             var excedsLimits = hasLimits && config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
             var skipDay = excedsLimits || (config.DailyConfiguration.Type == DailyConfigType.Once && Executed);
 
-
             return skipDay
                 ? GetNextDayInWeek(sortedDays, actualDay, dateTime, config)
                 : NextDay(sortedDays, actualDay, dateTime);
@@ -358,32 +357,28 @@ namespace RetoScheduler
         }
 
         public DateTime GetNextMonthDate(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
-        {//
-            DateTime nextMonthDate = dateTime;
+        {
             if (monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                return NextDayInMonth(nextMonthDate, monthlyConfiguration, dailyConfiguration);
+                return NextDayInMonth(dateTime, monthlyConfiguration, dailyConfiguration);
             }
-            else
-            {
-                return Executed
-                    ? ExecutedNextDayOfWeekInMonth(monthlyConfiguration, dailyConfiguration, dateTime)
-                    : NextDayOfWeekInMonth(monthlyConfiguration, dateTime);
-            }
+
+            return Executed
+                ? ExecutedNextDayOfWeekInMonth(monthlyConfiguration, dailyConfiguration, dateTime)
+                : NextDayOfWeekInMonth(monthlyConfiguration, dateTime);
         }
 
         private DateTime ExecutedNextDayOfWeekInMonth(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
-        {//var 
+        {
             if (NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
             {
                 return dateTime;
             }
-            else
-            {
-                dateTime = new DateTime(dateTime.AddMonths(monthlyConfiguration.Frecuency).Year, dateTime.AddMonths(monthlyConfiguration.Frecuency).Month, 1);
 
-                return NextDayOfWeekInMonth(monthlyConfiguration, dateTime);
-            }
+            DateTime nextMonthDate = dateTime.AddMonths(monthlyConfiguration.Frecuency);
+            dateTime = new DateTime(nextMonthDate.Year, nextMonthDate.Month, 1);
+
+            return NextDayOfWeekInMonth(monthlyConfiguration, dateTime);
         }
 
         private static DateTime NextDayOfWeekInMonth(MonthlyConfiguration monthlyConfig, DateTime currentDate)
@@ -491,7 +486,7 @@ namespace RetoScheduler
 
 
         //COMBINAR METODOS EN UNO SOLO
-        private  DateTime GetNextPossibleDateRecurring(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
+        private DateTime GetNextPossibleDateRecurring(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
         {
 
             //revisar ademas si se deben añadir días,
