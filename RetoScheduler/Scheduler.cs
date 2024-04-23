@@ -25,6 +25,8 @@ namespace RetoScheduler
 
         private bool Executed { get; set; }
 
+        private const string Space = " ";
+
         public OutPut Execute(Configuration config)
         {
             ValidateConfiguration(config);
@@ -39,7 +41,7 @@ namespace RetoScheduler
             return new OutPut(dateTime, CalculateDescription(dateTime, config));
         }
 
-        private void ValidateConfiguration(Configuration config)
+        private static void ValidateConfiguration(Configuration config)
         {
             ValidadIsEnabled(config);
             ValidateLimitsRange(config);
@@ -54,7 +56,7 @@ namespace RetoScheduler
             }
         }
 
-        private void ValidateLimitsRange(Configuration config)
+        private static void ValidateLimitsRange(Configuration config)
         {
             if (config.DateLimits == null)
             {
@@ -67,18 +69,18 @@ namespace RetoScheduler
             }
         }
 
-        private void ValidateLimitsTimeRange(Configuration config)
+        private static void ValidateLimitsTimeRange(Configuration config)
         {
-            if (config.DailyConfiguration.Type == DailyConfigType.Recurring && config.DailyConfiguration.TimeLimits != null)
+            bool isRecurring = config.DailyConfiguration.Type == DailyConfigType.Recurring;
+            bool hasTimeLimits = config.DailyConfiguration.TimeLimits != null;
+            bool endTimeIsShorter = isRecurring && config.DailyConfiguration.TimeLimits.EndTime < config.DailyConfiguration.TimeLimits.StartTime;
+            if (hasTimeLimits && endTimeIsShorter)
             {
-                if (config.DailyConfiguration.TimeLimits.EndTime < config.DailyConfiguration.TimeLimits.StartTime)
-                {
-                    throw new SchedulerException("The EndTime cannot be earlier than StartTime");
-                }
+                throw new SchedulerException("The EndTime cannot be earlier than StartTime");
             }
         }
 
-        private string CalculateDescription(DateTime dateTime, Configuration config)
+        private static string CalculateDescription(DateTime dateTime, Configuration config)
         {
             StringBuilder description = new StringBuilder("Occurs ");
 
@@ -96,7 +98,6 @@ namespace RetoScheduler
             }
 
             description.Append(GetDailyDescription(config));
-
             description.Append(GetDateLimitsDescription(config));
 
             return description.ToString();
@@ -115,6 +116,7 @@ namespace RetoScheduler
                 ? "starting on " + startDate + " and finishing on " + endDate
                 : "starting on " + startDate;
         }
+
         private static string GetMonthlyDescription(Configuration config)
         {
             string monthlyDescription = "the ";
@@ -124,24 +126,24 @@ namespace RetoScheduler
                 : GetMonthlyWeekdaysMessage(config);
 
             monthlyDescription += "of very ";
-
             monthlyDescription += GetMonthlyFrecuencyMessage(config);
 
             return monthlyDescription;
         }
+
         private static string GetMonthlyDayOfNumber(Configuration config)
         {
             return config.MonthlyConfiguration.DayNumber switch
             {
-                1 => config.MonthlyConfiguration.DayNumber + "st ",
-                21 => config.MonthlyConfiguration.DayNumber + "st ",
-                31 => config.MonthlyConfiguration.DayNumber + "st ",
+                //
+                1 or 21 or 31 => config.MonthlyConfiguration.DayNumber + "st ",
                 2 => "2nd ",
                 3 => "3rd ",
                 > 3 and < 32 => config.MonthlyConfiguration.DayNumber + "th ",
                 _ => throw new SchedulerException("Not supported action for monthly day number message"),
             };
         }
+
         private static string GetMonthlyWeekdaysMessage(Configuration config)
         {
             string ordinal = config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + " ";
@@ -149,6 +151,7 @@ namespace RetoScheduler
 
             return ordinal + selectedWeekDay;
         }
+
         private static string GetMonthlyFrecuencyMessage(Configuration config)
         {
             return config.MonthlyConfiguration.Frecuency switch
@@ -159,6 +162,7 @@ namespace RetoScheduler
                 _ => throw new SchedulerException("Not supported action for monthly frecuency message"),
             };
         }
+
         private static string GetWeeklyDescription(Configuration config)
         {
             return config.WeeklyConfiguration != null
@@ -180,18 +184,18 @@ namespace RetoScheduler
 
         private static string GetDailyDescription(Configuration config)
         {
-
-            if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != new TimeOnly(0, 0, 0))
+            //
+            if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != TimeOnly.MinValue)
             {
                 string tiempoDeEjecucion = config.DailyConfiguration.OnceAt.ParseAmPm();
-                return "one time at " + tiempoDeEjecucion + " ";
+                return "one time at " + tiempoDeEjecucion + Space;
             }
             var limits = config.DailyConfiguration.TimeLimits;
             string dailyDescription = config.WeeklyConfiguration == null ? "and " : string.Empty;
             string timeStartLimit = limits.StartTime.ParseAmPm();
             string timeEndLimit = limits.EndTime.ParseAmPm();
 
-            return dailyDescription + GetDailyFrecuencyMessage(config) + timeStartLimit + " and " + timeEndLimit + " ";
+            return dailyDescription + GetDailyFrecuencyMessage(config) + timeStartLimit + " and " + timeEndLimit + Space;
 
         }
 
@@ -205,11 +209,12 @@ namespace RetoScheduler
                 _ => throw new SchedulerException("Not supported action for daily frecuency message"),
             };
 
-            return "every " + config.DailyConfiguration.Frecuency + " " + timeUnit + " between ";
+            return "every " + config.DailyConfiguration.Frecuency + Space + timeUnit + " between ";
         }
 
         private static string GetStringListDayOfWeek(List<DayOfWeek> selectedDays)
         {
+            //+
             string formattedList = "on";
 
             foreach (var item in selectedDays)
@@ -217,13 +222,13 @@ namespace RetoScheduler
                 string dayInLower = item.ToString().ToLower();
                 if (item == selectedDays.Last() && selectedDays.Count() >= 2)
                 {
-                    formattedList += " and " + dayInLower + " ";
+                    formattedList += " and " + dayInLower + Space;
                 }
                 else
                 {
-                    formattedList = item == selectedDays.First()
-                        ? formattedList += " "
-                        : formattedList += ", ";
+                    formattedList += item == selectedDays.First()
+                        ? Space
+                        : ", ";
 
                     formattedList += dayInLower;
                 }
@@ -239,9 +244,11 @@ namespace RetoScheduler
                 throw new SchedulerException("Once Types requires an obligatory DateTime");
             }
 
-            return config.DailyConfiguration.Type == DailyConfigType.Once
-                ? config.ConfigDateTime.Value + config.DailyConfiguration.OnceAt.ToTimeSpan()
-                : config.ConfigDateTime.Value + config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
+            TimeSpan addedTime =config.DailyConfiguration.Type == DailyConfigType.Once
+                ? config.DailyConfiguration.OnceAt.ToTimeSpan()
+                : config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
+
+            return config.ConfigDateTime.Value + addedTime;
         }
 
         private DateTime InRecurring(Configuration config)
@@ -254,10 +261,10 @@ namespace RetoScheduler
             var dateTime = GetFirstExecutionDate(config);
             dateTime = NextExecutionDate(config, dateTime);
 
-            return NextExecutionTime(config.DailyConfiguration, dateTime, Executed);
+            return NextExecutionTime(config.DailyConfiguration, dateTime);
         }
 
-        private static DateTime NextExecutionTime(DailyConfiguration dailyConfiguration, DateTime dateTime, bool executed)
+        private DateTime NextExecutionTime(DailyConfiguration dailyConfiguration, DateTime dateTime)
         {
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
@@ -265,7 +272,7 @@ namespace RetoScheduler
             }
 
             TimeOnly nextExecutionTime = TimeOnly.FromDateTime(dateTime);
-            if (executed)
+            if (Executed)
             {
                 nextExecutionTime = AddOccursEveryUnit(dailyConfiguration, nextExecutionTime);
             }
@@ -293,12 +300,13 @@ namespace RetoScheduler
             }
 
             return config.CurrentDate < config.DateLimits.StartDate
-           ? config.DateLimits.StartDate
-           : config.CurrentDate;
+                ? config.DateLimits.StartDate
+                : config.CurrentDate;
         }
 
         private static void ValidateNextExecutionIsBetweenDateLimits(Configuration config, DateTime dateTime)
         {
+            //
             var dateBetweenLimits = dateTime >= config.DateLimits.StartDate && (config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate);
             if (dateBetweenLimits is false)
             {
@@ -350,7 +358,7 @@ namespace RetoScheduler
         }
 
         public DateTime GetNextMonthDate(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
-        {
+        {//
             DateTime nextMonthDate = dateTime;
             if (monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
@@ -365,8 +373,8 @@ namespace RetoScheduler
         }
 
         private DateTime ExecutedNextDayOfWeekInMonth(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
-        {
-            if (NextExecutionTime(dailyConfiguration, dateTime, Executed).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
+        {//var 
+            if (NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
             {
                 return dateTime;
             }
@@ -418,6 +426,7 @@ namespace RetoScheduler
 
         private static DateTime ObtainOrdinalsFromList(IReadOnlyList<DateTime> list, MonthlyConfiguration monthlyConfig)
         {
+            //if int 
             bool greaterThanIndex1 = (Ordinal.First == monthlyConfig.OrdinalNumber || Ordinal.Last == monthlyConfig.OrdinalNumber) && list.Count < 1;
             bool greaterThanIndex2 = Ordinal.Second == monthlyConfig.OrdinalNumber && list.Count < 2;
             bool greaterThanIndex3 = Ordinal.Third == monthlyConfig.OrdinalNumber && list.Count < 3;
@@ -436,12 +445,13 @@ namespace RetoScheduler
                 _ => DateTime.MinValue,
             };
 
+
             return dateTime;
         }
 
         public DateTime NextDayInMonth(DateTime dateTime, MonthlyConfiguration monthlyConfig, DailyConfiguration dailyConfiguration)
         {
-
+            //if var
             int dayNumber = monthlyConfig.DayNumber;
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
@@ -451,8 +461,8 @@ namespace RetoScheduler
             try
             {
 
-                bool exceedsTheDateTime = !(dateTime <= new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second) 
-                    && NextExecutionTime(dailyConfiguration, dateTime, Executed).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan());
+                bool exceedsTheDateTime = !(dateTime <= new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second)
+                    && NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan());
                 if (exceedsTheDateTime)
                 {
                     dateTime = Executed
@@ -462,35 +472,38 @@ namespace RetoScheduler
 
                 return dateTime.Day <= dayNumber && dayNumber <= DateTime.DaysInMonth(dateTime.Year, dateTime.Month)
                     ? ExcedsDays(dateTime, dayNumber, exceedsTheDateTime)
-                    : GetNextPossibleDateRecurring(monthlyConfig, dailyConfiguration, dateTime, Executed);
+                    : GetNextPossibleDateRecurring(monthlyConfig, dailyConfiguration, dateTime);
             }
             catch (Exception)
             {
-                dateTime = GetNextPossibleDateRecurring(monthlyConfig, dailyConfiguration, dateTime, Executed);
+                dateTime = GetNextPossibleDateRecurring(monthlyConfig, dailyConfiguration, dateTime);
 
                 return dateTime;
             }
         }
 
         private static DateTime ExcedsDays(DateTime dateTime, int dayNumber, bool exceedsTheDateTime)
-        {
+        {//
             return exceedsTheDateTime
-                                ? new DateTime(dateTime.Year, dateTime.Month, dayNumber)
-                                : new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second);
+                          ? new DateTime(dateTime.Year, dateTime.Month, dayNumber)
+                    : new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second);
         }
 
-        private static DateTime GetNextPossibleDateRecurring(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime, bool executed)
+
+        //COMBINAR METODOS EN UNO SOLO
+        private  DateTime GetNextPossibleDateRecurring(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
         {
+
             //revisar ademas si se deben añadir días,
             //si el NextExecutionTime.TimeofDay es mayor que el endTime, saltar al siguiente mes
             //si es menor, devolver la misma fecha
             var diffDaysInMonth = monthlyConfiguration.DayNumber - DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
-            var nextExecutionTime = NextExecutionTime(dailyConfiguration, dateTime, executed).TimeOfDay;
+            var nextExecutionTime = NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay;
 
             dateTime = dateTime.AddMonths(1);
             if (diffDaysInMonth >= 0)
             {
-                if (executed)
+                if (Executed)
                 {
                     if (nextExecutionTime > dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
                     {
