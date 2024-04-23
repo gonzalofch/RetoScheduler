@@ -398,7 +398,7 @@ namespace RetoScheduler
                 .ToList();
             return ObtainOrdinalsFromList(listOfDays, monthlyConfig);
         }
-
+         
         private static List<DayOfWeek> GetSelectedDays(MonthlyConfiguration monthlyConfig)
         {
             return monthlyConfig.SelectedDay switch
@@ -419,27 +419,22 @@ namespace RetoScheduler
 
         private static DateTime ObtainOrdinalsFromList(IReadOnlyList<DateTime> list, MonthlyConfiguration monthlyConfig)
         {
-            //if int 
-            bool greaterThanIndex1 = (Ordinal.First == monthlyConfig.OrdinalNumber || Ordinal.Last == monthlyConfig.OrdinalNumber) && list.Count < 1;
-            bool greaterThanIndex2 = Ordinal.Second == monthlyConfig.OrdinalNumber && list.Count < 2;
-            bool greaterThanIndex3 = Ordinal.Third == monthlyConfig.OrdinalNumber && list.Count < 3;
-            bool greaterThanIndex4 = Ordinal.Fourth == monthlyConfig.OrdinalNumber && list.Count < 4;
-            if (greaterThanIndex1 || greaterThanIndex2 || greaterThanIndex3 || greaterThanIndex4)
+            int index = monthlyConfig.OrdinalNumber switch
+            {
+                Ordinal.First => 0,
+                Ordinal.Second => 1,
+                Ordinal.Third => 2,
+                Ordinal.Fourth => 3,
+                Ordinal.Last => list.Count()-1,
+                _ => throw new Exception("Exception for index in list"),
+            };
+
+            if (list.Count<index)
             {
                 throw new SchedulerException("The index is greater than the number of days");
             }
-            var dateTime = monthlyConfig.OrdinalNumber switch
-            {
-                Ordinal.First => list[0],
-                Ordinal.Second => list[1],
-                Ordinal.Third => list[2],
-                Ordinal.Fourth => list[3],
-                Ordinal.Last => list.Last(),
-                _ => DateTime.MinValue,
-            };
 
-
-            return dateTime;
+            return list[index];
         }
 
         public DateTime NextDayInMonth(DateTime dateTime, MonthlyConfiguration monthlyConfig, DailyConfiguration dailyConfiguration)

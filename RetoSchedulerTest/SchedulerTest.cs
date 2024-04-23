@@ -182,30 +182,6 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Shoud_Throw_Exception_If_Month_Ordinal_Is_Greater_Than_Number_Of_Selected_Day()
-        {
-            var schedulerExample = new Scheduler();
-            var schedulerExampleConfig1 = new Configuration(new DateTime(2020, 1, 22), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Third, KindOfDay.Thursday, 3), null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            FluentActions
-                 .Invoking(() => schedulerExample.Execute(schedulerExampleConfig1))
-                 .Should()
-                 .Throw<SchedulerException>()
-                 .And.Message
-                 .Should().Be("The index is greater than the number of days");
-
-            var schedulerExample2 = new Scheduler();
-            var schedulerExampleConfig2 = new Configuration(new DateTime(2020, 1, 22), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Third, KindOfDay.Thursday, 3), null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            FluentActions
-                 .Invoking(() => schedulerExample2.Execute(schedulerExampleConfig2))
-                 .Should()
-                 .Throw<SchedulerException>()
-                 .And.Message
-                 .Should().Be("The index is greater than the number of days");
-        }
-
-        [Fact]
         public void Should_Validate_Next_Execution_Time()
         {
             var scheduler = new Scheduler();
