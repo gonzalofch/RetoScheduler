@@ -389,16 +389,15 @@ namespace RetoScheduler
 
             bool manyDays = selectedDays.Count != 1;
 
-            //de month obtener lista de meses donde se contenga algun elemento de listofdays
             listOfDays = month.GetMonthDays()
                 .Where(x => x >= currentDate)
-                .WhereIf(!manyDays, _ => selectedDays.First()==_.DayOfWeek)
+                .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
                 .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
-                .WhereIf(manyDays, _=> selectedDays.Contains(_.DayOfWeek))
+                .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
                 .ToList();
             return ObtainOrdinalsFromList(listOfDays, monthlyConfig);
         }
-         
+
         private static List<DayOfWeek> GetSelectedDays(MonthlyConfiguration monthlyConfig)
         {
             return monthlyConfig.SelectedDay switch
@@ -425,11 +424,11 @@ namespace RetoScheduler
                 Ordinal.Second => 1,
                 Ordinal.Third => 2,
                 Ordinal.Fourth => 3,
-                Ordinal.Last => list.Count()-1,
+                Ordinal.Last => list.Count() - 1,
                 _ => throw new Exception("Exception for index in list"),
             };
 
-            if (list.Count<index)
+            if (list.Count < index)
             {
                 throw new SchedulerException("The index is greater than the number of days");
             }
@@ -439,97 +438,76 @@ namespace RetoScheduler
 
         public DateTime NextDayInMonth(DateTime dateTime, MonthlyConfiguration monthlyConfig, DailyConfiguration dailyConfiguration)
         {
-            //if var
             int dayNumber = monthlyConfig.DayNumber;
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
-                return GetNextPossibleDateOnce(monthlyConfig, dateTime, Executed);
+                return GetNextPossibleDate(monthlyConfig,dailyConfiguration, dateTime);
             }
-
             try
             {
+                var outOfDate = dateTime > new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second);
+                var outOfTimeLimits = NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay > dailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
+                bool exceedsTheDateTime = outOfDate || outOfTimeLimits;
 
-                bool exceedsTheDateTime = !(dateTime <= new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second)
-                    && NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay <= dailyConfiguration.TimeLimits.EndTime.ToTimeSpan());
                 if (exceedsTheDateTime)
                 {
                     dateTime = Executed
-                    ? dateTime.AddMonths(monthlyConfig.Frecuency + 1)
+                    ? dateTime.AddMonths(monthlyConfig.Frecuency + 1).Date
                     : dateTime.AddDays(1).Date;
+
                 }
 
                 return dateTime.Day <= dayNumber && dayNumber <= DateTime.DaysInMonth(dateTime.Year, dateTime.Month)
                     ? ExcedsDays(dateTime, dayNumber, exceedsTheDateTime)
-                    : GetNextPossibleDateRecurring(monthlyConfig, dailyConfiguration, dateTime);
+                    : GetNextPossibleDate(monthlyConfig, dailyConfiguration, dateTime);
             }
             catch (Exception)
             {
-                dateTime = GetNextPossibleDateRecurring(monthlyConfig, dailyConfiguration, dateTime);
-
-                return dateTime;
+                return GetNextPossibleDate(monthlyConfig, dailyConfiguration, dateTime);
             }
         }
 
         private static DateTime ExcedsDays(DateTime dateTime, int dayNumber, bool exceedsTheDateTime)
-        {//
+        {
+            DateTime date = new DateTime(dateTime.Year, dateTime.Month, dayNumber);
+            TimeSpan time = new TimeSpan(dateTime.Hour, dateTime.Minute, dateTime.Second);
             return exceedsTheDateTime
-                          ? new DateTime(dateTime.Year, dateTime.Month, dayNumber)
-                    : new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second);
+                ? date
+                : date + time;
         }
-
-
-        //COMBINAR METODOS EN UNO SOLO
-        private DateTime GetNextPossibleDateRecurring(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
+        private DateTime GetNextPossibleDate(MonthlyConfiguration monthlyConfiguration, DailyConfiguration dailyConfiguration, DateTime dateTime)
         {
-
-            //revisar ademas si se deben añadir días,
-            //si el NextExecutionTime.TimeofDay es mayor que el endTime, saltar al siguiente mes
-            //si es menor, devolver la misma fecha
-            var diffDaysInMonth = monthlyConfiguration.DayNumber - DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
             var nextExecutionTime = NextExecutionTime(dailyConfiguration, dateTime).TimeOfDay;
+            int daysInMonth = DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
+            bool isRecurringType = dailyConfiguration.Type == DailyConfigType.Recurring;
 
-            dateTime = dateTime.AddMonths(1);
-            if (diffDaysInMonth >= 0)
+            if (isRecurringType)
             {
-                if (Executed)
+                dateTime = dateTime.AddMonths(1);
+            }
+
+            if (monthlyConfiguration.DayNumber <= daysInMonth && Executed)
+            {
+                if (isRecurringType && nextExecutionTime > dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
                 {
-                    if (nextExecutionTime > dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
-                    {
-                        dateTime = dateTime.AddMonths(monthlyConfiguration.Frecuency);
-                    }
+                    dateTime = dateTime.AddMonths(monthlyConfiguration.Frecuency);
                 }
-            }
-            try
-            {
-                return new DateTime(dateTime.Year, dateTime.Month, monthlyConfiguration.DayNumber);
-            }
-            catch (Exception)
-            {
-                return new DateTime(dateTime.Year, dateTime.Month + 1, monthlyConfiguration.DayNumber);
-            }
-        }
-
-        private static DateTime GetNextPossibleDateOnce(MonthlyConfiguration monthlyConfiguration, DateTime dateTime, bool executed)
-        {
-            var daysDiff = DateTime.DaysInMonth(dateTime.Year, dateTime.Month) - monthlyConfiguration.DayNumber;
-
-            if (daysDiff >= 0)
-            {
-                if (executed)
+                else if (!isRecurringType)
                 {
                     dateTime = dateTime.AddMonths(monthlyConfiguration.Frecuency);
                 }
             }
+
             try
             {
                 return new DateTime(dateTime.Year, dateTime.Month, monthlyConfiguration.DayNumber);
             }
-            catch (Exception)
+            catch (ArgumentOutOfRangeException)
             {
                 return new DateTime(dateTime.Year, dateTime.Month + 1, monthlyConfiguration.DayNumber);
             }
         }
-
+        
         private static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, TimeOnly dateTimeTime)
         {
             if (dateTimeTime == TimeOnly.MinValue)
