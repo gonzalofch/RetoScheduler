@@ -1,12 +1,4 @@
-﻿using RetoScheduler.Configurations;
-using RetoScheduler.Enums;
-using RetoScheduler.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using RetoScheduler.Enums;
 
 namespace RetoScheduler.Extensions
 {

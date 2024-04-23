@@ -2,9 +2,7 @@
 using RetoScheduler.Configurations;
 using RetoScheduler.Configurations.Limits;
 using RetoScheduler.Enums;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace RetoSchedulerTest
 {

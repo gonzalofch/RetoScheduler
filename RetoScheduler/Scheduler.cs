@@ -60,6 +60,7 @@ namespace RetoScheduler
             {
                 throw new SchedulerException("Limits Can`t be null");
             }
+
             if (config.DateLimits.StartDate > config.DateLimits.EndDate)
             {
                 throw new SchedulerException("The end date cannot be earlier than the initial date");
@@ -83,33 +84,27 @@ namespace RetoScheduler
 
             if (config.Type == ConfigType.Once && config.ConfigDateTime.HasValue)
             {
-                description.Append("once at " + dateTime.ToString("dd/MM/yyyy "));
+                description.Append(GetOnceAtDescription(dateTime));
             }
             else
             {
-                if (config.MonthlyConfiguration != null)
-                {
-                    description.Append(GetMonthlyDescription(config));
-                }
-                else
-                {
-                    description.Append(GetWeeklyDescription(config));
-                }
+                string configurationTypeDescription = config.MonthlyConfiguration != null
+                    ? GetMonthlyDescription(config)
+                    : GetWeeklyDescription(config);
+
+                description.Append(configurationTypeDescription);
             }
 
-            if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != new TimeOnly(0, 0, 0))
-            {
-                string tiempoDeEjecucion = config.DailyConfiguration.OnceAt.ParseAmPm();
-                description.Append("one time at " + tiempoDeEjecucion + " ");
-            }
-            else
-            {
-                description.Append(GetDailyDescription(config));
-            }
+            description.Append(GetDailyDescription(config));
+
             description.Append(GetDateLimitsDescription(config));
 
-
             return description.ToString();
+        }
+
+        private static string GetOnceAtDescription(DateTime dateTime)
+        {
+            return "once at " + dateTime.ToString("dd/MM/yyyy ");
         }
 
         private static string GetDateLimitsDescription(Configuration config)
@@ -123,42 +118,36 @@ namespace RetoScheduler
         private static string GetMonthlyDescription(Configuration config)
         {
             string monthlyDescription = "the ";
-            if (config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
-            {
-                monthlyDescription += GetMonthlyDayOfNumber(config);
-            }
-            else
-            {
-                monthlyDescription += GetMonthlyWeekdaysMessage(config);
-            }
+
+            monthlyDescription += config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption
+                ? GetMonthlyDayOfNumber(config)
+                : GetMonthlyWeekdaysMessage(config);
+
             monthlyDescription += "of very ";
+
             monthlyDescription += GetMonthlyFrecuencyMessage(config);
 
             return monthlyDescription;
         }
         private static string GetMonthlyDayOfNumber(Configuration config)
         {
-            string monthlyMessage = string.Empty;
-            monthlyMessage += config.MonthlyConfiguration.DayNumber switch
+            return config.MonthlyConfiguration.DayNumber switch
             {
                 1 => config.MonthlyConfiguration.DayNumber + "st ",
                 21 => config.MonthlyConfiguration.DayNumber + "st ",
                 31 => config.MonthlyConfiguration.DayNumber + "st ",
                 2 => "2nd ",
                 3 => "3rd ",
-                > 4 and < 32 => config.MonthlyConfiguration.DayNumber + "th ",
+                > 3 and < 32 => config.MonthlyConfiguration.DayNumber + "th ",
                 _ => throw new SchedulerException("Not supported action for monthly day number message"),
             };
-            return monthlyMessage;
         }
         private static string GetMonthlyWeekdaysMessage(Configuration config)
         {
+            string ordinal = config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + " ";
+            string selectedWeekDay = config.MonthlyConfiguration.SelectedDay.ToString().ToLower() + " ";
 
-            string monthlyMessage = string.Empty;
-            monthlyMessage += config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + " ";
-            monthlyMessage += config.MonthlyConfiguration.SelectedDay.ToString().ToLower() + " ";
-
-            return monthlyMessage;
+            return ordinal + selectedWeekDay;
         }
         private static string GetMonthlyFrecuencyMessage(Configuration config)
         {
@@ -179,10 +168,6 @@ namespace RetoScheduler
 
         private static string GetWeeklyFrecuencyMessage(Configuration config)
         {
-            if (config.WeeklyConfiguration == null)
-            {
-                return string.Empty;
-            }
             string weeklyMessage = config.WeeklyConfiguration.FrecuencyInWeeks switch
             {
                 0 => "week ",
@@ -195,11 +180,19 @@ namespace RetoScheduler
 
         private static string GetDailyDescription(Configuration config)
         {
+
+            if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != new TimeOnly(0, 0, 0))
+            {
+                string tiempoDeEjecucion = config.DailyConfiguration.OnceAt.ParseAmPm();
+                return "one time at " + tiempoDeEjecucion + " ";
+            }
+            var limits = config.DailyConfiguration.TimeLimits;
             string dailyDescription = config.WeeklyConfiguration == null ? "and " : string.Empty;
-            string timeStartLimit = config.DailyConfiguration.TimeLimits.StartTime.ParseAmPm();
-            string timeEndLimit = config.DailyConfiguration.TimeLimits.EndTime.ParseAmPm();
+            string timeStartLimit = limits.StartTime.ParseAmPm();
+            string timeEndLimit = limits.EndTime.ParseAmPm();
 
             return dailyDescription + GetDailyFrecuencyMessage(config) + timeStartLimit + " and " + timeEndLimit + " ";
+
         }
 
         private static string GetDailyFrecuencyMessage(Configuration config)
@@ -498,11 +491,6 @@ namespace RetoScheduler
 
         private static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, TimeOnly dateTimeTime)
         {
-            if (dailyConfiguration.Frecuency == null)
-            {
-                return dateTimeTime;
-            }
-
             if (dateTimeTime == TimeOnly.MinValue)
             {
                 return dailyConfiguration.TimeLimits.StartTime;

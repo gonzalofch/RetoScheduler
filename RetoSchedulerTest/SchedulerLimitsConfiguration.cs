@@ -1,8 +1,6 @@
-﻿using RetoScheduler;
-using RetoScheduler.Configurations;
+﻿using RetoScheduler.Configurations;
 using RetoScheduler.Configurations.Limits;
 using RetoScheduler.Enums;
-using RetoScheduler.Exceptions;
 using System.Collections;
 
 namespace RetoSchedulerTest

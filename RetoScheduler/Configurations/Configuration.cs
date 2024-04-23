@@ -1,6 +1,5 @@
 ﻿using RetoScheduler.Configurations.Limits;
 using RetoScheduler.Enums;
-using RetoScheduler.Exceptions;
 
 namespace RetoScheduler.Configurations
 {
