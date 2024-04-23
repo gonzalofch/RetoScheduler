@@ -387,30 +387,15 @@ namespace RetoScheduler
             List<DayOfWeek> selectedDays = GetSelectedDays(monthlyConfig);
             IReadOnlyList<DateTime> listOfDays;
 
-            //bool manyDays = selectedDays.Count != 1;
+            bool manyDays = selectedDays.Count != 1;
 
-            //    //de month obtener lista de meses donde se contenga algun elemento de listofdays
-            //    listOfDays = month.GetMonthDays()
-            //        .Where(x => x >= currentDate)
-            //        .WhereIf(manyDays, x => selectedDays.Contains(x.DayOfWeek))
-            //        .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
-            //        .ToList();
-
-            if (selectedDays.Count != 1)
-            {
-                listOfDays = month.GetMonthDays()
-                   .Where(x => x >= currentDate)
-                   .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
-                   .ToList();
-
-                return ObtainOrdinalsFromList(listOfDays.Where(x => selectedDays.Contains(x.DayOfWeek)).ToList(), monthlyConfig);
-
-            }
-            listOfDays = month.GetMonthDays(selectedDays.First())
-                    .Where(x => x >= currentDate)
-                    .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
-                    .ToList();
-
+            //de month obtener lista de meses donde se contenga algun elemento de listofdays
+            listOfDays = month.GetMonthDays()
+                .Where(x => x >= currentDate)
+                .WhereIf(!manyDays, _ => selectedDays.First()==_.DayOfWeek)
+                .Select(x => x.Add(TimeOnly.FromDateTime(currentDate).ToTimeSpan()))
+                .WhereIf(manyDays, _=> selectedDays.Contains(_.DayOfWeek))
+                .ToList();
             return ObtainOrdinalsFromList(listOfDays, monthlyConfig);
         }
 
