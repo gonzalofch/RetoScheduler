@@ -135,7 +135,6 @@ namespace RetoScheduler
         {
             return config.MonthlyConfiguration.DayNumber switch
             {
-                //
                 1 or 21 or 31 => config.MonthlyConfiguration.DayNumber + "st ",
                 2 => "2nd ",
                 3 => "3rd ",
@@ -184,7 +183,7 @@ namespace RetoScheduler
 
         private static string GetDailyDescription(Configuration config)
         {
-            //
+
             if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != TimeOnly.MinValue)
             {
                 string tiempoDeEjecucion = config.DailyConfiguration.OnceAt.ParseAmPm();
@@ -214,7 +213,6 @@ namespace RetoScheduler
 
         private static string GetStringListDayOfWeek(List<DayOfWeek> selectedDays)
         {
-            //+
             string formattedList = "on";
 
             foreach (var item in selectedDays)
@@ -306,8 +304,10 @@ namespace RetoScheduler
 
         private static void ValidateNextExecutionIsBetweenDateLimits(Configuration config, DateTime dateTime)
         {
-            //
-            var dateBetweenLimits = dateTime >= config.DateLimits.StartDate && (config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate);
+            bool startOutOfLimits = dateTime >= config.DateLimits.StartDate;
+            bool endOutOfLimits = config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate;
+            var dateBetweenLimits = startOutOfLimits && endOutOfLimits;
+
             if (dateBetweenLimits is false)
             {
                 throw new SchedulerException("DateTime can't be out of start and end range");
