@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RetoScheduler.Enums;
+using RetoScheduler.Exceptions;
 
 namespace RetoScheduler.Extensions
 {
@@ -14,12 +11,29 @@ namespace RetoScheduler.Extensions
         }
 
         public static DateTime NextDayOfWeek(this DateTime dateTime, DayOfWeek nextDayOfWeek)
-            {
-            for (int addedDays=0;dateTime.DayOfWeek!=nextDayOfWeek;dateTime=dateTime.AddDays(1), addedDays++)
-            {
+        {
+            int actualDay = (int)dateTime.DayOfWeek;
+            int targetDay = (int)nextDayOfWeek;
 
+            int difference = targetDay - actualDay;
+            if (difference < 0)
+            {
+                difference += 7;
             }
-            return dateTime;
+
+            return dateTime.AddDays(difference);
+        }
+
+        public static DateTime JumpToDayNumber(this DateTime dateTime, int dayNumber)
+        {
+            try
+            {
+                return new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second);
+            }
+            catch (Exception)
+            {
+                throw new SchedulerException("Jump to a day number that doesn't exists in the month");
+            }
         }
     }
 }

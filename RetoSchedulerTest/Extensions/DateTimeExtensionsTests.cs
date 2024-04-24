@@ -1,14 +1,5 @@
 ﻿using FluentAssertions;
-using RetoScheduler.Configurations.Limits;
-using RetoScheduler.Configurations;
 using RetoScheduler.Enums;
-using RetoScheduler.Exceptions;
-using RetoScheduler;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RetoScheduler.Extensions;
 
 namespace RetoSchedulerTest.Extensions
