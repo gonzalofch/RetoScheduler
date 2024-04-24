@@ -1,4 +1,5 @@
 ﻿using RetoScheduler.Enums;
+using RetoScheduler.Exceptions;
 
 namespace RetoScheduler.Extensions
 {
@@ -16,6 +17,19 @@ namespace RetoScheduler.Extensions
 
             }
             return dateTime;
+        }
+
+        public static DateTime JumpToDayNumber(this DateTime dateTime, int dayNumber)
+        {
+
+            try
+            {
+                return new DateTime(dateTime.Year, dateTime.Month, dayNumber, dateTime.Hour, dateTime.Minute, dateTime.Second);
+            }
+            catch (Exception)
+            {
+                throw new SchedulerException("Jump to a day number that doesn't exists in the month");
+            }
         }
     }
 }
