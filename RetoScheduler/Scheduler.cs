@@ -2,7 +2,8 @@
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
-using System.Text;
+using System;
+using System.Globalization;
 
 namespace RetoScheduler
 {
@@ -18,6 +19,8 @@ namespace RetoScheduler
 
         public OutPut Execute(Configuration config)
         {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(config.Cultures.GetDescription());
+
             ValidateConfiguration(config);
 
             DateTime dateTime = config.Type == ConfigType.Once

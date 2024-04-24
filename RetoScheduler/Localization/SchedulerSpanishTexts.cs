@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace RetoScheduler.Localization
 {
-    public class SchedulerSpanishTexts
+    public static class SchedulerSpanishTexts
     {
-        public SchedulerSpanishTexts() { }
 
-        private Dictionary<string, string> Traductions = new Dictionary<string, string>
+        public static Dictionary<string, string> Traductions = new Dictionary<string, string>
         {
             {"Scheduler:Errors:NotEnabled", "Necesitas marcar el campo para ejecutar el Programador"},
             {"Scheduler:Errors:NullDateLimits", "Los límites no pueden ser nulos"},

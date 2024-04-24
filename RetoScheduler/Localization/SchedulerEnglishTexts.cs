@@ -1,9 +1,9 @@
 ﻿namespace RetoScheduler.Localization
 {
-    public class SchedulerEnglishTexts
+    public static class SchedulerEnglishTexts
     {
 
-        private Dictionary<string, string> Traductions = new Dictionary<string, string>()
+        public static Dictionary<string, string> Traductions = new Dictionary<string, string>()
         {
             {"Scheduler:Errors:NotEnabled","You need to check field to run the Scheduler"},
             {"Scheduler:Errors:NullDateLimits","Limits Can`t be null"},
@@ -36,7 +36,7 @@
             {"Scheduler:String:WeekWithSpace","week "},
             {"Scheduler:String:Hours","hours"},
             {"Scheduler:String:Minutes","minutes"},
-            {"Scheduler:String:Hours","seconds"},
+            {"Scheduler:String:Seconds","seconds"},
 
             {"Scheduler:String:EveryWithSpace","every "},
             {"Scheduler:String:AndWithSpaces"," and "},
