@@ -9,6 +9,5 @@
                 ? source.Where(predicate)
                 : source;
         }
-
     }
 }
