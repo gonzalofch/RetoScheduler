@@ -20,6 +20,7 @@ namespace RetoScheduler
         public OutPut Execute(Configuration config)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo(config.Cultures.GetDescription());
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(config.Cultures.GetDescription());
 
             ValidateConfiguration(config);
 
@@ -29,7 +30,8 @@ namespace RetoScheduler
 
             ValidateNextExecutionIsBetweenDateLimits(config, dateTime);
             Executed = true;
-            string description = DescriptionBuilder.CalculateDescription(dateTime, config);
+            DescriptionBuilder builder = new DescriptionBuilder();
+            string description = builder.CalculateDescription(dateTime, config);
             return new OutPut(dateTime, description);
         }
 

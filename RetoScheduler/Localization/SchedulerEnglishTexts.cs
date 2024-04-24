@@ -18,12 +18,13 @@
             {"Scheduler:Errors:NotSupportedOrdinal","Selected Ordinal is not supported"},
             {"DescriptionBuilder:Errors:NotSupportedMonthlyDayNumber","Not supported action for monthly day number message"},
             {"DescriptionBuilder:Errors:NotSupportedMonthlyFrequency","Not supported action for monthly frecuency message"},
+            {"DescriptionBuilder:Errors:NotSupportedWeeklyFrequency","Not supported action for monthly frecuency message"},
             {"DescriptionBuilder:Errors:NotSupportedDailyFrequency","Not supported action for daily frecuency message"},
 
             {"Scheduler:String:OccursWithSpace","Occurs "},
             {"Scheduler:String:OnceAtWithSpace","once at "},
             {"Scheduler:String:StartingOnWithSpace","starting on "},
-            {"Scheduler:String:AndFinishingOnWithSpaces","and finishing on "},
+            {"Scheduler:String:AndFinishingOnWithSpaces"," and finishing on "},
             {"Scheduler:String:TheWithSpace","the "},
             {"Scheduler:String:OfVeryWithSpace","of very "},
             {"Scheduler:String:OrdinalStWithSpace","st "},
@@ -31,8 +32,10 @@
             {"Scheduler:String:OrdinalRdWithSpace","rd "},
             {"Scheduler:String:OrdinalThWithSpace","th "},
             {"Scheduler:String:MonthsWithSpace","months "},
-            {"Scheduler:String:MonthWithSpace","month "},
-            {"Scheduler:String:WeeksWithSpace","weeks "},
+            {"Scheduler:String:MonthsWithSpaces"," months "},
+            {"Scheduler:String:MonthWithSpaces"," month "},
+            {"Scheduler:String:WeeksWithSpaces"," weeks "},
+            {"Scheduler:String:WeekWithSpaces"," week "},
             {"Scheduler:String:WeekWithSpace","week "},
             {"Scheduler:String:Hours","hours"},
             {"Scheduler:String:Minutes","minutes"},
@@ -40,10 +43,19 @@
 
             {"Scheduler:String:EveryWithSpace","every "},
             {"Scheduler:String:AndWithSpaces"," and "},
+            {"Scheduler:String:AndWithSpace","and "},
             {"Scheduler:String:On","on"},
             {"Scheduler:String:OneTimeAtWithSpace","one time at "},
             {"Scheduler:String:BetweenWithSpaces"," between "},
-            {"Scheduler:String:DayWithSpace"," day "},
+            {"Scheduler:String:Day","day "},
+
+            {"Scheduler:DayOfWeek:Monday","monday" },
+            {"Scheduler:DayOfWeek:Tuesday","tuesday" },
+            {"Scheduler:DayOfWeek:Wednesday","wednesday" },
+            {"Scheduler:DayOfWeek:Thursday","thursday" },
+            {"Scheduler:DayOfWeek:Friday","friday" },
+            {"Scheduler:DayOfWeek:Saturday","saturday" },
+            {"Scheduler:DayOfWeek:Sunday","sunday" },
         };
     }
 }

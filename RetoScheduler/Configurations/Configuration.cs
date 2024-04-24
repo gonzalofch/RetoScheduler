@@ -6,7 +6,7 @@ namespace RetoScheduler.Configurations
 {
     public class Configuration
     {
-        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs,MonthlyConfiguration? monthlyConfiguration, WeeklyConfiguration? weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits, Cultures cultures = Enums.Cultures.en_US) //bool tal vez por defecto true
+        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs,MonthlyConfiguration? monthlyConfiguration, WeeklyConfiguration? weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits, Cultures cultures = Enums.Cultures.en_US)
         {
             CurrentDate = currentDate;
             Type = type;

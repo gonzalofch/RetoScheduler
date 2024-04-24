@@ -12,14 +12,5 @@
         {
             return new TimeOnly(time.Ticks + ticks);
         }
-
-        public static string ParseAmPm(this TimeOnly time)
-        {
-            string timeToAmPmFormat = (time.Hour >= 12)
-            ? time.AddHours(-12).ToString("h:mm:ss tt" ) + "PM"
-            : time.ToString("h:mm:ss tt" )+ "AM";
-
-            return timeToAmPmFormat;
-        }
     }
 }

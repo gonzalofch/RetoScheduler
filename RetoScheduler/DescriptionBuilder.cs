@@ -3,16 +3,21 @@ using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using System.Text;
 using RetoScheduler.Extensions;
+using RetoScheduler.Localization;
+using Microsoft.Extensions.Localization;
+using System.Globalization;
 namespace RetoScheduler
 {
-    public static class DescriptionBuilder
+    public class DescriptionBuilder
     {
 
         private const string Space = " ";
 
-        public static string CalculateDescription(DateTime dateTime, Configuration config)
+        private SchedulerLocalizer localizer = new SchedulerLocalizer();
+
+        public string CalculateDescription(DateTime dateTime, Configuration config)
         {
-            StringBuilder description = new StringBuilder("Occurs ");
+            StringBuilder description = new StringBuilder(localizer["Scheduler:String:OccursWithSpace"]);
 
             if (config.Type == ConfigType.Once && config.ConfigDateTime.HasValue)
             {
@@ -33,48 +38,48 @@ namespace RetoScheduler
             return description.ToString();
         }
 
-        private static string GetOnceAtDescription(DateTime dateTime)
+        private string GetOnceAtDescription(DateTime dateTime)
         {
-            return "once at " + dateTime.ToString("dd/MM/yyyy ");
+            return localizer["Scheduler:String:OnceAtWithSpace"] + dateTime.ToShortDateString() + Space;
         }
 
-        private static string GetDateLimitsDescription(Configuration config)
+        private string GetDateLimitsDescription(Configuration config)
         {
-            string startDate = config.DateLimits.StartDate.Date.ToString("dd/MM/yyyy");
-            string endDate = config.DateLimits.EndDate?.ToString("dd/MM/yyyy");
+            string startDate = config.DateLimits.StartDate.Date.ToShortDateString();
+            string endDate = config.DateLimits.EndDate?.ToShortDateString();
             return config.DateLimits.EndDate.HasValue
-                ? "starting on " + startDate + " and finishing on " + endDate
-                : "starting on " + startDate;
+                ? localizer["Scheduler:String:StartingOnWithSpace"] + startDate + localizer["Scheduler:String:AndFinishingOnWithSpaces"] + endDate
+                : localizer["Scheduler:String:StartingOnWithSpace"] + startDate;
         }
 
-        private static string GetMonthlyDescription(Configuration config)
+        private string GetMonthlyDescription(Configuration config)
         {
-            string monthlyDescription = "the ";
+            string monthlyDescription = localizer["Scheduler:String:TheWithSpace"];
 
             monthlyDescription += config.MonthlyConfiguration.Type == MonthlyConfigType.DayNumberOption
                 ? GetMonthlyDayOfNumber(config)
                 : GetMonthlyWeekdaysMessage(config);
 
-            monthlyDescription += "of very ";
+            monthlyDescription += localizer["Scheduler:String:OfVeryWithSpace"];
             monthlyDescription += GetMonthlyFrecuencyMessage(config);
 
             return monthlyDescription;
         }
 
-        private static string GetMonthlyDayOfNumber(Configuration config)
+        private string GetMonthlyDayOfNumber(Configuration config)
         {
             int dayNumber = config.MonthlyConfiguration.DayNumber;
             return config.MonthlyConfiguration.DayNumber switch
             {
-                1 or 21 or 31 => dayNumber + "st ",
-                2 => dayNumber + "nd ",
-                3 => dayNumber + "rd ",
-                > 3 and < 32 => dayNumber + "th ",
-                _ => throw new SchedulerException("Not supported action for monthly day number message"),
+                1 or 21 or 31 => dayNumber + localizer["Scheduler:String:OrdinalStWithSpace"],
+                2 => dayNumber + localizer["Scheduler:String:OrdinalNdWithSpace"],
+                3 => dayNumber + localizer["Scheduler:String:OrdinalRdWithSpace"],
+                > 3 and < 32 => dayNumber + localizer["Scheduler:String:OrdinalThWithSpace"],
+                _ => throw new SchedulerException(localizer["DescriptionBuilder:Errors:NotSupportedMonthlyDayNumber"]),
             };
         }
 
-        private static string GetMonthlyWeekdaysMessage(Configuration config)
+        private string GetMonthlyWeekdaysMessage(Configuration config)
         {
             string ordinal = config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + Space;
             string selectedWeekDay = config.MonthlyConfiguration.SelectedDay.ToString().ToLower() + Space;
@@ -82,46 +87,57 @@ namespace RetoScheduler
             return ordinal + selectedWeekDay;
         }
 
-        private static string GetMonthlyFrecuencyMessage(Configuration config)
+        private string GetMonthlyFrecuencyMessage(Configuration config)
         {
             return config.MonthlyConfiguration.Frecuency switch
             {
-                0 => "months ",
-                1 => config.MonthlyConfiguration.Frecuency + " month ",
-                > 1 => config.MonthlyConfiguration.Frecuency + " months ",
-                _ => throw new SchedulerException("Not supported action for monthly frecuency message"),
+                0 => localizer["Scheduler:String:MonthsWithSpace"],
+                1 => config.MonthlyConfiguration.Frecuency + localizer["Scheduler:String:MonthWithSpaces"],
+                > 1 => config.MonthlyConfiguration.Frecuency + localizer["Scheduler:String:MonthsWithSpaces"],
+                _ => throw new SchedulerException(localizer["DescriptionBuilder:Errors:NotSupportedMonthlyFrequency"]),
             };
         }
 
-        private static string GetWeeklyDescription(Configuration config)
+        private string GetWeeklyDescription(Configuration config)
         {
             return config.WeeklyConfiguration != null
-                ? "every " + GetWeeklyFrecuencyMessage(config)
-                : "every " + "day ";
+                ? localizer["Scheduler:String:EveryWithSpace"] + GetWeeklyFrecuencyMessage(config)
+                : localizer["Scheduler:String:EveryWithSpace"] + localizer["Scheduler:String:Day"];
         }
 
-        private static string GetWeeklyFrecuencyMessage(Configuration config)
+        private string GetWeeklyFrecuencyMessage(Configuration config)
         {
             string weeklyMessage = config.WeeklyConfiguration.FrecuencyInWeeks switch
             {
-                0 => "week ",
-                1 => config.WeeklyConfiguration.FrecuencyInWeeks + " week ",
-                > 1 => config.WeeklyConfiguration.FrecuencyInWeeks + " weeks ",
-                _ => throw new SchedulerException("Not supported action for weekly frecuency message"),
+                0 => localizer["Scheduler:String:WeekWithSpace"],
+                1 => config.WeeklyConfiguration.FrecuencyInWeeks + localizer["Scheduler:String:WeekWithSpaces"],
+                > 1 => config.WeeklyConfiguration.FrecuencyInWeeks + localizer["Scheduler:String:WeeksWithSpaces"],
+                _ => throw new SchedulerException(localizer["DescriptionBuilder:Errors:NotSupportedWeeklyFrequency"]),
             };
-            return weeklyMessage + DescriptionBuilder.GetListDayOfWeekInString(config.WeeklyConfiguration.SelectedDays);
+            return weeklyMessage + GetListDayOfWeekInString(config.WeeklyConfiguration.SelectedDays);
         }
-        private static string GetListDayOfWeekInString(List<DayOfWeek> selectedDays)
+
+        private string GetListDayOfWeekInString(List<DayOfWeek> selectedDays)
         {
-            StringBuilder formattedList = new StringBuilder("on");
+            StringBuilder formattedList = new StringBuilder(localizer["Scheduler:String:On"]);
 
             foreach (var item in selectedDays)
             {
-                string dayInLower = item.ToString().ToLower();
+                string dayOfWeek = (int)item switch
+                {
+                    1 => localizer["Scheduler:DayOfWeek:Monday"],
+                    2 => localizer["Scheduler:DayOfWeek:Tuesday"],
+                    3 => localizer["Scheduler:DayOfWeek:Wednesday"],
+                    4 => localizer["Scheduler:DayOfWeek:Thursday"],
+                    5 => localizer["Scheduler:DayOfWeek:Friday"],
+                    6 => localizer["Scheduler:DayOfWeek:Saturday"],
+                    0 => localizer["Scheduler:DayOfWeek:Sunday"],
+                    _ => throw new SchedulerException(localizer["DescriptionBuilder:Errors:NotSupportedWeeklyFrequency"]),
+                };
                 if (item == selectedDays.Last() && selectedDays.Count() >= 2)
                 {
-                    formattedList.Append(" and ");
-                    formattedList.Append(dayInLower);
+                    formattedList.Append(localizer["Scheduler:String:AndWithSpaces"]);
+                    formattedList.Append(dayOfWeek);
                     formattedList.Append(Space);
                 }
                 else
@@ -131,41 +147,41 @@ namespace RetoScheduler
                         : ", ";
 
                     formattedList.Append(separator);
-                    formattedList.Append(dayInLower);
+                    formattedList.Append(dayOfWeek);
                 }
             }
 
             return formattedList.ToString();
         }
 
-        private static string GetDailyDescription(Configuration config)
+        private string GetDailyDescription(Configuration config)
         {
-
+            //HH:mm:ss
             if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != TimeOnly.MinValue)
             {
-                string dailyExecutionTime = config.DailyConfiguration.OnceAt.ParseAmPm();
-                return "one time at " + dailyExecutionTime + Space;
+                string dailyExecutionTime = config.DailyConfiguration.OnceAt.ToString("HH:mm:ss", CultureInfo.CurrentCulture);
+                return localizer["Scheduler:String:OneTimeAtWithSpace"] + dailyExecutionTime + Space;
             }
 
             var limits = config.DailyConfiguration.TimeLimits;
-            string dailyDescription = config.WeeklyConfiguration == null ? "and " : string.Empty;
-            string timeStartLimit = limits.StartTime.ParseAmPm();
-            string timeEndLimit = limits.EndTime.ParseAmPm();
+            string dailyDescription = config.WeeklyConfiguration == null ? localizer["Scheduler:String:AndWithSpace"] : string.Empty;
+            string timeStartLimit = limits.StartTime.ToString("HH:mm:ss", CultureInfo.CurrentCulture);
+            string timeEndLimit = limits.EndTime.ToString("HH:mm:ss", CultureInfo.CurrentCulture);
 
-            return dailyDescription + GetDailyFrecuencyMessage(config) + timeStartLimit + " and " + timeEndLimit + Space;
+            return dailyDescription + GetDailyFrecuencyMessage(config) + timeStartLimit + localizer["Scheduler:String:AndWithSpaces"] + timeEndLimit + Space;
         }
 
-        private static string GetDailyFrecuencyMessage(Configuration config)
+        private string GetDailyFrecuencyMessage(Configuration config)
         {
             string timeUnit = config.DailyConfiguration.DailyFrecuencyType switch
             {
-                DailyFrecuency.Hours => "hours",
-                DailyFrecuency.Minutes => "minutes",
-                DailyFrecuency.Seconds => "seconds",
-                _ => throw new SchedulerException("Not supported action for daily frecuency message"),
+                DailyFrecuency.Hours => localizer["Scheduler:String:Hours"],
+                DailyFrecuency.Minutes => localizer["Scheduler:String:Minutes"],
+                DailyFrecuency.Seconds => localizer["Scheduler:String:Seconds"],
+                _ => throw new SchedulerException(localizer["DescriptionBuilder:Errors:NotSupportedDailyFrequency"]),
             };
 
-            return "every " + config.DailyConfiguration.Frecuency + Space + timeUnit + " between ";
+            return localizer["Scheduler:String:EveryWithSpace"] + config.DailyConfiguration.Frecuency + Space + timeUnit + localizer["Scheduler:String:BetweenWithSpaces"];
         }
     }
 }

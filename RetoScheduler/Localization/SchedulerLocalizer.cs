@@ -17,7 +17,6 @@ namespace RetoScheduler.Localization
 
         private Dictionary<string, string> GetCurrentCultureText()
         {
-
             if (CultureInfo.CurrentCulture.ToString() == Cultures.en_US.GetDescription())
             {
                 return SchedulerEnglishTexts.Traductions;
