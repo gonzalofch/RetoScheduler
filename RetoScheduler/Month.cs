@@ -14,7 +14,6 @@ namespace RetoScheduler
 
         public Month(int year, int monthIndex)
         {
-
             Year = year;
             MonthIndex = monthIndex;
         }

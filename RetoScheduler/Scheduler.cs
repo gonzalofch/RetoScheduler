@@ -169,7 +169,7 @@ namespace RetoScheduler
                 > 1 => config.WeeklyConfiguration.FrecuencyInWeeks + " weeks ",
                 _ => throw new SchedulerException("Not supported action for weekly frecuency message"),
             };
-            return weeklyMessage + GetStringListDayOfWeek(config.WeeklyConfiguration.SelectedDays);
+            return weeklyMessage + DescriptionBuilder.GetListDayOfWeekInString(config.WeeklyConfiguration.SelectedDays);
         }
 
         private static string GetDailyDescription(Configuration config)
@@ -202,29 +202,7 @@ namespace RetoScheduler
             return "every " + config.DailyConfiguration.Frecuency + Space + timeUnit + " between ";
         }
 
-        private static string GetStringListDayOfWeek(List<DayOfWeek> selectedDays)
-        {
-            string formattedList = "on";
 
-            foreach (var item in selectedDays)
-            {
-                string dayInLower = item.ToString().ToLower();
-                if (item == selectedDays.Last() && selectedDays.Count() >= 2)
-                {
-                    formattedList += " and " + dayInLower + Space;
-                }
-                else
-                {
-                    formattedList += item == selectedDays.First()
-                        ? Space
-                        : ", ";
-
-                    formattedList += dayInLower;
-                }
-            }
-
-            return formattedList;
-        }
 
         private DateTime InOnce(Configuration config)
         {
