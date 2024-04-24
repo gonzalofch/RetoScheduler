@@ -63,20 +63,21 @@ namespace RetoScheduler
 
         private static string GetMonthlyDayOfNumber(Configuration config)
         {
+            int dayNumber = config.MonthlyConfiguration.DayNumber;
             return config.MonthlyConfiguration.DayNumber switch
             {
-                1 or 21 or 31 => config.MonthlyConfiguration.DayNumber + "st ",
-                2 => "2nd ",
-                3 => "3rd ",
-                > 3 and < 32 => config.MonthlyConfiguration.DayNumber + "th ",
+                1 or 21 or 31 => dayNumber + "st ",
+                2 => dayNumber + "nd ",
+                3 => dayNumber + "rd ",
+                > 3 and < 32 => dayNumber + "th ",
                 _ => throw new SchedulerException("Not supported action for monthly day number message"),
             };
         }
 
         private static string GetMonthlyWeekdaysMessage(Configuration config)
         {
-            string ordinal = config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + " ";
-            string selectedWeekDay = config.MonthlyConfiguration.SelectedDay.ToString().ToLower() + " ";
+            string ordinal = config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + Space;
+            string selectedWeekDay = config.MonthlyConfiguration.SelectedDay.ToString().ToLower() + Space;
 
             return ordinal + selectedWeekDay;
         }
@@ -96,7 +97,7 @@ namespace RetoScheduler
         {
             return config.WeeklyConfiguration != null
                 ? "every " + GetWeeklyFrecuencyMessage(config)
-                : "every day ";
+                : "every " + "day ";
         }
 
         private static string GetWeeklyFrecuencyMessage(Configuration config)
@@ -121,12 +122,12 @@ namespace RetoScheduler
                 {
                     formattedList.Append(" and ");
                     formattedList.Append(dayInLower);
-                    formattedList.Append(" ");
+                    formattedList.Append(Space);
                 }
                 else
                 {
                     string separator = item == selectedDays.First()
-                        ? " "
+                        ? Space
                         : ", ";
 
                     formattedList.Append(separator);

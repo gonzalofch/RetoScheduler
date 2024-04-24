@@ -41,7 +41,7 @@ namespace RetoScheduler
         {
             if (!config.Enabled)
             {
-                throw new SchedulerException("You need to check field to Run Program");
+                throw new SchedulerException("You need to check field to run the Scheduler");
             }
         }
 
@@ -258,7 +258,7 @@ namespace RetoScheduler
                 Ordinal.Third => 2,
                 Ordinal.Fourth => 3,
                 Ordinal.Last => list.Count() - 1,
-                _ => throw new Exception("Exception for index in list"),
+                _ => throw new SchedulerException("Selected Ordinal is not supported"),
             };
 
             if (list.Count < index)

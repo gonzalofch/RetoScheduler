@@ -55,7 +55,7 @@ namespace RetoSchedulerTest
                .Should()
                .Throw<SchedulerException>()
                .And.Message
-               .Should().Be("You need to check field to Run Program");
+               .Should().Be("You need to check field to run the Scheduler");
         }
 
         [Fact]
