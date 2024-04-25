@@ -6,6 +6,7 @@ using RetoScheduler.Extensions;
 using RetoScheduler.Localization;
 using Microsoft.Extensions.Localization;
 using System.Globalization;
+using System.Security.Cryptography;
 namespace RetoScheduler
 {
     public class DescriptionBuilder
@@ -81,8 +82,29 @@ namespace RetoScheduler
 
         private string GetMonthlyWeekdaysMessage(Configuration config)
         {
-            string ordinal = config.MonthlyConfiguration.OrdinalNumber.ToString().ToLower() + Space;
-            string selectedWeekDay = config.MonthlyConfiguration.SelectedDay.ToString().ToLower() + Space;
+            string ordinal = (int)config.MonthlyConfiguration.OrdinalNumber switch
+            {
+                1 => localizer["Scheduler:String:OrdinalFirst"] + Space,
+                2 => localizer["Scheduler:String:OrdinalSecond"] + Space,
+                3 => localizer["Scheduler:String:OrdinalThird"] + Space,
+                4 => localizer["Scheduler:String:OrdinalFourth"] + Space,
+                5 => localizer["Scheduler:String:OrdinalLast"] + Space,
+                _ => throw new SchedulerException(localizer["DescriptionBuilder:Errors:NotSupportedMonthlyDayNumber"]),
+            };
+            string selectedWeekDay = (int)config.MonthlyConfiguration.SelectedDay switch
+            {
+                0 => localizer["Scheduler:DayOfWeek:Sunday"] + Space,
+                1 => localizer["Scheduler:DayOfWeek:Monday"] + Space,
+                2 => localizer["Scheduler:DayOfWeek:Tuesday"] + Space,
+                3 => localizer["Scheduler:DayOfWeek:Wednesday"] + Space,
+                4 => localizer["Scheduler:DayOfWeek:Thursday"] + Space,
+                5 => localizer["Scheduler:DayOfWeek:Friday"] + Space,
+                6 => localizer["Scheduler:DayOfWeek:Saturday"] + Space,
+                7 => localizer["Scheduler:KindOfDay:Day"] + Space,
+                8 => localizer["Scheduler:KindOfDay:WeekDay"] + Space,
+                9 => localizer["Scheduler:KindOfDay:WeekEndDay"] + Space,
+                _ => throw new SchedulerException(localizer["DescriptionBuilder:Errors:NotSupportedWeeklyFrequency"]),
+            };
 
             return ordinal + selectedWeekDay;
         }

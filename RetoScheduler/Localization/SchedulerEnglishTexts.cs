@@ -56,6 +56,15 @@
             {"Scheduler:DayOfWeek:Friday","friday" },
             {"Scheduler:DayOfWeek:Saturday","saturday" },
             {"Scheduler:DayOfWeek:Sunday","sunday" },
+            {"Scheduler:KindOfDay:Day","day" },
+            {"Scheduler:KindOfDay:WeekDay" ,"weekday"},
+            {"Scheduler:KindOfDay:WeekEndDay" ,"weekendday"},
+
+            { "Scheduler:String:OrdinalFirst", "first"},
+            { "Scheduler:String:OrdinalSecond", "second"},
+            { "Scheduler:String:OrdinalThird", "third"},
+            { "Scheduler:String:OrdinalFourth", "fourth"},
+            { "Scheduler:String:OrdinalLast", "last"},
         };
     }
 }
