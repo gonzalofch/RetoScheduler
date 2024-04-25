@@ -10,6 +10,7 @@ namespace RetoScheduler
     public class DescriptionBuilder
     {
         private const string Space = " ";
+
         private readonly IStringLocalizer _stringLocalizer;
 
         public DescriptionBuilder(IStringLocalizer stringLocalizer)

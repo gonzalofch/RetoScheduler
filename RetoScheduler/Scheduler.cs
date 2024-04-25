@@ -1,4 +1,5 @@
-﻿using RetoScheduler.Configurations;
+﻿using Microsoft.Extensions.Localization;
+using RetoScheduler.Configurations;
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
@@ -9,9 +10,11 @@ namespace RetoScheduler
 {
     public class Scheduler
     {
+        private IStringLocalizer _stringLocalizer;
+
         public Scheduler()
         {
-
+            _stringLocalizer = new SchedulerLocalizer();
         }
 
         private bool Executed { get; set; }
@@ -20,7 +23,7 @@ namespace RetoScheduler
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo(config.Cultures.GetDescription());
             Thread.CurrentThread.CurrentUICulture = new CultureInfo(config.Cultures.GetDescription());
-
+            _stringLocalizer = new SchedulerLocalizer();
             ValidateConfiguration(config);
 
             DateTime dateTime = config.Type == ConfigType.Once
@@ -155,7 +158,11 @@ namespace RetoScheduler
 
             if (dateBetweenLimits is false)
             {
-                throw new SchedulerException("DateTime can't be out of start and end range");
+                throw new SchedulerException("DateTime can't be out of start and end range field");
+            }
+            if (dateTime < config.CurrentDate)
+            {
+                throw new SchedulerException("The execution time cannot be earlier than the Current Time");
             }
         }
 

@@ -76,7 +76,9 @@ namespace RetoSchedulerTest
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
-               .Throw<SchedulerException>("Limits Can`t be null");
+               .Throw<SchedulerException>()
+               .And.Message
+               .Should().Be("Limits Can`t be null");
         }
 
         [Fact]
@@ -90,7 +92,9 @@ namespace RetoSchedulerTest
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
-               .Throw<SchedulerException>("The index is greater than the number of days");
+               .Throw<SchedulerException>()
+               .And.Message
+               .Should().Be("The index is greater than the number of days");
         }
 
         [Fact]
@@ -114,8 +118,9 @@ namespace RetoSchedulerTest
             FluentActions
                 .Invoking(() => scheduler.Execute(configuration))
                 .Should()
-                .Throw<SchedulerException>("DateTime can't be out of start and end range");
-
+                .Throw<SchedulerException>()
+                .And.Message
+                .Should().Be("DateTime can't be out of start and end range field");
         }
 
         [Fact]
@@ -131,7 +136,9 @@ namespace RetoSchedulerTest
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
                  .Should()
-                 .Throw<SchedulerException>("The EndTime cannot be earlier than Start Time");
+                 .Throw<SchedulerException>()
+               .And.Message
+               .Should().Be("The EndTime cannot be earlier than Start Time");
         }
 
         [Fact]
@@ -163,7 +170,9 @@ namespace RetoSchedulerTest
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
                  .Should()
-                 .Throw<SchedulerException>("The execution time cannot be earlier than the Current Time");
+                 .Throw<SchedulerException>()
+                .And.Message
+                 .Should().Be("The execution time cannot be earlier than the Current Time");
         }
 
         [Fact]
