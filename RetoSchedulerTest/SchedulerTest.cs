@@ -633,7 +633,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 1, DailyFrecuency.Hours,
                 new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
             var res1 = scheduler.Execute(config);
-            res1.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 4, 18, 0));
+            res1.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
             res1.Description.Should().Be("Occurs the 8th of very months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
 
         }
@@ -654,7 +654,7 @@ namespace RetoSchedulerTest
                 new DateLimits(new DateTime(2020, 1, 1)));
 
             var res1 = scheduler.Execute(config1);
-            res1.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 4, 18, 0));
+            res1.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
             res1.Description.Should().Be("Occurs the 8th of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             var config2 = new Configuration(res1.NextExecutionTime, ConfigType.Recurring, true, null,
                 Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 8, Ordinal.First, KindOfDay.Monday, 3),
@@ -1035,7 +1035,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(6, 0, 0))),
                 new DateLimits(new DateTime(2020, 1, 1)));
             var weekDayExampleResult1 = WeekDayExample1.Execute(WeekDayExampleConfig1);
-            weekDayExampleResult1.NextExecutionTime.Should().Be(new DateTime(2024, 4, 5, 5, 0, 0));
+            weekDayExampleResult1.NextExecutionTime.Should().Be(new DateTime(2024, 4, 5, 6, 0, 0));
             weekDayExampleResult1.Description.Should().Be("Occurs the first weekday of very 2 months and every 6 hours between 05:00:00 and 06:00:00 starting on 1/1/2020");
 
             var WeekDayExampleConfig2 = new Configuration(weekDayExampleResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1637,7 +1637,11 @@ namespace RetoSchedulerTest
             var schedulerSecondResult1 = scheduler1.Execute(schedulerSecondConfig1);
             schedulerSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
             schedulerSecondResult1.Description.Should().Be("Occurs the 31st of very 1 month and every 3 hours between 14:00:00 and 20:00:00 starting on 1/1/2020");
+        }
 
+        [Fact]
+        public void Should_Be_Next_Execution_After_StartTime_Skipping_Months()
+        {
             var scheduler2 = new Scheduler();
             var schedulerSecondConfig2 = new Configuration(new DateTime(2024, 1, 30, 7, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
                 new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 30, Ordinal.First, KindOfDay.Thursday, 1), null,
@@ -1648,16 +1652,30 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Hours_Third_Weekday()
+        public void Should_Be_NextExecutionTime_And_SameDay_With_OrdinalFirst_Option()
         {
-
             var lastThursdayExample2 = new Scheduler();
             var lastThursdayExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 3, 15, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.First, KindOfDay.WeekDay, 1), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
+                new DateLimits(new DateTime(2024, 1, 1)));
+            var lastThursdayExampleSecondResult1 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig1);
+            lastThursdayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 3, 15, 50, 0));
+            lastThursdayExampleSecondResult1.Description.Should().Be("Occurs the first weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+        }
+
+        [Fact]
+        //debug a esto
+
+        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Hours_Third_Weekday()
+        {
+            var lastThursdayExample2 = new Scheduler();
+            var lastThursdayExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 3, 18, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
                 new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Third, KindOfDay.WeekDay, 1), null,
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult1 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig1);
-            lastThursdayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 15, 50, 0));
+            lastThursdayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 14, 0, 0));
             lastThursdayExampleSecondResult1.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig2 = new Configuration(lastThursdayExampleSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1665,7 +1683,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult2 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig2);
-            lastThursdayExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 17, 50, 0));
+            lastThursdayExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 16, 0, 0));
             lastThursdayExampleSecondResult2.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig3 = new Configuration(lastThursdayExampleSecondResult2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1673,7 +1691,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult3 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig3);
-            lastThursdayExampleSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 19, 50, 0));
+            lastThursdayExampleSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 18, 0, 0));
             lastThursdayExampleSecondResult3.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig4 = new Configuration(lastThursdayExampleSecondResult3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1681,7 +1699,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult4 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig4);
-            lastThursdayExampleSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 14, 0, 0));
+            lastThursdayExampleSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 20, 0, 0));
             lastThursdayExampleSecondResult4.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig5 = new Configuration(lastThursdayExampleSecondResult4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1689,7 +1707,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult5 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig5);
-            lastThursdayExampleSecondResult5.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 16, 0, 0));
+            lastThursdayExampleSecondResult5.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 14, 0, 0));
             lastThursdayExampleSecondResult5.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig6 = new Configuration(lastThursdayExampleSecondResult5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1697,7 +1715,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult6 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig6);
-            lastThursdayExampleSecondResult6.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 18, 0, 0));
+            lastThursdayExampleSecondResult6.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 16, 0, 0));
             lastThursdayExampleSecondResult6.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig7 = new Configuration(lastThursdayExampleSecondResult6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1705,7 +1723,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult7 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig7);
-            lastThursdayExampleSecondResult7.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 20, 0, 0));
+            lastThursdayExampleSecondResult7.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 18, 0, 0));
             lastThursdayExampleSecondResult7.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig8 = new Configuration(lastThursdayExampleSecondResult7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1713,7 +1731,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult8 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig8);
-            lastThursdayExampleSecondResult8.NextExecutionTime.Should().Be(new DateTime(2024, 3, 5, 14, 0, 0));
+            lastThursdayExampleSecondResult8.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 20, 0, 0));
             lastThursdayExampleSecondResult8.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
 
             var lastThursdayExampleSecondConfig9 = new Configuration(lastThursdayExampleSecondResult8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
@@ -1721,7 +1739,7 @@ namespace RetoSchedulerTest
                 new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
                 new DateLimits(new DateTime(2024, 1, 1)));
             var lastThursdayExampleSecondResult9 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig9);
-            lastThursdayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 3, 5, 16, 0, 0));
+            lastThursdayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 3, 5, 14, 0, 0));
             lastThursdayExampleSecondResult9.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
         }
         [Fact]
@@ -1791,7 +1809,22 @@ namespace RetoSchedulerTest
             lastWeekEndDayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
             lastWeekEndDayExampleSecondResult9.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
         }
+        [Fact]
+        public void Should_End_If_CurrentDate_If_NextExecution_Greater_Than_End_Date()
+        {
+            var lastWeekEndDayExample2 = new Scheduler();
+            var lastWeekEndDayExampleSecondConfig0 = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
+               new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Last, KindOfDay.WeekDay, 1), null,
+               new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 13, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2024, 5, 30)));
+            var lastWeekEndDayExampleSecondResult0 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig0);
+            lastWeekEndDayExampleSecondResult0.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 10, 0, 0));
 
+            var lastWeekEndDayExampleSecondConfig1 = new Configuration(lastWeekEndDayExampleSecondResult0.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
+                new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Last, KindOfDay.WeekDay, 1), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 13, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2024, 5, 30)));
+            var lastWeekEndDayExampleSecondResult1 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig1);
+            lastWeekEndDayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 10, 0, 0));
+        }
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Seconds_WeekDay()
         {
