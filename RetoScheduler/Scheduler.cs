@@ -2,6 +2,7 @@
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
+using RetoScheduler.Localization;
 using System.Globalization;
 
 namespace RetoScheduler
@@ -28,7 +29,7 @@ namespace RetoScheduler
 
             ValidateNextExecutionIsBetweenDateLimits(config, dateTime);
             Executed = true;
-            DescriptionBuilder builder = new();
+            DescriptionBuilder builder = new(new SchedulerLocalizer());
             string description = builder.CalculateDescription(dateTime, config);
 
             return new OutPut(dateTime, description);
