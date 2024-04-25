@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Localization;
 using RetoScheduler.Enums;
 using RetoScheduler.Extensions;
-using System.Collections.Generic;
 using System.Globalization;
 
 namespace RetoScheduler.Localization

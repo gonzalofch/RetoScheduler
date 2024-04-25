@@ -1,17 +1,13 @@
 ﻿using RetoScheduler.Configurations;
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
-using System.Text;
-using RetoScheduler.Extensions;
 using RetoScheduler.Localization;
-using Microsoft.Extensions.Localization;
 using System.Globalization;
-using System.Security.Cryptography;
+using System.Text;
 namespace RetoScheduler
 {
     public class DescriptionBuilder
     {
-
         private const string Space = " ";
 
         private SchedulerLocalizer localizer = new SchedulerLocalizer();
@@ -178,7 +174,6 @@ namespace RetoScheduler
 
         private string GetDailyDescription(Configuration config)
         {
-            //HH:mm:ss
             if (config.DailyConfiguration.Type == DailyConfigType.Once && config.DailyConfiguration.OnceAt != TimeOnly.MinValue)
             {
                 string dailyExecutionTime = config.DailyConfiguration.OnceAt.ToString("HH:mm:ss", CultureInfo.CurrentCulture);

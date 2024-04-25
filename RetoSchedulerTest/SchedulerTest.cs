@@ -1,12 +1,9 @@
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serialization;
 using RetoScheduler;
 using RetoScheduler.Configurations;
 using RetoScheduler.Configurations.Limits;
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
-using RetoScheduler.Extensions;
-using Xunit;
 
 
 namespace RetoSchedulerTest
@@ -75,11 +72,25 @@ namespace RetoSchedulerTest
             var configuration = new Configuration
                 (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
                 new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), null);
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
                .Throw<SchedulerException>("Limits Can`t be null");
+        }
+
+        [Fact]
+        public void Should_Throw_Exception_Selected_Days_Ordinal_Is_Out_Of_Bounds()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 4, 25, 4, 30, 0), ConfigType.Recurring, true, null,
+                Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 8, Ordinal.Second, KindOfDay.Monday, 0), null,
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 1, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+            FluentActions
+               .Invoking(() => scheduler.Execute(configuration))
+               .Should()
+               .Throw<SchedulerException>("The index is greater than the number of days");
         }
 
         [Fact]
@@ -1219,7 +1230,6 @@ namespace RetoSchedulerTest
             schedulerSecondResult2.Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 starting on 1/1/2024");
         }
 
-        //queda probar un caso con hora menor al onceAt en ese dia
         [Fact]
         public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_RegularCases()
         {
@@ -1259,6 +1269,7 @@ namespace RetoSchedulerTest
             schedulerSecondResult5.NextExecutionTime.Should().Be(new DateTime(2024, 9, 20, 12, 0, 0));
             schedulerSecondResult5.Description.Should().Be("Occurs the 20th of very 2 months one time at 12:00:00 starting on 1/1/2024");
         }
+
         [Fact]
         public void Should_Be_Next_Execution_DayNumberOption_Number_Ordinals_Cases()
         {
@@ -1665,8 +1676,6 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        //debug a esto
-
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Hours_Third_Weekday()
         {
             var lastThursdayExample2 = new Scheduler();
@@ -1742,6 +1751,7 @@ namespace RetoSchedulerTest
             lastThursdayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 3, 5, 14, 0, 0));
             lastThursdayExampleSecondResult9.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
         }
+
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Minutes_WeekEndDay()
         {
@@ -1809,6 +1819,7 @@ namespace RetoSchedulerTest
             lastWeekEndDayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
             lastWeekEndDayExampleSecondResult9.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
         }
+
         [Fact]
         public void Should_End_If_CurrentDate_If_NextExecution_Greater_Than_End_Date()
         {
@@ -1825,6 +1836,7 @@ namespace RetoSchedulerTest
             var lastWeekEndDayExampleSecondResult1 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig1);
             lastWeekEndDayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 10, 0, 0));
         }
+
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Seconds_WeekDay()
         {
