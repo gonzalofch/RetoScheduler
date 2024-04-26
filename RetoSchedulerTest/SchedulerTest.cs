@@ -24,6 +24,7 @@ namespace RetoSchedulerTest
 
         [Theory]
         [ClassData(typeof(SchedulerTestSpanishTexts))]
+        [UseCulture("es-ES")]
         public void OutPut_Should_Be_Expected_Spanish_Texts(Configuration configuration, OutPut expectedOutput)
         {
             var scheduler = new Scheduler();
