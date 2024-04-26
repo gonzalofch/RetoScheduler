@@ -1,11 +1,12 @@
 ﻿using RetoScheduler.Configurations.Limits;
 using RetoScheduler.Enums;
+using System.Globalization;
 
 namespace RetoScheduler.Configurations
 {
     public class Configuration
     {
-        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs,MonthlyConfiguration? monthlyConfiguration, WeeklyConfiguration? weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits) //bool tal vez por defecto true
+        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs,MonthlyConfiguration? monthlyConfiguration, WeeklyConfiguration? weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits, Cultures cultures = Enums.Cultures.en_US)
         {
             CurrentDate = currentDate;
             Type = type;
@@ -16,6 +17,7 @@ namespace RetoScheduler.Configurations
             WeeklyConfiguration = weeklyConfiguration;
             DailyConfiguration = dailyConfiguration;
             DateLimits = dateLimits;
+            Cultures = cultures;
         }
 
         public DateTime CurrentDate { get; }
@@ -35,5 +37,7 @@ namespace RetoScheduler.Configurations
         public DailyConfiguration DailyConfiguration { get; }
 
         public DateLimits DateLimits { get; }
+
+        public Cultures? Cultures { get;}
     }
 }
