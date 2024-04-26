@@ -2,7 +2,6 @@
 {
     public static class SchedulerSpanishTexts
     {
-
         public static Dictionary<string, string> Traductions = new Dictionary<string, string>
         {
             {"Scheduler:Errors:NotEnabled", "Necesitas marcar el campo para ejecutar el Programador"},
@@ -15,6 +14,7 @@
             {"Scheduler:Errors:SelectedDaysIndexOutOfBounds", "El índice es mayor que el número de días"},
             {"Scheduler:Errors:NotSupportedSelectedWeekDay", "El tipo de día seleccionado no es compatible"},
             {"Scheduler:Errors:NotSupportedOrdinal", "El ordinal seleccionado no es compatible"},
+            {"Scheduler:Errors:ExecutionEarlierThanCurrentTime","La hora de ejecución no puede ser anterior a la Hora actual"},
             {"DescriptionBuilder:Errors:NotSupportedMonthlyDayNumber", "Acción no compatible para el número de día mensual"},
             {"DescriptionBuilder:Errors:NotSupportedMonthlyFrequency", "Acción no compatible para la frecuencia mensual"},
             {"DescriptionBuilder:Errors:NotSupportedWeeklyFrequency", "Acción no compatible para la frecuencia semanal"},
@@ -34,6 +34,7 @@
             {"Scheduler:String:MonthWithSpaces", " mes "},
             {"Scheduler:String:WeeksWithSpaces", " semanas "},
             {"Scheduler:String:WeekWithSpaces", " semana "},
+            {"Scheduler:String:WeekWithSpace","semana "},
             {"Scheduler:String:Hours", "horas"},
             {"Scheduler:String:Minutes", "minutos"},
             {"Scheduler:String:Seconds", "segundos"},
@@ -44,7 +45,6 @@
             {"Scheduler:String:OneTimeAtWithSpace", "una vez a las "},
             {"Scheduler:String:BetweenWithSpaces", " entre las "},
             {"Scheduler:String:Day", "día "},
-
             {"Scheduler:DayOfWeek:Monday","lunes" },
             {"Scheduler:DayOfWeek:Tuesday","martes" },
             {"Scheduler:DayOfWeek:Wednesday","miercoles" },
@@ -55,7 +55,6 @@
             {"Scheduler:KindOfDay:Day","día" },
             {"Scheduler:KindOfDay:WeekDay" ,"día de semana"},
             {"Scheduler:KindOfDay:WeekEndDay" ,"día de fin de semana"},
-
             { "Scheduler:String:OrdinalFirst", "primer"},
             { "Scheduler:String:OrdinalSecond", "segundo"},
             { "Scheduler:String:OrdinalThird", "tercer"},

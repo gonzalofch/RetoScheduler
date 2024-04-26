@@ -113,6 +113,25 @@ namespace RetoSchedulerTest
                  .Should().Be("The end date cannot be earlier than the initial date");
         }
 
+        [Fact]
+        public void Should_Throw_Exception_EndDate_Is_Before_StartDate_Spanish()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration
+                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
+                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)), Cultures.es_ES);
+
+
+            FluentActions
+                 .Invoking(() => scheduler.Execute(configuration))
+                 .Should()
+                 .Throw<SchedulerException>()
+                 .And.Message
+                 .Should().Be("La fecha de fin no puede ser anterior a la fecha de inicio");
+        }
+
         [Theory, ClassData(typeof(SchedulerLimitsConfiguration))]
         public void Should_Throw_Exception_If_Limits_Are_Out_Of_Range(Configuration configuration)
         {
@@ -141,6 +160,24 @@ namespace RetoSchedulerTest
                  .Throw<SchedulerException>()
                .And.Message
                .Should().Be("The EndTime cannot be earlier than StartTime");
+        }
+        
+        [Fact]
+        public void Should_Throw_Exception_If_EndTime_is_Before_StartTime_Spanish()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration
+                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
+                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 2, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(12, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)),Cultures.es_ES);
+
+            FluentActions
+                 .Invoking(() => scheduler.Execute(configuration))
+                 .Should()
+                 .Throw<SchedulerException>()
+               .And.Message
+               .Should().Be("La hora de fin no puede ser anterior a la hora de inicio");
         }
 
         [Fact]

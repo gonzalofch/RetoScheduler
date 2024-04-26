@@ -38,50 +38,50 @@ namespace RetoScheduler
             return new OutPut(dateTime, description);
         }
 
-        private static void ValidateConfiguration(Configuration config)
+        private  void ValidateConfiguration(Configuration config)
         {
             ValidadIsEnabled(config);
             ValidateLimitsTimeRange(config);
             ValidateLimitsRange(config);
         }
 
-        private static void ValidadIsEnabled(Configuration config)
+        private  void ValidadIsEnabled(Configuration config)
         {
             if (!config.Enabled)
             {
-                throw new SchedulerException("You need to check field to run the Scheduler");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:NotEnabled"]);
             }
         }
 
-        private static void ValidateLimitsRange(Configuration config)
+        private void ValidateLimitsRange(Configuration config)
         {
             if (config.DateLimits == null)
             {
-                throw new SchedulerException("Limits Can`t be null");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:NullDateLimits"]);
             }
 
             if (config.DateLimits.EndDate < config.DateLimits.StartDate)
             {
-                throw new SchedulerException("The end date cannot be earlier than the initial date");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:EndDateEarlierThanStartDate"]);
             }
         }
 
-        private static void ValidateLimitsTimeRange(Configuration config)
+        private void ValidateLimitsTimeRange(Configuration config)
         {
             bool isRecurring = config.DailyConfiguration.Type == DailyConfigType.Recurring;
             bool hasTimeLimits = config.DailyConfiguration.TimeLimits != null;
             bool endTimeIsShorter = isRecurring && config.DailyConfiguration.TimeLimits.EndTime < config.DailyConfiguration.TimeLimits.StartTime;
             if (hasTimeLimits && endTimeIsShorter)
             {
-                throw new SchedulerException("The EndTime cannot be earlier than StartTime");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:EndTimeEarlierThanStartTime"]);
             }
         }
 
-        private static DateTime InOnce(Configuration config)
+        private DateTime InOnce(Configuration config)
         {
             if (config.ConfigDateTime.HasValue == false)
             {
-                throw new SchedulerException("Once Types requires an obligatory DateTime");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:RequiredConfigDateTimeInOnce"]);
             }
             DateTime configDateTime = config.ConfigDateTime.Value;
 
@@ -94,7 +94,7 @@ namespace RetoScheduler
         {
             if (config.DailyConfiguration.Frecuency <= 0)
             {
-                throw new SchedulerException("Don't should put negative numbers or zero in number field");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:NegativeDailyFrecuency"]);
             }
             var dateTime = GetFirstExecutionDate(config);
             dateTime = NextExecutionDate(config, dateTime);
@@ -133,7 +133,7 @@ namespace RetoScheduler
             return dateTime.Date + nextExecutionTime.ToTimeSpan();
         }
 
-        private static DateTime AddStartTime(DailyConfiguration dailyConfiguration, DateTime dateTime)
+        private DateTime AddStartTime(DailyConfiguration dailyConfiguration, DateTime dateTime)
         {
             if (AddOccursEveryUnit(dailyConfiguration, TimeOnly.FromDateTime(dateTime.Date)) < dailyConfiguration.TimeLimits.StartTime)
             {
@@ -150,7 +150,7 @@ namespace RetoScheduler
                 : config.CurrentDate;
         }
 
-        private static void ValidateNextExecutionIsBetweenDateLimits(Configuration config, DateTime dateTime)
+        private void ValidateNextExecutionIsBetweenDateLimits(Configuration config, DateTime dateTime)
         {
             bool startOutOfLimits = dateTime >= config.DateLimits.StartDate;
             bool endOutOfLimits = config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate;
@@ -159,12 +159,12 @@ namespace RetoScheduler
             
             if (dateTime < config.CurrentDate)
             {
-                throw new SchedulerException("The execution time cannot be earlier than the Current Time");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:ExecutionEarlierThanCurrentTime"]);
             }
 
             if (dateBetweenLimits is false)
             {
-                throw new SchedulerException("DateTime can't be out of start and end range field");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:DateOutOfRanges"]);
             }
         }
 
@@ -236,7 +236,7 @@ namespace RetoScheduler
             return NextDayOfWeekInMonth(monthlyConfiguration, dailyConfiguration, dateTime);
         }
 
-        private static DateTime NextDayOfWeekInMonth(MonthlyConfiguration monthlyConfig, DailyConfiguration dailyConfig, DateTime currentDate)
+        private DateTime NextDayOfWeekInMonth(MonthlyConfiguration monthlyConfig, DailyConfiguration dailyConfig, DateTime currentDate)
         {
             Month month = new Month(currentDate.Year, currentDate.Month);
             List<DayOfWeek> selectedDays = GetSelectedDays(monthlyConfig);
@@ -255,7 +255,7 @@ namespace RetoScheduler
             return ObtainOrdinalsFromList(listOfDays, monthlyConfig);
         }
 
-        private static List<DayOfWeek> GetSelectedDays(MonthlyConfiguration monthlyConfig)
+        private List<DayOfWeek> GetSelectedDays(MonthlyConfiguration monthlyConfig)
         {
             return monthlyConfig.SelectedDay switch
             {
@@ -269,11 +269,11 @@ namespace RetoScheduler
                 KindOfDay.Friday => new List<DayOfWeek>() { DayOfWeek.Friday },
                 KindOfDay.Saturday => new List<DayOfWeek>() { DayOfWeek.Saturday },
                 KindOfDay.Sunday => new List<DayOfWeek>() { DayOfWeek.Sunday },
-                _ => throw new SchedulerException("The selected Kind of Day is not supported"),
+                _ => throw new SchedulerException(_stringLocalizer["Scheduler:Errors:NotSupportedSelectedWeekDay"]),
             };
         }
 
-        private static DateTime ObtainOrdinalsFromList(IReadOnlyList<DateTime> list, MonthlyConfiguration monthlyConfig)
+        private DateTime ObtainOrdinalsFromList(IReadOnlyList<DateTime> list, MonthlyConfiguration monthlyConfig)
         {
             int index = monthlyConfig.OrdinalNumber switch
             {
@@ -282,12 +282,12 @@ namespace RetoScheduler
                 Ordinal.Third => 2,
                 Ordinal.Fourth => 3,
                 Ordinal.Last => list.Count() - 1,
-                _ => throw new SchedulerException("Selected Ordinal is not supported"),
+                _ => throw new SchedulerException(_stringLocalizer["Scheduler:Errors:NotSupportedOrdinal"]),
             };
 
             if (list.Count - 1 < index)
             {
-                throw new SchedulerException("The index is greater than the number of days");
+                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:SelectedDaysIndexOutOfBounds"]);
             }
 
             return list[index];
@@ -359,14 +359,14 @@ namespace RetoScheduler
             }
         }
 
-        private static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, TimeOnly dateTimeTime)
+        private TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, TimeOnly dateTimeTime)
         {
             return dailyConfiguration.DailyFrecuencyType switch
             {
                 DailyFrecuency.Hours => dateTimeTime.AddHours(dailyConfiguration.Frecuency.Value),
                 DailyFrecuency.Minutes => dateTimeTime.AddMinutes(dailyConfiguration.Frecuency.Value),
                 DailyFrecuency.Seconds => dateTimeTime.AddSeconds(dailyConfiguration.Frecuency.Value),
-                _ => throw new SchedulerException("Daily Frequency Type is Not supported"),
+                _ => throw new SchedulerException(_stringLocalizer["DescriptionBuilder:Errors:NotSupportedDailyFrequency"]),
             };
         }
     }

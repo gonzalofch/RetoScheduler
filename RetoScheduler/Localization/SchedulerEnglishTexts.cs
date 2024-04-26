@@ -14,6 +14,7 @@
             {"Scheduler:Errors:SelectedDaysIndexOutOfBounds","The index is greater than the number of days"},
             {"Scheduler:Errors:NotSupportedSelectedWeekDay","The selected Kind of Day is not supported"},
             {"Scheduler:Errors:NotSupportedOrdinal","Selected Ordinal is not supported"},
+            {"Scheduler:Errors:ExecutionEarlierThanCurrentTime","The execution time cannot be earlier than the Current Time"},
             {"DescriptionBuilder:Errors:NotSupportedMonthlyDayNumber","Not supported action for monthly day number message"},
             {"DescriptionBuilder:Errors:NotSupportedMonthlyFrequency","Not supported action for monthly frecuency message"},
             {"DescriptionBuilder:Errors:NotSupportedWeeklyFrequency","Not supported action for monthly frecuency message"},
