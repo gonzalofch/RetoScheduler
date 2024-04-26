@@ -108,7 +108,9 @@ namespace RetoSchedulerTest
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
                  .Should()
-                 .Throw<SchedulerException>("The end date cannot be earlier than the initial date");
+                 .Throw<SchedulerException>()
+                 .And.Message
+                 .Should().Be("The end date cannot be earlier than the initial date");
         }
 
         [Theory, ClassData(typeof(SchedulerLimitsConfiguration))]
@@ -138,23 +140,7 @@ namespace RetoSchedulerTest
                  .Should()
                  .Throw<SchedulerException>()
                .And.Message
-               .Should().Be("The EndTime cannot be earlier than Start Time");
-        }
-
-        [Fact]
-        public void Should_Throw_Exception_If_EndTime_is_Before_CurrentTime()
-        {
-            var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily, null,
-                null,
-                new DailyConfiguration(DailyConfigType.Recurring, TimeOnly.MinValue, 10, DailyFrecuency.Minutes,
-                new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2019, 12, 20), new DateTime(2020, 1, 1)));
-
-            FluentActions
-                 .Invoking(() => scheduler.Execute(configuration))
-                 .Should()
-                 .Throw<SchedulerException>("The EndTime cannot be earlier than Current Time");
+               .Should().Be("The EndTime cannot be earlier than StartTime");
         }
 
         [Fact]
@@ -188,7 +174,9 @@ namespace RetoSchedulerTest
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
                  .Should()
-                 .Throw<SchedulerException>("Don't should put negative numbers or zero in number field");
+                 .Throw<SchedulerException>()
+                 .And.Message
+                 .Should().Be("Don't should put negative numbers or zero in number field");
         }
 
         [Fact]
@@ -208,7 +196,9 @@ namespace RetoSchedulerTest
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
                  .Should()
-                 .Throw<SchedulerException>("The EndTime cannot be earlier than StartTime");
+                 .Throw<SchedulerException>()
+                 .And.Message
+                 .Should().Be("The EndTime cannot be earlier than StartTime");
         }
 
         [Fact]

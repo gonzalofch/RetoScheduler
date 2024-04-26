@@ -41,8 +41,8 @@ namespace RetoScheduler
         private static void ValidateConfiguration(Configuration config)
         {
             ValidadIsEnabled(config);
-            ValidateLimitsRange(config);
             ValidateLimitsTimeRange(config);
+            ValidateLimitsRange(config);
         }
 
         private static void ValidadIsEnabled(Configuration config)
@@ -156,13 +156,15 @@ namespace RetoScheduler
             bool endOutOfLimits = config.DateLimits.EndDate.HasValue == false || dateTime <= config.DateLimits.EndDate;
             var dateBetweenLimits = startOutOfLimits && endOutOfLimits;
 
-            if (dateBetweenLimits is false)
-            {
-                throw new SchedulerException("DateTime can't be out of start and end range field");
-            }
+            
             if (dateTime < config.CurrentDate)
             {
                 throw new SchedulerException("The execution time cannot be earlier than the Current Time");
+            }
+
+            if (dateBetweenLimits is false)
+            {
+                throw new SchedulerException("DateTime can't be out of start and end range field");
             }
         }
 
