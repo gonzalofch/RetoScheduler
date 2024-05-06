@@ -123,78 +123,78 @@ namespace RetoSchedulerTest
             //MONTHLY CONFIGURATIONS 14 - FINAL
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.First, KindOfDay.Monday, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.First, KindOfDay.Monday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,6,3,0,0),"Ocurre el primer lunes de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Second, KindOfDay.Tuesday, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Second, KindOfDay.Tuesday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,14,3,0,0),"Ocurre el segundo martes de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Third, KindOfDay.Wednesday, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.Third, KindOfDay.Wednesday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,15,3,0,0),"Ocurre el tercer miercoles de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
              new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Fourth, KindOfDay.Thursday, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Fourth, KindOfDay.Thursday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,23,3,0,0),"Ocurre el cuarto jueves de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
              new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Last, KindOfDay.Friday, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Last, KindOfDay.Friday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,31,3,0,0),"Ocurre el último viernes de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
              new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.First, KindOfDay.Saturday, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.First, KindOfDay.Saturday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,4,3,0,0),"Ocurre el primer sabado de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
              //20
               new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Last, KindOfDay.Sunday, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Last, KindOfDay.Sunday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,26,3,0,0),"Ocurre el último domingo de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
               new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.First, KindOfDay.Day, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.First, KindOfDay.Day, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,1,3,0,0),"Ocurre el primer día de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
               new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Last, KindOfDay.Day, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Last, KindOfDay.Day, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,31,3,0,0),"Ocurre el último día de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
               new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Second, KindOfDay.WeekDay, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Second, KindOfDay.WeekDay, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,2,3,0,0),"Ocurre el segundo día de semana de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Third, KindOfDay.WeekDay, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Third, KindOfDay.WeekDay, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,3,3,0,0),"Ocurre el tercer día de semana de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Fourth, KindOfDay.WeekEndDay, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.Fourth, KindOfDay.WeekEndDay, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,12,3,0,0),"Ocurre el cuarto día de fin de semana de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.WeekDayOption, 1, Ordinal.Last, KindOfDay.WeekEndDay, 3), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.Last, KindOfDay.WeekEndDay, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,26,3, 0, 0),"Ocurre el último día de fin de semana de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
@@ -203,7 +203,7 @@ namespace RetoSchedulerTest
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null,
                     Occurs.Monthly,
-                    new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 5, Ordinal.Last, KindOfDay.WeekEndDay, 5), null,
+                     MonthlyConfiguration.DayOption( 5,  5), null,
             DailyConfiguration.Recurring( 5, DailyFrecuency.Hours,
                 new TimeLimits(new TimeOnly(6, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 4)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,5,6, 0, 0),"Ocurre el 5º de cada 5 meses y cada 5 horas entre las 06:00:00 y 16:00:00 comenzando el 04/01/2020")
@@ -211,20 +211,22 @@ namespace RetoSchedulerTest
 
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                    new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 1, Ordinal.Last, KindOfDay.WeekEndDay, 5), null,
+                     MonthlyConfiguration.DayOption (1, 5), null,
             DailyConfiguration.Recurring( 5, DailyFrecuency.Hours,
                 new TimeLimits(new TimeOnly(6, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 3)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,2,1,6, 0, 0),"Ocurre el 1ero de cada 5 meses y cada 5 horas entre las 06:00:00 y 16:00:00 comenzando el 03/01/2020")
             },
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 5, Ordinal.Last, KindOfDay.WeekEndDay, 5), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
+                     MonthlyConfiguration.DayOption(5, 5), null,
             DailyConfiguration.Once( new TimeOnly(17, 0, 0), null), new DateLimits(new DateTime(2020, 1, 4)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,5,17, 0, 0),"Ocurre el 5º de cada 5 meses una vez a las 17:00:00 comenzando el 04/01/2020")
             },
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, new MonthlyConfiguration(MonthlyConfigType.DayNumberOption, 3, Ordinal.Last, KindOfDay.WeekEndDay, 5), null,
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
+                    MonthlyConfiguration.DayOption(3, 5), null,
             DailyConfiguration.Once( new TimeOnly(3, 0, 0),null), new DateLimits(new DateTime(2020, 1, 3)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,3,3, 0, 0),"Ocurre el 3ero de cada 5 meses una vez a las 03:00:00 comenzando el 03/01/2020")
             },
