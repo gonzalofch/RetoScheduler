@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using RetoScheduler;
 using RetoScheduler.Configurations;
 using RetoScheduler.Configurations.Limits;
@@ -13,7 +14,7 @@ namespace RetoSchedulerTest
         [Theory]
         [ClassData(typeof(SchedulerTestConfiguration))]
         [ClassData(typeof(SchedulerTestMonthlyConfiguration))]
-        public void OutPut_Should_Be_Expected_Configurations(Configuration configuration, OutPut expectedOutput)
+        public void Outputs_Should_Be_Expected(Configuration configuration, OutPut expectedOutput)
         {
             var scheduler = new Scheduler();
             var output = scheduler.Execute(configuration);
@@ -25,7 +26,7 @@ namespace RetoSchedulerTest
         [Theory]
         [ClassData(typeof(SchedulerTestSpanishTexts))]
         [UseCulture("es-ES")]
-        public void OutPut_Should_Be_Expected_Spanish_Texts(Configuration configuration, OutPut expectedOutput)
+        public void OutPuts_Should_Be_Expected_Spanish(Configuration configuration, OutPut expectedOutput)
         {
             var scheduler = new Scheduler();
             var output = scheduler.Execute(configuration);
@@ -35,11 +36,10 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Next_Execution_Time_Should_Throw_Exception_And_Message()
+        public void Should_Throw_SchedulerExeption_If_ConfigDateTime_For_OnceType_Is_Null()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily,
-                null, null, DailyConfiguration.Once(new TimeOnly(16, 0, 0)), new DateLimits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily,null, null, DailyConfiguration.Once(new TimeOnly(16, 0, 0)), new DateLimits(new DateTime(2020, 1, 1)));
 
             FluentActions
                 .Invoking(() => scheduler.Execute(configuration))
@@ -52,7 +52,7 @@ namespace RetoSchedulerTest
         [Theory]
         [InlineData(ConfigType.Once)]
         [InlineData(ConfigType.Recurring)]
-        public void Should_Throw_Exception_Disabled_Check_And_Message(ConfigType configType)
+        public void Should_Throw_SchedulerExeption_If_Is_Disabled(ConfigType configType)
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 4), configType, false, null, Occurs.Daily, null, null,
@@ -67,13 +67,12 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_Configuration_Dont_Have_Limit()
+        public void Should_Throw_SchedulerExeption_If_Dont_Has_DateLimits()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
-                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), null);
+
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
@@ -83,13 +82,12 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_Selected_Days_Ordinal_Is_Out_Of_Bounds()
+        public void Should_Throw_SchedulerExeption_Selected_Days_Ordinal_Is_Out_Of_Bounds()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 4, 25, 4, 30, 0), ConfigType.Recurring, true, null,
-                Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Monday, 0), null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0)))
-                , new DateLimits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 4, 25, 4, 30, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Monday, 0), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
             FluentActions
                .Invoking(() => scheduler.Execute(configuration))
                .Should()
@@ -99,16 +97,11 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_EndDate_Is_Before_StartDate()
+        public void Should_Throw_SchedulerExeption_If_EndDate_Is_Before_StartDate()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly,
-                null
-                , new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday })
-                , DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0)))
-                , new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
-
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
 
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
@@ -119,15 +112,11 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_EndDate_Is_Before_StartDate_Spanish()
+        public void Should_Throw_SchedulerExeption_If_EndDate_Is_Before_StartDate_Spanish()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
-                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0)))
-                , new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)), Cultures.es_ES);
-
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)), Cultures.es_ES);
 
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
@@ -138,7 +127,7 @@ namespace RetoSchedulerTest
         }
 
         [Theory, ClassData(typeof(SchedulerLimitsConfiguration))]
-        public void Should_Throw_Exception_If_Limits_Are_Out_Of_Range(Configuration configuration)
+        public void Should_Throw_SchedulerExeption_If_Limits_Are_Out_Of_Range(Configuration configuration)
         {
             var scheduler = new Scheduler();
             FluentActions
@@ -150,14 +139,11 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_If_EndTime_is_Before_StartTime()
+        public void Should_Throw_SchedulerExeption_If_EndTime_is_Before_StartTime()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
-                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(12, 0, 0), new TimeOnly(8, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(12, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)));
 
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
@@ -168,14 +154,11 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_If_EndTime_is_Before_StartTime_Spanish()
+        public void Should_Throw_SchedulerExeption_If_EndTime_is_Before_StartTime_Spanish()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,
-                 new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
-                 DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(12, 0, 0), new TimeOnly(8, 0, 0))),
-                 new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)), Cultures.es_ES);
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                 DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(12, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 6), new DateTime(2020, 1, 2)), Cultures.es_ES);
 
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
@@ -186,12 +169,10 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_If_OnceAtTime_is_Before_CurrentTime()
+        public void Should_Throw_SchedulerExeption_If_OnceAtTime_is_Before_CurrentTime()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Once, true, new DateTime(2020, 1, 1), Occurs.Daily, null,
-                null,
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Once, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
                 DailyConfiguration.Once(new TimeOnly(2, 0, 0), null), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2020, 1, 1)));
 
             FluentActions
@@ -203,13 +184,11 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_If_Daily_Frecuency_Is_Zero_Or_Negative()
+        public void Should_Throw_SchedulerExeption_If_Daily_Frecuency_Is_Zero_Or_Negative()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
-                DailyConfiguration.Recurring(-10, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateLimits(new DateTime(2019, 12, 20), new DateTime(2020, 1, 12)));
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
+                DailyConfiguration.Recurring(-10, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(10, 0, 0))), new DateLimits(new DateTime(2019, 12, 20), new DateTime(2020, 1, 12)));
 
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
@@ -220,18 +199,11 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_Exception_If_EndTime_Is_Before_StartTime()
+        public void Should_Throw_SchedulerExeption_If_EndTime_Is_Before_StartTime()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1, 9, 10, 40),
-                ConfigType.Recurring,
-                true,
-                new DateTime(2020, 1, 1),
-                Occurs.Daily, null,
-                null,
-                DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(9, 20, 20))),
-                new DateLimits(new DateTime(2020, 1, 1), new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 9, 10, 40), ConfigType.Recurring, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
+                DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(9, 20, 20))), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2020, 1, 1)));
 
             FluentActions
                  .Invoking(() => scheduler.Execute(configuration))
@@ -245,41 +217,24 @@ namespace RetoSchedulerTest
         public void Should_Validate_Next_Execution_Time()
         {
             var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily, null, null,
+                DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
-
-            var configuration1 = new Configuration
-                (new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Daily, null, null,
-                DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-
-            var res1 = scheduler.Execute(configuration1);
-
-            var configuration2 = new Configuration
-                (res1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Daily, null, null,
-                 DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))),
-                 new DateLimits(new DateTime(2020, 1, 1)));
-
-            var res2 = scheduler.Execute(configuration2);
-
-            res1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 4, 0, 0));
-            res1.Description.Should().Be("Occurs every day and every 3 hours between 04:00:00 and 08:00:00 starting on 1/1/2020");
-
-            res2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 7, 0, 0));
-            res2.Description.Should().Be("Occurs every day and every 3 hours between 04:00:00 and 08:00:00 starting on 1/1/2020");
+            var outputList = scheduler.ExecuteMany(configuration, 2);
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 4, 0, 0));
+            outputList[0].Description.Should().Be("Occurs every day and every 3 hours between 04:00:00 and 08:00:00 starting on 1/1/2020");
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 7, 0, 0));
+            outputList[1].Description.Should().Be("Occurs every day and every 3 hours between 04:00:00 and 08:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Validate_Execution_Time_During_Week()
         {
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Daily, null,
-                new WeeklyConfiguration(0, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-
             var scheduler = new Scheduler();
-            var outputList = scheduler.ExecuteMany(configuration, 7);
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Daily, null, new WeeklyConfiguration(0, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 7);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 4, 0, 0));
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 6, 0, 0));
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 8, 0, 0));
@@ -300,12 +255,10 @@ namespace RetoSchedulerTest
         public void Should_Validate_Execution_Time_Space_Between_Weeks_AddingHours()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null,
-                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+            var configuration = new Configuration(new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = scheduler.ExecuteMany(configuration, 11);
 
+            var outputList = scheduler.ExecuteMany(configuration, 11);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 0, 0));
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 6, 0, 0));
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 8, 0, 0));
@@ -334,13 +287,10 @@ namespace RetoSchedulerTest
         public void Should_Validate_Execution_Time_Space_Between_Weeks_AddingMinutes()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null,
-                 new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+            var configuration = new Configuration(new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 DailyConfiguration.Recurring(2, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 11);
-
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 0, 0));
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 2, 0));
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 4, 0));
@@ -369,13 +319,10 @@ namespace RetoSchedulerTest
         public void Should_Validate_Execution_Time_Space_Between_Weeks_AddingSeconds()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null,
-                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+            var configuration = new Configuration(new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 DailyConfiguration.Recurring(5, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(4, 0, 50), new TimeOnly(8, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 11);
-
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 0, 50));
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 0, 55));
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 4, 1, 00));
@@ -404,13 +351,10 @@ namespace RetoSchedulerTest
         public void Should_Validate_Execution_Time_BetweenWeeks_With_DailyFrecuency_OnceAt()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration
-                (new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Weekly, null,
-                new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+            var configuration = new Configuration(new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 DailyConfiguration.Once(new TimeOnly(5, 0, 0), null), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 5);
-
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 13, 5, 0, 0));
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 16, 5, 0, 0));
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 1, 17, 5, 0, 0));
@@ -427,27 +371,20 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Execution_Date_DayNumber()
         {
             var scheduler = new Scheduler();
-            var config = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null,
-                Occurs.Monthly, MonthlyConfiguration.DayOption(8, 0), null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var res1 = scheduler.Execute(config);
-            res1.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
-            res1.Description.Should().Be("Occurs the 8th of very months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var configuration = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 0), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
+            output.Description.Should().Be("Occurs the 8th of very months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_DayNumber_SchedulerExample_Skipping_3_Months()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(
-                    new DateTime(2020, 4, 1, 4, 18, 0),
-                    ConfigType.Recurring, true, null, Occurs.Monthly,
-                    MonthlyConfiguration.DayOption(8, 3),
-                    null,
-                    DailyConfiguration.Recurring(6,
-                    DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                    new DateLimits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 3), null,
+                    DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
@@ -458,19 +395,14 @@ namespace RetoSchedulerTest
             outputList[2].Description.Should().Be("Occurs the 8th of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[3].NextExecutionTime.Should().Be(new DateTime(2021, 4, 8, 3, 0, 0));
             outputList[3].Description.Should().Be("Occurs the 8th of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-
-
-
         }
+
         [Fact]
         public void Should_Be_Next_Execution_Date_DayNumber_SchedulerExample_Skipping_0_Months()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(8, 0),
-                null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 0), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 8, 3, 0, 0));
@@ -487,12 +419,10 @@ namespace RetoSchedulerTest
         public void Shoud_Be_Next_Execution_Month_Skipping_Months_And_Dates_That_Doesnt_Exist_30th()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(30, 0), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = scheduler.ExecuteMany(configuration, 4);
+            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 0), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 30, 4, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 30th of very months and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 4, 0, 0));
@@ -501,21 +431,16 @@ namespace RetoSchedulerTest
             outputList[2].Description.Should().Be("Occurs the 30th of very months and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 5, 30, 4, 0, 0));
             outputList[3].Description.Should().Be("Occurs the 30th of very months and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
-
-
         }
 
         [Fact]
         public void Shoud_Be_Next_Execution_Month_Skipping_Months_And_Dates_That_Doesnt_Exist_31st()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(31, 0),
-                null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = scheduler.ExecuteMany(configuration, 4);
+            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 0), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2023, 12, 31, 4, 18, 0));
             outputList[0].Description.Should().Be("Occurs the 31st of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 3, 0, 0));
@@ -529,203 +454,167 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Last_Thursday()
         {
-            var schedulerExampleLast = new Scheduler();
-            var schedulerExampleConfigLast = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.Thursday, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var exampleResultLast = schedulerExampleLast.Execute(schedulerExampleConfigLast);
-            exampleResultLast.NextExecutionTime.Should().Be(new DateTime(2020, 1, 30, 3, 0, 0));
-            exampleResultLast.Description.Should().Be("Occurs the last thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.Thursday, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 30, 3, 0, 0));
+            output.Description.Should().Be("Occurs the last thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Fourth_Thursday()
         {
-            var schedulerExample4 = new Scheduler();
-            var schedulerExampleConfig4 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.Thursday, 3), null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var exampleResult4 = schedulerExample4.Execute(schedulerExampleConfig4);
-            exampleResult4.NextExecutionTime.Should().Be(new DateTime(2020, 1, 23, 3, 0, 0));
-            exampleResult4.Description.Should().Be("Occurs the fourth thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.Thursday, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 23, 3, 0, 0));
+            output.Description.Should().Be("Occurs the fourth thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Third_Thursday()
         {
-            var schedulerExample3 = new Scheduler();
-            var schedulerExampleConfig3 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.Thursday, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var exampleResult3 = schedulerExample3.Execute(schedulerExampleConfig3);
-            exampleResult3.NextExecutionTime.Should().Be(new DateTime(2020, 1, 16, 3, 0, 0));
-            exampleResult3.Description.Should().Be("Occurs the third thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.Thursday, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 16, 3, 0, 0));
+            output.Description.Should().Be("Occurs the third thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Second_Thursday()
         {
-            var schedulerExample2 = new Scheduler();
-            var schedulerExampleConfig2 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Thursday, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var exampleResult2 = schedulerExample2.Execute(schedulerExampleConfig2);
-            exampleResult2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 9, 3, 0, 0));
-            exampleResult2.Description.Should().Be("Occurs the second thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Thursday, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 9, 3, 0, 0));
+            output.Description.Should().Be("Occurs the second thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_First_Thursday()
         {
-            var schedulerExample = new Scheduler();
-            var schedulerExampleConfig1 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var exampleResult1 = schedulerExample.Execute(schedulerExampleConfig1);
-            exampleResult1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 3, 0, 0));
-            exampleResult1.Description.Should().Be("Occurs the first thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 3, 0, 0));
+            output.Description.Should().Be("Occurs the first thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_First()
         {
-            var schedulerExample5 = new Scheduler();
-            var weekdaysConfiguration1 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekdaysResult1 = schedulerExample5.Execute(weekdaysConfiguration1);
-            weekdaysResult1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 1, 3, 0, 0));
-            weekdaysResult1.Description.Should().Be("Occurs the first weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 1, 3, 0, 0));
+            output.Description.Should().Be("Occurs the first weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_Second()
         {
-            var schedulerExample6 = new Scheduler();
-            var weekdaysConfiguration2 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekdaysResult2 = schedulerExample6.Execute(weekdaysConfiguration2);
-            weekdaysResult2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 3, 0, 0));
-            weekdaysResult2.Description.Should().Be("Occurs the second weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 3, 0, 0));
+            output.Description.Should().Be("Occurs the second weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_Third()
         {
-            var schedulerExample7 = new Scheduler();
-            var weekdaysConfiguration3 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekdaysResult3 = schedulerExample7.Execute(weekdaysConfiguration3);
-            weekdaysResult3.NextExecutionTime.Should().Be(new DateTime(2020, 1, 3, 3, 0, 0));
-            weekdaysResult3.Description.Should().Be("Occurs the third weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 3, 3, 0, 0));
+            output.Description.Should().Be("Occurs the third weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
+
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_Fourth()
         {
-            var schedulerExample8 = new Scheduler();
-            var weekdaysConfiguration4 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.WeekDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekdaysResult4 = schedulerExample8.Execute(weekdaysConfiguration4);
-            weekdaysResult4.NextExecutionTime.Should().Be(new DateTime(2020, 1, 6, 3, 0, 0));
-            weekdaysResult4.Description.Should().Be("Occurs the fourth weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.WeekDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 6, 3, 0, 0));
+            output.Description.Should().Be("Occurs the fourth weekday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays()
         {
-            var schedulerWeekendExample5 = new Scheduler();
-            var weekEndDaysConfiguration1 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekEndDaysResult1 = schedulerWeekendExample5.Execute(weekEndDaysConfiguration1);
-            weekEndDaysResult1.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 3, 0, 0));
-            weekEndDaysResult1.Description.Should().Be("Occurs the first weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 4, 3, 0, 0));
+            output.Description.Should().Be("Occurs the first weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays_Second()
         {
-            var schedulerWeekendExample6 = new Scheduler();
-            var weekEndDaysConfiguration2 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekEndDaysResult2 = schedulerWeekendExample6.Execute(weekEndDaysConfiguration2);
-            weekEndDaysResult2.NextExecutionTime.Should().Be(new DateTime(2020, 1, 5, 3, 0, 0));
-            weekEndDaysResult2.Description.Should().Be("Occurs the second weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 5, 3, 0, 0));
+            output.Description.Should().Be("Occurs the second weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays_Third()
         {
-            var schedulerWeekendExample7 = new Scheduler();
-            var weekEndDaysConfiguration3 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekEndDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekEndDaysResult3 = schedulerWeekendExample7.Execute(weekEndDaysConfiguration3);
-            weekEndDaysResult3.NextExecutionTime.Should().Be(new DateTime(2020, 1, 11, 3, 0, 0));
-            weekEndDaysResult3.Description.Should().Be("Occurs the third weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekEndDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 11, 3, 0, 0));
+            output.Description.Should().Be("Occurs the third weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays_Fourth()
         {
-            var schedulerWeekendExample8 = new Scheduler();
-            var weekEndDaysConfiguration4 = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.WeekEndDay, 3),
-                null,
-                DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var weekEndDaysResult4 = schedulerWeekendExample8.Execute(weekEndDaysConfiguration4);
-            weekEndDaysResult4.NextExecutionTime.Should().Be(new DateTime(2020, 1, 12, 3, 0, 0));
-            weekEndDaysResult4.Description.Should().Be("Occurs the fourth weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.WeekEndDay, 3), null,
+                DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2020, 1, 12, 3, 0, 0));
+            output.Description.Should().Be("Occurs the fourth weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Scheduler_Example()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours,
-                new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = scheduler.ExecuteMany(configuration, 3);
+            var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 3);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the first thursday of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 4, 2, 3, 0, 0));
@@ -737,12 +626,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_First_Thursday()
         {
-            var thursdayExample1 = new Scheduler();
-            var thursdayConfig1 = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
                 DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 30, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = thursdayExample1.ExecuteMany(thursdayConfig1, 3);
 
+            var outputList = scheduler.ExecuteMany(configuration, 3);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 4, 3, 30, 0));
             outputList[0].Description.Should().Be("Occurs the first thursday of very 3 months and every 6 hours between 03:30:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 4, 4, 3, 30, 0));
@@ -750,15 +638,15 @@ namespace RetoSchedulerTest
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 7, 4, 3, 30, 0));
             outputList[2].Description.Should().Be("Occurs the first thursday of very 3 months and every 6 hours between 03:30:00 and 06:00:00 starting on 1/1/2020");
         }
+
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Second_Thursday()
         {
-            var thursdayExample1 = new Scheduler();
-            var thursdayConfig1 = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Thursday, 2), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Thursday, 2), null,
                 DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 30, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = thursdayExample1.ExecuteMany(thursdayConfig1, 3);
 
+            var outputList = scheduler.ExecuteMany(configuration, 3);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 11, 3, 30, 0));
             outputList[0].Description.Should().Be("Occurs the second thursday of very 2 months and every 6 hours between 03:30:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 3, 14, 3, 30, 0));
@@ -766,16 +654,15 @@ namespace RetoSchedulerTest
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 5, 9, 3, 30, 0));
             outputList[2].Description.Should().Be("Occurs the second thursday of very 2 months and every 6 hours between 03:30:00 and 06:00:00 starting on 1/1/2020");
         }
+
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Weekdays()
         {
-            var WeekDayExample1 = new Scheduler();
-            var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 2), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = WeekDayExample1.ExecuteMany(configuration, 3);
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 2), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 3);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 5, 6, 0, 0));
             outputList[0].Description.Should().Be("Occurs the first weekday of very 2 months and every 6 hours between 05:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 6, 3, 5, 0, 0));
@@ -787,13 +674,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_2Months_WeekEndDays_()
         {
-            var weekEndDayExample1 = new Scheduler();
-            var weekEndDayExampleConfig1 = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 2), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = weekEndDayExample1.ExecuteMany(weekEndDayExampleConfig1, 3);
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 2), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 3);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 6, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the first weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 6, 1, 3, 0, 0));
@@ -805,13 +690,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_2Months_WeekEndDays_Second()
         {
-            var weekEndDayExample2 = new Scheduler();
-            var weekEndDayExampleSecondConfig1 = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 2), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = weekEndDayExample2.ExecuteMany(weekEndDayExampleSecondConfig1, 3);
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 2), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 3);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 7, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 6, 2, 3, 0, 0));
@@ -820,18 +703,14 @@ namespace RetoSchedulerTest
             outputList[2].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
-
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_3Months_WeekEndDays_First()
         {
-            var schedulerExample = new Scheduler();
-            var schedulerExampleConfig1 = new Configuration(new DateTime(2024, 4, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 3), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 3), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
-            var outputList = schedulerExample.ExecuteMany(schedulerExampleConfig1, 4);
-
+            var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 6, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the first weekendday of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 7, 6, 3, 0, 0));
@@ -845,13 +724,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days()
         {
-            var dayExample2 = new Scheduler();
-            var dayExampleSecondConfig1 = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Day, 2), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
-                new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = dayExample2.ExecuteMany(dayExampleSecondConfig1, 3);
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Day, 2), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
+            var outputList = scheduler.ExecuteMany(configuration, 3);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 6, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the second day of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 6, 2, 3, 0, 0));
@@ -863,12 +740,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_FebruaryCase()
         {
-            var schedulerExample2 = new Scheduler();
-            var schedulerExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(30, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 1), null,
                 DailyConfiguration.Once(new TimeOnly(8, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
-            var outputList = schedulerExample2.ExecuteMany(schedulerExampleSecondConfig1, 2);
 
+            var outputList = scheduler.ExecuteMany(configuration, 2);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 30, 8, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 30th of very 1 month one time at 08:00:00 starting on 1/1/2024");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 8, 0, 0));
@@ -879,10 +755,10 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_Skip_First_Month()
         {
             var scheduler = new Scheduler();
-            var schedulerSecondConfig1 = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(31, 3), null,
+            var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 3), null,
                 DailyConfiguration.Once(new TimeOnly(12, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
-            var outputList = scheduler.ExecuteMany(schedulerSecondConfig1, 2);
+
+            var outputList = scheduler.ExecuteMany(configuration, 2);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 12, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 starting on 1/1/2024");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 8, 31, 12, 0, 0));
@@ -893,10 +769,10 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_RegularCases()
         {
             var scheduler = new Scheduler();
-            var schedulerSecondConfig1 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(20, 2), null,
+            var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(20, 2), null,
                 DailyConfiguration.Once(new TimeOnly(12, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
-            var outputList = scheduler.ExecuteMany(schedulerSecondConfig1, 5);
+
+            var outputList = scheduler.ExecuteMany(configuration, 5);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 20, 12, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 20th of very 2 months one time at 12:00:00 starting on 1/1/2024");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 3, 20, 12, 0, 0));
@@ -913,47 +789,46 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Execution_DayNumberOption1_Number_Ordinals_Cases()
         {
             var scheduler = new Scheduler();
-            var schedulerConfig1 = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(1, 3), null,
+            var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(1, 3), null,
                 DailyConfiguration.Once(new TimeOnly(12, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
-            var schedulerResult1 = scheduler.Execute(schedulerConfig1);
-            schedulerResult1.NextExecutionTime.Should().Be(new DateTime(2024, 4, 1, 12, 0, 0));
-            schedulerResult1.Description.Should().Be("Occurs the 1st of very 3 months one time at 12:00:00 starting on 1/1/2024");
+
+            var outPut = scheduler.Execute(configuration);
+            outPut.NextExecutionTime.Should().Be(new DateTime(2024, 4, 1, 12, 0, 0));
+            outPut.Description.Should().Be("Occurs the 1st of very 3 months one time at 12:00:00 starting on 1/1/2024");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_DayNumberOption21_Number_Ordinals_Cases()
         {
-            var scheduler2 = new Scheduler();
-            var schedulerConfig2 = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(21, 3), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(21, 3), null,
                 DailyConfiguration.Once(new TimeOnly(12, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
-            var schedulerResult2 = scheduler2.Execute(schedulerConfig2);
-            schedulerResult2.NextExecutionTime.Should().Be(new DateTime(2024, 4, 21, 12, 0, 0));
-            schedulerResult2.Description.Should().Be("Occurs the 21st of very 3 months one time at 12:00:00 starting on 1/1/2024");
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 4, 21, 12, 0, 0));
+            output.Description.Should().Be("Occurs the 21st of very 3 months one time at 12:00:00 starting on 1/1/2024");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_DayNumberOption31_Number_Ordinals_Cases()
         {
-            var scheduler3 = new Scheduler();
-            var schedulerConfig3 = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(31, 3), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 3), null,
                 DailyConfiguration.Once(new TimeOnly(12, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
-            var schedulerResult3 = scheduler3.Execute(schedulerConfig3);
-            schedulerResult3.NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 12, 0, 0));
-            schedulerResult3.Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 starting on 1/1/2024");
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 12, 0, 0));
+            output.Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 starting on 1/1/2024");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once()
         {
-            var schedulerExample2 = new Scheduler();
-            var schedulerExampleSecondConfig1 = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(10, 3), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(10, 3), null,
                 DailyConfiguration.Once(new TimeOnly(8, 0, 0), null), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = schedulerExample2.ExecuteMany(schedulerExampleSecondConfig1, 9);
 
+            var outputList = scheduler.ExecuteMany(configuration, 9);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 10, 8, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 10th of very 3 months one time at 08:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 4, 10, 8, 0, 0));
@@ -977,12 +852,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Recurring_Scheduler_Example()
         {
-            var schedulerExample2 = new Scheduler();
-            var schedulerExampleSecondConfig1 = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(10, 3), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(10, 3), null,
                 DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = schedulerExample2.ExecuteMany(schedulerExampleSecondConfig1, 9);
 
+            var outputList = scheduler.ExecuteMany(configuration, 9);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 10, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 10, 4, 0, 0));
@@ -1002,16 +876,15 @@ namespace RetoSchedulerTest
             outputList[8].NextExecutionTime.Should().Be(new DateTime(2020, 9, 10, 3, 0, 0));
             outputList[8].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
-        //gonzalo
+
         [Fact]
         public void Should_Be_Next_Execution_Ordinal_DayOfWeek_Skipping_Months_With_DailyConfiguration_Recurring_Second_Scheduler_Example()
         {
-            var schedulerExample2 = new Scheduler();
-            var schedulerExampleSecondConfig1 = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 1), null,
                 DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = schedulerExample2.ExecuteMany(schedulerExampleSecondConfig1, 9);
 
+            var outputList = scheduler.ExecuteMany(configuration, 9);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 5, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the second weekendday of very 1 month and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 5, 4, 0, 0));
@@ -1035,12 +908,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Scheduler_Example()
         {
-            var schedulerExample2 = new Scheduler();
-            var schedulerExampleSecondConfig1 = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
                 DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = schedulerExample2.ExecuteMany(schedulerExampleSecondConfig1, 9);
 
+            var outputList = scheduler.ExecuteMany(configuration, 9);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the first thursday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 1, 2, 4, 0, 0));
@@ -1064,12 +936,11 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Hours_Thursday()
         {
-            var lastThursdayExample2 = new Scheduler();
-            var lastThursdayExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.Thursday, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.Thursday, 1), null,
                 DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var outputList = lastThursdayExample2.ExecuteMany(lastThursdayExampleSecondConfig1, 9);
 
+            var outputList = scheduler.ExecuteMany(configuration, 9);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 25, 14, 0, 0));
             outputList[0].Description.Should().Be("Occurs the last thursday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 1, 25, 16, 0, 0));
@@ -1093,282 +964,137 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Skip_Months_Because_DayNumber_Is_Greater_Than_DaysInMonth()
         {
-            var scheduler1 = new Scheduler();
-            var schedulerSecondConfig1 = new Configuration(new DateTime(2024, 1, 31, 22, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(31, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 31, 22, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 1), null,
                 DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var schedulerSecondResult1 = scheduler1.Execute(schedulerSecondConfig1);
-            schedulerSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
-            schedulerSecondResult1.Description.Should().Be("Occurs the 31st of very 1 month and every 3 hours between 14:00:00 and 20:00:00 starting on 1/1/2020");
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
+            output.Description.Should().Be("Occurs the 31st of very 1 month and every 3 hours between 14:00:00 and 20:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_After_StartTime_Skipping_Months()
         {
-            var scheduler2 = new Scheduler();
-            var schedulerSecondConfig2 = new Configuration(new DateTime(2024, 1, 30, 7, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.DayOption(30, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 30, 7, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 1), null,
                 DailyConfiguration.Recurring(8, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var schedulerSecondResult2 = scheduler2.Execute(schedulerSecondConfig2);
-            schedulerSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 5, 0, 0));
-            schedulerSecondResult2.Description.Should().Be("Occurs the 30th of very 1 month and every 8 hours between 05:00:00 and 06:00:00 starting on 1/1/2020");
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 5, 0, 0));
+            output.Description.Should().Be("Occurs the 30th of very 1 month and every 8 hours between 05:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_Be_NextExecutionTime_And_SameDay_With_OrdinalFirst_Option()
         {
-            var lastThursdayExample2 = new Scheduler();
-            var lastThursdayExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 3, 15, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult1 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig1);
-            lastThursdayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 3, 15, 50, 0));
-            lastThursdayExampleSecondResult1.Description.Should().Be("Occurs the first weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 3, 15, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 1), null,
+                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))), new DateLimits(new DateTime(2024, 1, 1)));
+
+            var output = scheduler.Execute(configuration);
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 1, 3, 15, 50, 0));
+            output.Description.Should().Be("Occurs the first weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Hours_Third_Weekday()
         {
-            var lastThursdayExample2 = new Scheduler();
-            var lastThursdayExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 3, 18, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult1 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig1);
-            lastThursdayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 14, 0, 0));
-            lastThursdayExampleSecondResult1.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 3, 18, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
+                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))), new DateLimits(new DateTime(2024, 1, 1)));
 
-            var lastThursdayExampleSecondConfig2 = new Configuration(lastThursdayExampleSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult2 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig2);
-            lastThursdayExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 16, 0, 0));
-            lastThursdayExampleSecondResult2.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
-
-            var lastThursdayExampleSecondConfig3 = new Configuration(lastThursdayExampleSecondResult2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult3 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig3);
-            lastThursdayExampleSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 18, 0, 0));
-            lastThursdayExampleSecondResult3.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
-
-            var lastThursdayExampleSecondConfig4 = new Configuration(lastThursdayExampleSecondResult3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult4 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig4);
-            lastThursdayExampleSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 20, 0, 0));
-            lastThursdayExampleSecondResult4.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
-
-            var lastThursdayExampleSecondConfig5 = new Configuration(lastThursdayExampleSecondResult4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult5 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig5);
-            lastThursdayExampleSecondResult5.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 14, 0, 0));
-            lastThursdayExampleSecondResult5.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
-
-            var lastThursdayExampleSecondConfig6 = new Configuration(lastThursdayExampleSecondResult5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult6 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig6);
-            lastThursdayExampleSecondResult6.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 16, 0, 0));
-            lastThursdayExampleSecondResult6.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
-
-            var lastThursdayExampleSecondConfig7 = new Configuration(lastThursdayExampleSecondResult6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult7 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig7);
-            lastThursdayExampleSecondResult7.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 18, 0, 0));
-            lastThursdayExampleSecondResult7.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
-
-            var lastThursdayExampleSecondConfig8 = new Configuration(lastThursdayExampleSecondResult7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult8 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig8);
-            lastThursdayExampleSecondResult8.NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 20, 0, 0));
-            lastThursdayExampleSecondResult8.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
-
-            var lastThursdayExampleSecondConfig9 = new Configuration(lastThursdayExampleSecondResult8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))),
-                new DateLimits(new DateTime(2024, 1, 1)));
-            var lastThursdayExampleSecondResult9 = lastThursdayExample2.Execute(lastThursdayExampleSecondConfig9);
-            lastThursdayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 3, 5, 14, 0, 0));
-            lastThursdayExampleSecondResult9.Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            var outputList = scheduler.ExecuteMany(configuration, 9);
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 14, 0, 0));
+            outputList[0].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 16, 0, 0));
+            outputList[1].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 18, 0, 0));
+            outputList[2].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 1, 8, 20, 0, 0));
+            outputList[3].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[4].NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 14, 0, 0));
+            outputList[4].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[5].NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 16, 0, 0));
+            outputList[5].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[6].NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 18, 0, 0));
+            outputList[6].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[7].NextExecutionTime.Should().Be(new DateTime(2024, 2, 5, 20, 0, 0));
+            outputList[7].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
+            outputList[8].NextExecutionTime.Should().Be(new DateTime(2024, 3, 5, 14, 0, 0));
+            outputList[8].Description.Should().Be("Occurs the third weekday of very 1 month and every 2 hours between 14:00:00 and 20:00:00 starting on 1/1/2024");
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Minutes_WeekEndDay()
         {
-            var lastWeekEndDayExample2 = new Scheduler();
-            var lastWeekEndDayExampleSecondConfig1 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
                 DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult1 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig1);
-            lastWeekEndDayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 14, 0, 0));
-            lastWeekEndDayExampleSecondResult1.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
 
-            var lastWeekEndDayExampleSecondConfig2 = new Configuration(lastWeekEndDayExampleSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult2 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig2);
-            lastWeekEndDayExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 14, 40, 0));
-            lastWeekEndDayExampleSecondResult2.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig3 = new Configuration(lastWeekEndDayExampleSecondResult2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult3 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig3);
-            lastWeekEndDayExampleSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 15, 20, 0));
-            lastWeekEndDayExampleSecondResult3.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig4 = new Configuration(lastWeekEndDayExampleSecondResult3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult4 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig4);
-            lastWeekEndDayExampleSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 16, 0, 0));
-            lastWeekEndDayExampleSecondResult4.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig5 = new Configuration(lastWeekEndDayExampleSecondResult4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult5 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig5);
-            lastWeekEndDayExampleSecondResult5.NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 14, 0, 0));
-            lastWeekEndDayExampleSecondResult5.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig6 = new Configuration(lastWeekEndDayExampleSecondResult5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult6 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig6);
-            lastWeekEndDayExampleSecondResult6.NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 14, 40, 0));
-            lastWeekEndDayExampleSecondResult6.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig7 = new Configuration(lastWeekEndDayExampleSecondResult6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult7 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig7);
-            lastWeekEndDayExampleSecondResult7.NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 15, 20, 0));
-            lastWeekEndDayExampleSecondResult7.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig8 = new Configuration(lastWeekEndDayExampleSecondResult7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult8 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig8);
-            lastWeekEndDayExampleSecondResult8.NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 16, 0, 0));
-            lastWeekEndDayExampleSecondResult8.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig9 = new Configuration(lastWeekEndDayExampleSecondResult8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
-                DailyConfiguration.Recurring(40, DailyFrecuency.Minutes, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult9 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig9);
-            lastWeekEndDayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
-            lastWeekEndDayExampleSecondResult9.Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            var outputList = scheduler.ExecuteMany(configuration, 9);
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 14, 0, 0));
+            outputList[0].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 14, 40, 0));
+            outputList[1].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 15, 20, 0));
+            outputList[2].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 1, 28, 16, 0, 0));
+            outputList[3].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[4].NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 14, 0, 0));
+            outputList[4].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[5].NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 14, 40, 0));
+            outputList[5].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[6].NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 15, 20, 0));
+            outputList[6].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[7].NextExecutionTime.Should().Be(new DateTime(2024, 2, 25, 16, 0, 0));
+            outputList[7].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
+            outputList[8].NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
+            outputList[8].Description.Should().Be("Occurs the last weekendday of very 1 month and every 40 minutes between 14:00:00 and 16:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Should_End_If_CurrentDate_If_NextExecution_Greater_Than_End_Date()
         {
-            var lastWeekEndDayExample2 = new Scheduler();
-            var lastWeekEndDayExampleSecondConfig0 = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
-               MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
                DailyConfiguration.Recurring(13, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2024, 5, 30)));
-            var lastWeekEndDayExampleSecondResult0 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig0);
-            lastWeekEndDayExampleSecondResult0.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 10, 0, 0));
 
-            var lastWeekEndDayExampleSecondConfig1 = new Configuration(lastWeekEndDayExampleSecondResult0.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2024, 5, 30)));
-            var lastWeekEndDayExampleSecondResult1 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig1);
-            lastWeekEndDayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 10, 0, 0));
+            var outputList = scheduler.ExecuteMany(configuration, 2);
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 10, 0, 0));
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 10, 0, 0));
         }
 
         [Fact]
         public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Seconds_WeekDay()
         {
-            var lastWeekEndDayExample2 = new Scheduler();
-            var lastWeekEndDayExampleSecondConfig0 = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly,
-               MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult0 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig0);
-            lastWeekEndDayExampleSecondResult0.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 0));
-            lastWeekEndDayExampleSecondResult0.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
 
-            var lastWeekEndDayExampleSecondConfig1 = new Configuration(lastWeekEndDayExampleSecondResult0.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult1 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig1);
-            lastWeekEndDayExampleSecondResult1.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 13));
-            lastWeekEndDayExampleSecondResult1.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig2 = new Configuration(lastWeekEndDayExampleSecondResult1.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult2 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig2);
-            lastWeekEndDayExampleSecondResult2.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 26));
-            lastWeekEndDayExampleSecondResult2.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig3 = new Configuration(lastWeekEndDayExampleSecondResult2.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult3 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig3);
-            lastWeekEndDayExampleSecondResult3.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 39));
-            lastWeekEndDayExampleSecondResult3.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig4 = new Configuration(lastWeekEndDayExampleSecondResult3.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult4 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig4);
-            lastWeekEndDayExampleSecondResult4.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 52));
-            lastWeekEndDayExampleSecondResult4.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig5 = new Configuration(lastWeekEndDayExampleSecondResult4.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult5 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig5);
-            lastWeekEndDayExampleSecondResult5.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 5));
-            lastWeekEndDayExampleSecondResult5.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig6 = new Configuration(lastWeekEndDayExampleSecondResult5.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult6 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig6);
-            lastWeekEndDayExampleSecondResult6.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 18));
-            lastWeekEndDayExampleSecondResult6.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig7 = new Configuration(lastWeekEndDayExampleSecondResult6.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult7 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig7);
-            lastWeekEndDayExampleSecondResult7.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 31));
-            lastWeekEndDayExampleSecondResult7.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig8 = new Configuration(lastWeekEndDayExampleSecondResult7.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult8 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig8);
-            lastWeekEndDayExampleSecondResult8.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 44));
-            lastWeekEndDayExampleSecondResult8.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig9 = new Configuration(lastWeekEndDayExampleSecondResult8.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-                MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-                DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult9 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig9);
-            lastWeekEndDayExampleSecondResult9.NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 57));
-            lastWeekEndDayExampleSecondResult9.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
-
-            var lastWeekEndDayExampleSecondConfig10 = new Configuration(lastWeekEndDayExampleSecondResult9.NextExecutionTime, ConfigType.Recurring, true, null, Occurs.Monthly,
-               MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
-               DailyConfiguration.Recurring(13, DailyFrecuency.Seconds, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(14, 2, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-            var lastWeekEndDayExampleSecondResult10 = lastWeekEndDayExample2.Execute(lastWeekEndDayExampleSecondConfig10);
-            lastWeekEndDayExampleSecondResult10.NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 14, 0, 0));
-            lastWeekEndDayExampleSecondResult10.Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            var outputList = scheduler.ExecuteMany(configuration, 11);
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 0));
+            outputList[0].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 13));
+            outputList[1].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 26));
+            outputList[2].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 39));
+            outputList[3].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[4].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 0, 52));
+            outputList[4].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[5].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 5));
+            outputList[5].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[6].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 18));
+            outputList[6].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[7].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 31));
+            outputList[7].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[8].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 44));
+            outputList[8].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[9].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 14, 1, 57));
+            outputList[9].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
+            outputList[10].NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 14, 0, 0));
+            outputList[10].Description.Should().Be("Occurs the last weekday of very 1 month and every 13 seconds between 14:00:00 and 14:02:00 starting on 1/1/2020");
         }
     }
 }
