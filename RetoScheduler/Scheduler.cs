@@ -4,6 +4,7 @@ using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
 using RetoScheduler.Localization;
+using RetoScheduler.Runners;
 using System.Globalization;
 
 namespace RetoScheduler
@@ -25,9 +26,9 @@ namespace RetoScheduler
             Thread.CurrentThread.CurrentUICulture = new CultureInfo(config.Cultures.GetDescription());
             _stringLocalizer = new SchedulerLocalizer();
             ValidateConfiguration(config);
-
+            InOnceRunner OnceRunner = new InOnceRunner(_stringLocalizer);
             DateTime nextExecution = config.Type == ConfigType.Once
-                ? InOnce(config)
+                ? OnceRunner.Run(config)
                 : InRecurring(config);
 
             ValidateNextExecutionIsBetweenDateLimits(config, nextExecution);
@@ -75,19 +76,6 @@ namespace RetoScheduler
             {
                 throw new SchedulerException(_stringLocalizer["Scheduler:Errors:EndTimeEarlierThanStartTime"]);
             }
-        }
-
-        private DateTime InOnce(Configuration config)
-        {
-            if (config.ConfigDateTime.HasValue == false)
-            {
-                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:RequiredConfigDateTimeInOnce"]);
-            }
-            DateTime configDateTime = config.ConfigDateTime.Value;
-
-            return config.DailyConfiguration.Type == DailyConfigType.Once
-                ? configDateTime.Add(config.DailyConfiguration.OnceAt.ToTimeSpan())
-                : configDateTime.Add(config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
         }
 
         private DateTime InRecurring(Configuration config)
