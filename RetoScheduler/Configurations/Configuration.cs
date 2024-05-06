@@ -4,9 +4,9 @@ using System.Globalization;
 
 namespace RetoScheduler.Configurations
 {
-    public class Configuration
+    public record Configuration
     {
-        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs,MonthlyConfiguration? monthlyConfiguration, WeeklyConfiguration? weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits, Cultures cultures = Enums.Cultures.en_US)
+        public Configuration(DateTime currentDate, ConfigType type, bool enabled, DateTime? configDataTime, Occurs occurs, MonthlyConfiguration? monthlyConfiguration, WeeklyConfiguration? weeklyConfiguration, DailyConfiguration dailyConfiguration, DateLimits dateLimits, Cultures cultures = Enums.Cultures.en_US)
         {
             CurrentDate = currentDate;
             Type = type;
@@ -20,7 +20,7 @@ namespace RetoScheduler.Configurations
             Cultures = cultures;
         }
 
-        public DateTime CurrentDate { get; }
+        public DateTime CurrentDate { get; init; }
 
         public ConfigType Type { get; }
 
@@ -38,6 +38,6 @@ namespace RetoScheduler.Configurations
 
         public DateLimits DateLimits { get; }
 
-        public Cultures? Cultures { get;}
+        public Cultures? Cultures { get; }
     }
 }

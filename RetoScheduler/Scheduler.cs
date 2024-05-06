@@ -5,6 +5,7 @@ using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
 using RetoScheduler.Localization;
 using RetoScheduler.Runners;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace RetoScheduler
@@ -20,6 +21,26 @@ namespace RetoScheduler
 
         private bool Executed { get; set; }
 
+        public List<OutPut> ExecuteMany(Configuration configuration, int times)
+        {
+            DateTime currentDate = configuration.CurrentDate;
+            var outPutList = Enumerable.Range(0, times)
+                .Select(x =>
+                {
+                    var nextConfig = configuration with
+                    {
+                        CurrentDate = currentDate
+                    };
+                    var output = Execute(nextConfig);
+                    currentDate = output.NextExecutionTime;
+
+                    return output;
+                })
+                .ToList();
+
+            return outPutList;
+        }
+
         public OutPut Execute(Configuration config)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo(config.Cultures.GetDescription());
@@ -27,7 +48,7 @@ namespace RetoScheduler
             L = new SchedulerLocalizer();
             ValidateConfiguration(config);
             InOnceRunner OnceRunner = new InOnceRunner(L);
-            InRecurringRunner RecurringRunner = new InRecurringRunner(L,Executed);
+            InRecurringRunner RecurringRunner = new InRecurringRunner(L, Executed);
             DateTime nextExecution = config.Type == ConfigType.Once
                 ? OnceRunner.Run(config)
                 : RecurringRunner.Run(config);
