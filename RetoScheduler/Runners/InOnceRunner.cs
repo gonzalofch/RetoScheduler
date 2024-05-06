@@ -14,8 +14,8 @@ namespace RetoScheduler.Runners
     public class InOnceRunner
     {
         private readonly IStringLocalizer L;
-        public InOnceRunner(IStringLocalizer scSchedulerLocalizer ) { 
-        L = scSchedulerLocalizer;
+        public InOnceRunner(IStringLocalizer schedulerLocalizer ) { 
+        L = schedulerLocalizer;
         }
 
         public DateTime Run(Configuration config)
