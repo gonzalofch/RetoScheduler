@@ -10,7 +10,6 @@ namespace RetoSchedulerTest
     {
         public readonly List<object[]> data = new List<object[]>()
         {
-            //PRUEBAS DE WEEKDAYOPTION DIAS DE LA SEMANA
             //MONDAY
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Monday, 3), null,
@@ -43,7 +42,6 @@ namespace RetoSchedulerTest
             },
 
             //TUESDAY
-
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.Tuesday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -75,7 +73,6 @@ namespace RetoSchedulerTest
             },
 
             //WEDNESDAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.Wednesday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -107,7 +104,6 @@ namespace RetoSchedulerTest
             },
 
             //THURSDAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.Thursday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -140,7 +136,6 @@ namespace RetoSchedulerTest
 
 
             //FRIDAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.Friday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -172,7 +167,6 @@ namespace RetoSchedulerTest
             },
 
             //SATURDAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.Saturday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -204,7 +198,6 @@ namespace RetoSchedulerTest
             },
 
             //SUNDAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.Sunday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -237,7 +230,6 @@ namespace RetoSchedulerTest
 
 
             //DAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.Day, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -270,7 +262,6 @@ namespace RetoSchedulerTest
 
 
             //WEEKDAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.WeekDay, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -303,7 +294,6 @@ namespace RetoSchedulerTest
 
 
             //WEKENDDAY
-            
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.First, KindOfDay.WeekEndDay, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1))),
@@ -334,7 +324,7 @@ namespace RetoSchedulerTest
                 new OutPut(new DateTime(2020,1,26,3, 0, 0),"Occurs the last weekendday of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020")
             },
 
-            //PRUEBAS DE DAYNUMBER NUMERO DE DIA
+            //DayOptionNumber
 
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null,
@@ -370,9 +360,6 @@ namespace RetoSchedulerTest
             DailyConfiguration.Once( new TimeOnly(3, 0, 0), null), new DateLimits(new DateTime(2020, 1, 3))),
                 new OutPut(new DateTime(2020,1,3,3, 0, 0),"Occurs the 3rd of very 5 months one time at 03:00:00 starting on 1/3/2020")
             },
-
-
-
     };
         public IEnumerator<object[]> GetEnumerator()
         {

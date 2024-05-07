@@ -83,7 +83,6 @@ namespace RetoSchedulerTest
                     new OutPut(new DateTime(2020,1,9,14,0,0),"Ocurre cada día una vez a las 14:00:00 comenzando el 09/01/2020 y terminando el 10/01/2020")
             },
 
-            //10
             new object[]
             {
                 new Configuration(
@@ -119,8 +118,6 @@ namespace RetoSchedulerTest
                         new TimeLimits(new TimeOnly(4,0,0),new TimeOnly(8,0,0))),new DateLimits(new DateTime(2020,1,1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,2,4,0,0),"Ocurre cada 1 semana en lunes, jueves y viernes cada 2 horas entre las 04:00:00 y 08:00:00 comenzando el 01/01/2020")
             },
-
-            //MONTHLY CONFIGURATIONS 14 - FINAL
 
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.First, KindOfDay.Monday, 3), null,
@@ -158,7 +155,6 @@ namespace RetoSchedulerTest
                 new OutPut(new DateTime(2020,1,4,3,0,0),"Ocurre el primer sabado de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
-             //20
               new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Last, KindOfDay.Sunday, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
@@ -199,7 +195,6 @@ namespace RetoSchedulerTest
                 new OutPut(new DateTime(2020,1,26,3, 0, 0),"Ocurre el último día de fin de semana de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
 
-            //DAYNUMBER MONTHLY 27 - 
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null,
                     Occurs.Monthly,

@@ -36,10 +36,10 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_ConfigDateTime_For_OnceType_Is_Null()
+        public void Should_Not_Execute_If_ConfigDateTime_For_OnceType_Is_Null()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily,null, null, DailyConfiguration.Once(new TimeOnly(16, 0, 0)), new DateLimits(new DateTime(2020, 1, 1)));
+            var configuration = new Configuration(new DateTime(2020, 1, 4), ConfigType.Once, true, null, Occurs.Daily, null, null, DailyConfiguration.Once(new TimeOnly(16, 0, 0)), new DateLimits(new DateTime(2020, 1, 1)));
 
             FluentActions
                 .Invoking(() => scheduler.Execute(configuration))
@@ -52,7 +52,7 @@ namespace RetoSchedulerTest
         [Theory]
         [InlineData(ConfigType.Once)]
         [InlineData(ConfigType.Recurring)]
-        public void Should_Throw_SchedulerExeption_If_Is_Disabled(ConfigType configType)
+        public void Should_Not_Execute_If_Check_Is_Disabled(ConfigType configType)
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 4), configType, false, null, Occurs.Daily, null, null,
@@ -67,10 +67,10 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_Dont_Has_DateLimits()
+        public void Should_Not_Execute_If_Configuration_Dont_Has_DateLimits()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null,new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
+            var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
                 DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))), null);
 
             FluentActions
@@ -82,7 +82,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_Selected_Days_Ordinal_Is_Out_Of_Bounds()
+        public void Should_Not_Execute_If_Selected_Days_Ordinal_Is_Out_Of_Bounds()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 4, 25, 4, 30, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Monday, 0), null,
@@ -97,7 +97,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_EndDate_Is_Before_StartDate()
+        public void Should_Not_Execute_If_EndDate_Is_Before_StartDate()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
@@ -112,7 +112,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_EndDate_Is_Before_StartDate_Spanish()
+        public void Should_Not_Execute_If_EndDate_Is_Before_StartDate_Spanish()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
@@ -127,7 +127,7 @@ namespace RetoSchedulerTest
         }
 
         [Theory, ClassData(typeof(SchedulerLimitsConfiguration))]
-        public void Should_Throw_SchedulerExeption_If_Limits_Are_Out_Of_Range(Configuration configuration)
+        public void Should_Not_Execute_If_DateLimits_Are_Out_Of_Range(Configuration configuration)
         {
             var scheduler = new Scheduler();
             FluentActions
@@ -139,7 +139,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_EndTime_is_Before_StartTime()
+        public void Should_Not_Execute_If_EndTime_Is_Before_StartTime()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
@@ -154,7 +154,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_EndTime_is_Before_StartTime_Spanish()
+        public void Should_Not_Execute_If_EndTime_Is_Before_StartTime_Spanish()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Weekly, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
@@ -169,7 +169,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_OnceAtTime_is_Before_CurrentTime()
+        public void Should_Not_Execute_If_OnceAtTime_Is_Before_CurrentTime_For_OnceType()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Once, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
@@ -184,7 +184,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Throw_SchedulerExeption_If_Daily_Frecuency_Is_Zero_Or_Negative()
+        public void Should_Not_Execute_If_Daily_Frecuency_Is_Zero_Or_Negative()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 9, 0, 0), ConfigType.Recurring, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
@@ -196,21 +196,6 @@ namespace RetoSchedulerTest
                  .Throw<SchedulerException>()
                  .And.Message
                  .Should().Be("Don't should put negative numbers or zero in number field");
-        }
-
-        [Fact]
-        public void Should_Throw_SchedulerExeption_If_EndTime_Is_Before_StartTime()
-        {
-            var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 1, 9, 10, 40), ConfigType.Recurring, true, new DateTime(2020, 1, 1), Occurs.Daily, null, null,
-                DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(10, 0, 0), new TimeOnly(9, 20, 20))), new DateLimits(new DateTime(2020, 1, 1), new DateTime(2020, 1, 1)));
-
-            FluentActions
-                 .Invoking(() => scheduler.Execute(configuration))
-                 .Should()
-                 .Throw<SchedulerException>()
-                 .And.Message
-                 .Should().Be("The EndTime cannot be earlier than StartTime");
         }
 
         [Fact]
@@ -252,7 +237,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Validate_Execution_Time_Space_Between_Weeks_AddingHours()
+        public void Should_Validate_Execution_Time_Space_Between_Weeks_And_AddingHours()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
@@ -284,7 +269,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Validate_Execution_Time_Space_Between_Weeks_AddingMinutes()
+        public void Should_Validate_Execution_Time_Space_Between_Weeks_And_AddingMinutes()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
@@ -316,7 +301,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Validate_Execution_Time_Space_Between_Weeks_AddingSeconds()
+        public void Should_Validate_Execution_Time_Space_Between_Weeks_And_AddingSeconds()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 13), ConfigType.Recurring, true, null, Occurs.Daily, null, new WeeklyConfiguration(2, new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Thursday, DayOfWeek.Friday }),
@@ -368,7 +353,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber()
+        public void Should_Be_Next_Execution_Date_For_Month_DayOption()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 0), null,
@@ -380,7 +365,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber_SchedulerExample_Skipping_3_Months()
+        public void Should_Be_Next_Executions_Date_For_Month_DayOption_Skipping_Months_SchedulerExample()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 3), null,
@@ -398,7 +383,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber_SchedulerExample_Skipping_0_Months()
+        public void Should_Be_Next_Executions_Date_For_Month_DayOption_Skipping_0_Months()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 0), null,
@@ -416,7 +401,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Shoud_Be_Next_Execution_Month_Skipping_Months_And_Dates_That_Doesnt_Exist_30th()
+        public void Shoud_Be_Next_Executions_For_Month_DayOption30th_Skipping_Months_And_Dates_That_Doesnt_Exist()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 0), null,
@@ -434,7 +419,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Shoud_Be_Next_Execution_Month_Skipping_Months_And_Dates_That_Doesnt_Exist_31st()
+        public void Shoud_Be_Next_Executions_For_Month_DayOption31st_Skipping_Months_And_Dates_That_Doesnt_Exist()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 0), null,
@@ -452,7 +437,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Last_Thursday()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Last_Thursday()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.Thursday, 3), null,
@@ -464,7 +449,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Fourth_Thursday()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Fourth_Thursday()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.Thursday, 3), null,
@@ -476,7 +461,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Third_Thursday()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Third_Thursday()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.Thursday, 3), null,
@@ -488,7 +473,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Second_Thursday()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Second_Thursday()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Thursday, 3), null,
@@ -500,7 +485,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_First_Thursday()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_First_Thursday()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
@@ -512,7 +497,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_First()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_First_Weekday()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 3), null,
@@ -524,7 +509,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_Second()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Second_Weekday()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekDay, 3), null,
@@ -536,7 +521,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_Third()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Third_Weekdays()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 3), null,
@@ -548,7 +533,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_Weekdays_Fourth()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Fourth_Weekdays()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.WeekDay, 3), null,
@@ -560,7 +545,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_First_WeekEndDay()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 3), null,
@@ -572,7 +557,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays_Second()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Second_WeekEndDay()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 3), null,
@@ -584,7 +569,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays_Third()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Third_WeekEndDay()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekEndDay, 3), null,
@@ -596,7 +581,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinals_WeekEndDays_Fourth()
+        public void Should_Be_Next_Execution_For_Month_WeekDayOption_Fourth_WeekEndDay()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Fourth, KindOfDay.WeekEndDay, 3), null,
@@ -608,7 +593,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Scheduler_Example()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_First_Thursday_Skipping_3_Months_Scheduler_Example()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
@@ -624,7 +609,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_First_Thursday()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_First_Thursday_Skipping_3_Months()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
@@ -640,7 +625,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Second_Thursday()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Second_Thursday_Skipping_2_Months()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Thursday, 2), null,
@@ -656,7 +641,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Weekdays()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_First_Weekday_Skipping_2_Months()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 2), null,
@@ -672,7 +657,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_2Months_WeekEndDays_()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_First_WeekEndDay_Skipping_2_Months()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 2), null,
@@ -688,23 +673,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_2Months_WeekEndDays_Second()
-        {
-            var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 2), null,
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
-
-            var outputList = scheduler.ExecuteMany(configuration, 3);
-            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 7, 3, 0, 0));
-            outputList[0].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 6, 2, 3, 0, 0));
-            outputList[1].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 8, 4, 3, 0, 0));
-            outputList[2].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-        }
-
-        [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_3Months_WeekEndDays_First()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_First_WeekEndDay_Skipping_3_Months()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekEndDay, 3), null,
@@ -722,7 +691,23 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Second_WeekEndDay_Skipping_2_Months()
+        {
+            var scheduler = new Scheduler();
+            var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 2), null,
+                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
+
+            var outputList = scheduler.ExecuteMany(configuration, 3);
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 7, 3, 0, 0));
+            outputList[0].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 6, 2, 3, 0, 0));
+            outputList[1].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 8, 4, 3, 0, 0));
+            outputList[2].Description.Should().Be("Occurs the second weekendday of very 2 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+        }
+
+        [Fact]
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Second_Day_Skipping_2_Months()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 5), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Day, 2), null,
@@ -738,7 +723,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_FebruaryCase()
+        public void Should_Be_Next_Executions_For_Month_DayOption_Skipping_1_Months_With_DailyConfiguration_OnceType_FebruaryCase()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 1), null,
@@ -752,7 +737,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_Skip_First_Month()
+        public void Should_Be_Next_Executions_For_Month_DayOption_Skipping_3_Months_With_DailyConfiguration_OnceType_And_Skip_First_Month()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 3), null,
@@ -766,7 +751,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once_RegularCases()
+        public void Should_Be_Next_Executions_For_Month_DayOption_Skipping_2_Months_With_DailyConfiguration_OnceType_RegularCases()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(20, 2), null,
@@ -786,7 +771,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_DayNumberOption1_Number_Ordinals_Cases()
+        public void Should_Be_Next_Execution_For_Month_DayOption1st_Skipping_3_Months_StOrdinalCase()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(1, 3), null,
@@ -798,7 +783,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_DayNumberOption21_Number_Ordinals_Cases()
+        public void Should_Be_Next_Execution_For_Month_DayOption21st_Skipping_3_Months_StOrdinalCase()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(21, 3), null,
@@ -810,7 +795,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_DayNumberOption31_Number_Ordinals_Cases()
+        public void Should_Be_Next_Execution_For_Month_DayOption31st_Skipping_3_Months_StOrdinalCase()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 4, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 3), null,
@@ -822,7 +807,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Once()
+        public void Should_Be_Next_Executions_For_Month_DayOption10_Skipping_3_Months_With_DailyConfiguration_OnceType()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(10, 3), null,
@@ -850,7 +835,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_DayNumber_Skipping_Months_With_DailyConfiguration_Recurring_Scheduler_Example()
+        public void Should_Be_Next_Executions_For_Month_DayOption_Skipping_3_Months_With_DailyConfiguration_RecurringType_Scheduler_Example()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(10, 3), null,
@@ -878,7 +863,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Ordinal_DayOfWeek_Skipping_Months_With_DailyConfiguration_Recurring_Second_Scheduler_Example()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Second_WeekEndDay_Skipping_1_Months_With_DailyConfiguration_RecurringType()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekEndDay, 1), null,
@@ -906,7 +891,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Scheduler_Example()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_First_Thursday_Skipping_3_Months_With_DailyConfiguration_RecurringType_Scheduler_Example()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2020, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 3), null,
@@ -934,7 +919,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Hours_Thursday()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Last_Thursday_Skipping_1_Months_With_DailyConfiguration_RecurringType_And_Adding_Hours()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.Thursday, 1), null,
@@ -962,7 +947,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Skip_Months_Because_DayNumber_Is_Greater_Than_DaysInMonth()
+        public void Should_Skip_Months_Because_DayNumber31_Is_Greater_Than_DaysInMonth()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 31, 22, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 1), null,
@@ -974,7 +959,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_After_StartTime_Skipping_Months()
+        public void Should_Skip_First_30th_Because_EndTime_Is_Before_CurrentTime_Skipping()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 30, 7, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 1), null,
@@ -986,7 +971,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_NextExecutionTime_And_SameDay_With_OrdinalFirst_Option()
+        public void Should_Be_Next_ExecutionTime_And_In_The_Same_Day_For_Month_WeekDayOption_First_WeekDay()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 3, 15, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 1), null,
@@ -998,7 +983,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Hours_Third_Weekday()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Third_WeekDay_Skipping_1_Months_With_DailyConfiguration_RecurringType_And_Adding_Hours()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 3, 18, 50, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Third, KindOfDay.WeekDay, 1), null,
@@ -1026,7 +1011,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Minutes_WeekEndDay()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Last_WeekEndDay_Skipping_1_Months_With_DailyConfiguration_RecurringType_And_Adding_Minutes_()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekEndDay, 1), null,
@@ -1054,7 +1039,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_End_If_CurrentDate_If_NextExecution_Greater_Than_End_Date()
+        public void Should_End_Execution_If_NextExecution_Is_Greater_Than_End_Date()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
@@ -1066,7 +1051,7 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Execution_Date_Ordinal_WeekDay_Skipping_Months_Days_With_DailyConfiguration_Recurring_Seconds_WeekDay()
+        public void Should_Be_Next_Executions_For_Month_WeekDayOption_Last_WeekDay_Skipping_1_Months_With_DailyConfiguration_RecurringType_And_Adding_Seconds()
         {
             var scheduler = new Scheduler();
             var configuration = new Configuration(new DateTime(2024, 1, 1, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.WeekDay, 1), null,
