@@ -46,14 +46,23 @@ namespace RetoScheduler
             Thread.CurrentThread.CurrentCulture = new CultureInfo(config.Cultures.GetDescription());
             Thread.CurrentThread.CurrentUICulture = new CultureInfo(config.Cultures.GetDescription());
             L = new SchedulerLocalizer();
-            ValidateConfiguration(config);
-            InOnceRunner OnceRunner = new InOnceRunner(L);
-            InRecurringRunner RecurringRunner = new InRecurringRunner(L, Executed);
-            DateTime nextExecution = config.Type == ConfigType.Once
-                ? OnceRunner.Run(config,Executed)
-                : RecurringRunner.Run(config);
+            DateTime nextExecution;
+            try
+            {
+                ValidateConfiguration(config);
+                InOnceRunner OnceRunner = new InOnceRunner();
+                InRecurringRunner RecurringRunner = new InRecurringRunner(Executed);
+                nextExecution = config.Type == ConfigType.Once
+                               ? OnceRunner.Run(config, Executed)
+                               : RecurringRunner.Run(config);
 
-            ValidateNextExecutionIsBetweenDateLimits(config, nextExecution);
+                ValidateNextExecutionIsBetweenDateLimits(config, nextExecution);
+            }
+            catch (SchedulerException e)
+            {
+                throw new SchedulerException(L[e.Message]);
+            }
+
             Executed = true;
             DescriptionBuilder descriptionMessageBuilder = new(new SchedulerLocalizer());
             string descriptionMessage = descriptionMessageBuilder.CalculateDescription(nextExecution, config);
@@ -72,7 +81,7 @@ namespace RetoScheduler
         {
             if (!config.Enabled)
             {
-                throw new SchedulerException(L["Scheduler:Errors:NotEnabled"]);
+                throw new SchedulerException("Scheduler:Errors:NotEnabled");
             }
         }
 
@@ -80,12 +89,12 @@ namespace RetoScheduler
         {
             if (config.DateLimits == null)
             {
-                throw new SchedulerException(L["Scheduler:Errors:NullDateLimits"]);
+                throw new SchedulerException("Scheduler:Errors:NullDateLimits");
             }
 
             if (config.DateLimits.EndDate < config.DateLimits.StartDate)
             {
-                throw new SchedulerException(L["Scheduler:Errors:EndDateEarlierThanStartDate"]);
+                throw new SchedulerException("Scheduler:Errors:EndDateEarlierThanStartDate");
             }
         }
 
@@ -96,7 +105,7 @@ namespace RetoScheduler
             bool endTimeIsShorter = isRecurring && config.DailyConfiguration.TimeLimits.EndTime < config.DailyConfiguration.TimeLimits.StartTime;
             if (hasTimeLimits && endTimeIsShorter)
             {
-                throw new SchedulerException(L["Scheduler:Errors:EndTimeEarlierThanStartTime"]);
+                throw new SchedulerException("Scheduler:Errors:EndTimeEarlierThanStartTime");
             }
         }
 
@@ -108,12 +117,12 @@ namespace RetoScheduler
 
             if (dateTime < config.CurrentDate)
             {
-                throw new SchedulerException(L["Scheduler:Errors:ExecutionEarlierThanCurrentTime"]);
+                throw new SchedulerException("Scheduler:Errors:ExecutionEarlierThanCurrentTime");
             }
 
             if (dateBetweenLimits is false)
             {
-                throw new SchedulerException(L["Scheduler:Errors:DateOutOfRanges"]);
+                throw new SchedulerException("Scheduler:Errors:DateOutOfRanges");
             }
         }
     }

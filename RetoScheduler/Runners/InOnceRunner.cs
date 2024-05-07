@@ -7,17 +7,11 @@ namespace RetoScheduler.Runners
 {
     public class InOnceRunner
     {
-        private readonly IStringLocalizer L;
-        public InOnceRunner(IStringLocalizer schedulerLocalizer)
-        {
-            L = schedulerLocalizer;
-        }
-
         public DateTime Run(Configuration config, bool executed)
         {
             if (config.ConfigDateTime.HasValue == false)
             {
-                throw new SchedulerException(L["Scheduler:Errors:RequiredConfigDateTimeInOnce"]);
+                throw new SchedulerException("Scheduler:Errors:RequiredConfigDateTimeInOnce");
             }
 
             DateTime dateTime = config.ConfigDateTime.Value;

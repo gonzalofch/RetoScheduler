@@ -8,12 +8,10 @@ namespace RetoScheduler.Runners
 {
     public class InRecurringRunner
     {
-        private readonly IStringLocalizer L;
         private bool Executed = false;
 
-        public InRecurringRunner(IStringLocalizer schedulerLocalizer, bool executed)
+        public InRecurringRunner( bool executed)
         {
-            L = schedulerLocalizer;
             Executed = executed;
         }
 
@@ -21,7 +19,7 @@ namespace RetoScheduler.Runners
         {
             if (config.DailyConfiguration.Frecuency <= 0)
             {
-                throw new SchedulerException(L["Scheduler:Errors:NegativeDailyFrecuency"]);
+                throw new SchedulerException("Scheduler:Errors:NegativeDailyFrecuency");
             }
 
             var firstExecution = GetFirstExecutionDate(config);
@@ -45,20 +43,6 @@ namespace RetoScheduler.Runners
             }
 
             return DailyRunner.Run(dailyConfiguration, dateTime, Executed);
-        }
-
-        private static DateTime AddNextExecutionTime(DateTime dateTime, TimeOnly nextExecutionTime)
-        {
-            return dateTime.Date.Add(nextExecutionTime.ToTimeSpan());
-        }
-
-        private DateTime AddStartTime(DailyConfiguration dailyConfiguration, DateTime dateTime)
-        {
-            if (AddOccursEveryUnit(dailyConfiguration, TimeOnly.FromDateTime(dateTime.Date)) < dailyConfiguration.TimeLimits.StartTime)
-            {
-                return dateTime.Date.Add(dailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
-            }
-            return dateTime.Date.Add(AddOccursEveryUnit(dailyConfiguration, TimeOnly.FromDateTime(dateTime.Date)).ToTimeSpan());
         }
 
         private DateTime GetFirstExecutionDate(Configuration config)
@@ -169,7 +153,7 @@ namespace RetoScheduler.Runners
                 KindOfDay.Friday => new List<DayOfWeek>() { DayOfWeek.Friday },
                 KindOfDay.Saturday => new List<DayOfWeek>() { DayOfWeek.Saturday },
                 KindOfDay.Sunday => new List<DayOfWeek>() { DayOfWeek.Sunday },
-                _ => throw new SchedulerException(L["Scheduler:Errors:NotSupportedSelectedWeekDay"]),
+                _ => throw new SchedulerException("Scheduler:Errors:NotSupportedSelectedWeekDay"),
             };
         }
 
@@ -182,12 +166,12 @@ namespace RetoScheduler.Runners
                 Ordinal.Third => 2,
                 Ordinal.Fourth => 3,
                 Ordinal.Last => listOfDays.Count - 1,
-                _ => throw new SchedulerException(L["Scheduler:Errors:NotSupportedOrdinal"]),
+                _ => throw new SchedulerException("Scheduler:Errors:NotSupportedOrdinal"),
             };
 
             if (listOfDays.Count - 1 < index)
             {
-                throw new SchedulerException(L["Scheduler:Errors:SelectedDaysIndexOutOfBounds"]);
+                throw new SchedulerException("Scheduler:Errors:SelectedDaysIndexOutOfBounds");
             }
 
             return listOfDays[index];
@@ -265,7 +249,7 @@ namespace RetoScheduler.Runners
                 DailyFrecuency.Hours => time.AddHours(dailyConfiguration.Frecuency.Value),
                 DailyFrecuency.Minutes => time.AddMinutes(dailyConfiguration.Frecuency.Value),
                 DailyFrecuency.Seconds => time.AddSeconds(dailyConfiguration.Frecuency.Value),
-                _ => throw new SchedulerException(L["DescriptionBuilder:Errors:NotSupportedDailyFrequency"]),
+                _ => throw new SchedulerException("DescriptionBuilder:Errors:NotSupportedDailyFrequency"),
             };
         }
     }
