@@ -50,7 +50,7 @@ namespace RetoScheduler
             InOnceRunner OnceRunner = new InOnceRunner(L);
             InRecurringRunner RecurringRunner = new InRecurringRunner(L, Executed);
             DateTime nextExecution = config.Type == ConfigType.Once
-                ? OnceRunner.Run(config)
+                ? OnceRunner.Run(config,Executed)
                 : RecurringRunner.Run(config);
 
             ValidateNextExecutionIsBetweenDateLimits(config, nextExecution);
