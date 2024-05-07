@@ -15,7 +15,6 @@ namespace RetoScheduler.Runners
     {
         public static DateTime Run(DailyConfiguration dailyConfiguration, DateTime dateTime, bool executed)
         {
-
             var date = dateTime.Date;
             TimeSpan addedTime = new(0);
 

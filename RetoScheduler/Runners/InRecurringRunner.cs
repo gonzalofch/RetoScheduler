@@ -33,31 +33,18 @@ namespace RetoScheduler.Runners
 
         private DateTime NextExecutionTime(DailyConfiguration dailyConfiguration, DateTime dateTime, bool? hasJumpedDays = false)
         {
+            //AQUI UTILIZAR DAILYRUNNER PARA QUE FUNCIONE DE IGUAL MANERA
             bool hasTimeLimits = dailyConfiguration.TimeLimits != null;
             TimeOnly startTime = hasTimeLimits
                 ? dailyConfiguration.TimeLimits.StartTime
                 : TimeOnly.MinValue;
 
-            if (dailyConfiguration.Type == DailyConfigType.Once)
-            {
-                return dateTime.Date.Add(dailyConfiguration.OnceAt.ToTimeSpan());
-            }
-
-            if (hasJumpedDays != false && dailyConfiguration.Type == DailyConfigType.Recurring && hasTimeLimits)
+            if (hasJumpedDays == true && dailyConfiguration.Type == DailyConfigType.Recurring && hasTimeLimits)
             {
                 return dateTime.Date.Add(startTime.ToTimeSpan());
             }
 
-            TimeOnly nextExecutionTime = TimeOnly.FromDateTime(dateTime);
-
-            if (Executed)
-            {
-                nextExecutionTime = AddOccursEveryUnit(dailyConfiguration, nextExecutionTime);
-            }
-
-            return nextExecutionTime < startTime
-                ? AddStartTime(dailyConfiguration, dateTime)
-                : AddNextExecutionTime(dateTime, nextExecutionTime);
+            return DailyRunner.Run(dailyConfiguration, dateTime, Executed);
         }
 
         private static DateTime AddNextExecutionTime(DateTime dateTime, TimeOnly nextExecutionTime)

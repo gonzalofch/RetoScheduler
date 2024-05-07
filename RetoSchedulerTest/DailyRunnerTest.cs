@@ -112,8 +112,6 @@ namespace RetoSchedulerTest
                 ).Should().Be(new DateTime(2024, 1, 1, 7, 0, 0));
         }
 
-        //falta probar executed
-
         [Fact]
         public void Should_Be_Next_Time_RecurringType_DateTime_Is_Before_StartTime_Executed1()
         {

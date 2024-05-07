@@ -648,7 +648,7 @@ namespace RetoSchedulerTest
                 DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 3);
-            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 5, 6, 0, 0));
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 5, 5, 0, 0));
             outputList[0].Description.Should().Be("Occurs the first weekday of very 2 months and every 6 hours between 05:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 6, 3, 5, 0, 0));
             outputList[1].Description.Should().Be("Occurs the first weekday of very 2 months and every 6 hours between 05:00:00 and 06:00:00 starting on 1/1/2020");
