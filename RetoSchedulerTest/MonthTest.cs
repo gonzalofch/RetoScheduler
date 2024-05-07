@@ -11,7 +11,6 @@ namespace RetoSchedulerTest
             Month february2024 = new Month(2024, 2);
             var days = february2024.GetMonthDays();
             days.Should().HaveCount(29);
-
         }
 
         [Fact]

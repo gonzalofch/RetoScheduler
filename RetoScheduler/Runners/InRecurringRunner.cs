@@ -10,7 +10,7 @@ namespace RetoScheduler.Runners
     {
         private bool Executed = false;
 
-        public InRecurringRunner( bool executed)
+        public InRecurringRunner(bool executed)
         {
             Executed = executed;
         }
@@ -23,7 +23,13 @@ namespace RetoScheduler.Runners
             }
 
             var firstExecution = GetFirstExecutionDate(config);
+
             var nextExecution = NextExecutionDate(config, firstExecution);
+            //if (nextExecution > nextExecution.Add(config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()))
+            //{
+
+            //}
+
             bool hasJumpedDays = config.CurrentDate.Date != nextExecution.Date;
 
             return NextExecutionTime(config.DailyConfiguration, nextExecution, hasJumpedDays);
@@ -54,9 +60,16 @@ namespace RetoScheduler.Runners
 
         private DateTime NextExecutionDate(Configuration config, DateTime dateTime)
         {
+            var addedHours = DailyRunner.Run(config.DailyConfiguration, dateTime, Executed);
+            var endTimeLimit = config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
+
             if (config.MonthlyConfiguration != null)
             {
-                return MonthlyRunner.Run(config.MonthlyConfiguration, config.DailyConfiguration, dateTime, Executed);
+                if (addedHours.TimeOfDay <= endTimeLimit)
+                {
+                    return MonthlyRunner.Run(config.MonthlyConfiguration, dateTime, Executed);
+                }
+                return MonthlyRunner.Run(config.MonthlyConfiguration, dateTime.AddDays(1), Executed);
             }
 
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
