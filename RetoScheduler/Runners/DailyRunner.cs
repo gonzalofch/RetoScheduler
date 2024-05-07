@@ -38,8 +38,8 @@ namespace RetoScheduler.Runners
         private static TimeSpan GetMinExecutionTimeInDay(TimeSpan time, TimeSpan startTime)
         {
             return time < startTime
-                                    ? startTime
-                                    : time;
+                   ? startTime
+                   : time;
         }
 
         public static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, TimeOnly time)

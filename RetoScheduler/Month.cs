@@ -24,7 +24,6 @@ namespace RetoScheduler
                         .WhereIf(day != null, x => x.DayOfWeek == day)
                         .WhereIf(currentDay!=null, x=> x.Day>currentDay)
                         .ToList();
-
         }
     }
 }

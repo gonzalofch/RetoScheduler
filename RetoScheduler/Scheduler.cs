@@ -33,7 +33,6 @@ namespace RetoScheduler
                     };
                     var output = Execute(nextConfig);
                     currentDate = output.NextExecutionTime;
-
                     return output;
                 })
                 .ToList();

@@ -10,7 +10,7 @@ namespace RetoScheduler.Runners
     {
         private bool Executed = false;
 
-        public InRecurringRunner( bool executed)
+        public InRecurringRunner(bool executed)
         {
             Executed = executed;
         }
@@ -23,7 +23,13 @@ namespace RetoScheduler.Runners
             }
 
             var firstExecution = GetFirstExecutionDate(config);
+
             var nextExecution = NextExecutionDate(config, firstExecution);
+            //if (nextExecution > nextExecution.Add(config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()))
+            //{
+
+            //}
+
             bool hasJumpedDays = config.CurrentDate.Date != nextExecution.Date;
 
             return NextExecutionTime(config.DailyConfiguration, nextExecution, hasJumpedDays);
@@ -54,9 +60,36 @@ namespace RetoScheduler.Runners
 
         private DateTime NextExecutionDate(Configuration config, DateTime dateTime)
         {
+            bool hasLimits = config.DailyConfiguration.TimeLimits != null;
+            var addedHours = DailyRunner.Run(config.DailyConfiguration, dateTime, Executed);
+            //var endTimeLimit = config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
+            //var endDate = config.DateLimits.EndDate;
+
+
             if (config.MonthlyConfiguration != null)
             {
-                return MonthlyRunner.Run(config.MonthlyConfiguration, config.DailyConfiguration, dateTime, Executed);
+                //si es tipo Daily y recurring(podemos verificar esto) once es directamente monthlyRunner
+                //si el siguiente tiempo de ejecucion (addedHours.timeofday > endTime.totimespan()) realizar la ejecucion del monthly
+                // si addedHours es menor a endTime, entonces ejecutar m
+                DateTime nextDateTime;
+                if (config.DailyConfiguration.Type == DailyConfigType.Recurring)
+                {
+                    if (hasLimits && addedHours.TimeOfDay <= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() )
+                    {
+
+                        nextDateTime = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime.JumpToDayNumber(1), Executed);
+                    }
+                    else
+                    {
+                        nextDateTime = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime.Date, Executed);
+                    }
+                }
+                else
+                {
+                    nextDateTime = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime, Executed);
+                }
+
+                return nextDateTime.Add(addedHours.TimeOfDay);
             }
 
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
@@ -66,7 +99,6 @@ namespace RetoScheduler.Runners
 
             List<DayOfWeek> sortedDays = config.WeeklyConfiguration.SelectedDays.OrderBy(_ => _).ToList();
             DayOfWeek actualDayOfWeek = config.CurrentDate.DayOfWeek;
-            bool hasLimits = config.DailyConfiguration.TimeLimits != null;
             bool excedsLimits = hasLimits && config.CurrentDate.TimeOfDay >= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
             bool skipDay = excedsLimits || (config.DailyConfiguration.Type == DailyConfigType.Once && Executed);
 
