@@ -16,6 +16,7 @@ namespace RetoScheduler.Runners
 
             DateTime dateTime = config.ConfigDateTime.Value;
 
+
             return DailyRunner.Run(config.DailyConfiguration, dateTime, executed);
         }
     }
