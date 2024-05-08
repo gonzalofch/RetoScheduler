@@ -31,7 +31,12 @@ namespace RetoScheduler.Runners
                     : GetMinExecutionTimeInDay(dateTime.TimeOfDay, startTime);
             //aqui podriamos revisar que date.Add(addedTime) sea menor a endTime, sino excepcion para hacerle saber a la otra clase que debe saltar de dia y luego ejecutar otra vez
             }
-            
+
+            if (addedTime>dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
+            {
+                throw new Exception();
+            }
+
             return date.Add(addedTime);
         }
 

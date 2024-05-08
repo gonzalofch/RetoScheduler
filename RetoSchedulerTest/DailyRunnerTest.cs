@@ -123,6 +123,32 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
+        public void Should_Throw_Exception_At_Next_Time_RecurringType_Stops_At_EndLimit()
+        {
+            var res1 = DailyRunner.Run(
+                DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
+                new DateTime(2024, 1, 1),
+                true
+                );
+            res1.Should().Be(new DateTime(2024, 1, 1, 5, 0, 0));
+
+            var res2 = DailyRunner.Run(
+                DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
+                res1,
+                true
+                );
+
+            res2.Should().Be(new DateTime(2024, 1, 1, 9, 0, 0));
+
+            FluentActions
+                 .Invoking(() => DailyRunner.Run(DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
+                res2,
+                true))
+                .Should()
+                .Throw<Exception>();
+        }
+
+        [Fact]
         public void Should_Be_Next_Time_RecurringType_DateTime_Is_Before_StartTime_Executed2()
         {
             DailyRunner.Run(
