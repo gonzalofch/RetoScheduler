@@ -17,43 +17,44 @@ namespace RetoScheduler.Runners
             if (monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
                 var dayNumber = monthlyConfiguration.DayNumber;
+
                 if (executed)
                 {
-                    if (dateTime.Day == dayNumber)
+                    DateTime monthDay;
+                    try
                     {
-                        return dateTime;
+                        monthDay = dateTime.AddMonths(frecuency).JumpToDayNumber(dayNumber);
+
                     }
-                    else
+                    catch (Exception)
                     {
-                        if (dateTime.Day != dayNumber)
-                        {
-                            dateTime= dateTime.AddMonths(frecuency);
-                            if (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) >= dayNumber)
-                            {
-                                return dateTime.JumpToDayNumber(dayNumber);
-                            }
-                            else
-                            {
-                                return dateTime.JumpToDayNumber(DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
-                            }
-                        }
-                        else
-                        {
-                            var possibleDate = GetNextPossibleMonth(dateTime.AddMonths(frecuency), dayNumber);
-                            return new DateTime(possibleDate.Year, possibleDate.MonthIndex, dayNumber).Add(dateTime.TimeOfDay);
-                        }
+                        monthDay = dateTime.AddMonths(frecuency).JumpToDayNumber(DateTime.DaysInMonth(dateTime.AddMonths(frecuency).Year, dateTime.AddMonths(frecuency).Month));
                     }
+
+                    var monthDayLessThanCurrentDate = monthDay < dateTime;
+                    if (!monthDayLessThanCurrentDate)
+                    {
+                        return monthDay;
+                    }
+
+                    return monthDay.AddMonths(1);
                 }
                 else
                 {
-                    var possibleDate = GetNextPossibleMonth(dateTime, dayNumber);
-                    return new DateTime(possibleDate.Year, possibleDate.MonthIndex, dayNumber).Add(dateTime.TimeOfDay);
+                    var monthDay = dateTime.JumpToDayNumber(dayNumber);
+                    //si monthDay es mayor o igual a dateTime, 
+                    var monthDayLessThanCurrentDate = monthDay < dateTime;
+                    if (!monthDayLessThanCurrentDate)
+                    {
+                        return monthDay;
+                    }
+
+                    return monthDay.AddMonths(1);
+
                 }
             }
-            else
-            {
-                return NextDayOfWeekInMonth(monthlyConfiguration, date, executed);
-            }
+
+            return NextDayOfWeekInMonth(monthlyConfiguration, date, executed);
         }
 
         private static void ValidateMonthlyConfiguration(MonthlyConfiguration monthlyConfiguration)

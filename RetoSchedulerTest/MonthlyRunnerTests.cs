@@ -39,7 +39,7 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Date_For_Month_DayOptionNumber_Skipping_Dates_That_Doesnt_Exist()
         {
             var outPut = MonthlyRunner.Run(MonthlyConfiguration.DayOption(30, 2), new DateTime(2023, 1, 31), false);
-            outPut.Should().Be(new DateTime(2023, 3, 30));
+            outPut.Should().Be(new DateTime(2023, 2, 28));
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace RetoSchedulerTest
             var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 20, 0, 0, 0)
                 , true);
 
-            output.Should().Be(new DateTime(2024, 5, 20, 0, 0, 0));
+            output.Should().Be(new DateTime(2024, 7, 20, 0, 0, 0));
         }
 
         [Fact]
@@ -211,19 +211,30 @@ namespace RetoSchedulerTest
         public void Should_Skip_Invalid_Dates_February_Skipping_1_Month_Day31()
         {
             var monthlyConfiguration = MonthlyConfiguration.DayOption(31, 1);
-            var date = new DateTime(2023, 1, 3, 4, 0, 0);
+            var date = new DateTime(2023, 1, 31, 4, 0, 0);
             var res1 = MonthlyRunner.Run(monthlyConfiguration, date, true);
-            res1.Should().Be(new DateTime(2023, 3, 31, 4, 0, 0));
+            res1.Should().Be(new DateTime(2023, 2, 28, 4, 0, 0));
         }
 
         [Fact]
         public void Should_Skip_Invalid_Dates_February_Skipping_2_Months()
         {
-            var monthlyConfiguration = MonthlyConfiguration.DayOption(30, 2);
+            var monthlyConfiguration = MonthlyConfiguration.DayOption(31, 1);
 
-            var res1 = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 1, 1, 4, 0, 0), true);
-            res1.Should().Be(new DateTime(2024, 3, 30, 4, 0, 0));
+            var res1 = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 1, 31, 4, 0, 0), true);
+            res1.Should().Be(new DateTime(2024, 2, 29, 4, 0, 0));
         }
+
+        [Fact]
+        public void Should_Skip_Invalid_Dates_February_Skipping_1_Months()
+        {
+            var monthlyConfiguration = MonthlyConfiguration.DayOption(30, 1);
+
+            var res1 = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 1, 31, 4, 0, 0), true);
+            res1.Should().Be(new DateTime(2024, 2, 29, 4, 0, 0));
+        }
+
+        
 
         [Fact]
         public void Should_Not_Execute()

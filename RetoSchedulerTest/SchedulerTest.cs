@@ -356,12 +356,12 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Execution_Date_For_Month_DayOption()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 0), null,
+            var configuration = new Configuration(new DateTime(2020, 4, 1, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 1), null,
                 DailyConfiguration.Recurring(1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var output = scheduler.Execute(configuration);
             output.NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
-            output.Description.Should().Be("Occurs the 8th of very months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            output.Description.Should().Be("Occurs the 8th of very 1 month and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
@@ -386,54 +386,54 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Executions_Date_For_Month_DayOption_Skipping_0_Months()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 0), null,
+            var configuration = new Configuration(new DateTime(2020, 1, 4, 0, 0, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(8, 1), null,
                 DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 1, 8, 3, 0, 0));
-            outputList[0].Description.Should().Be("Occurs the 8th of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[0].Description.Should().Be("Occurs the 8th of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 2, 8, 3, 0, 0));
-            outputList[1].Description.Should().Be("Occurs the 8th of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[1].Description.Should().Be("Occurs the 8th of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 3, 8, 3, 0, 0));
-            outputList[2].Description.Should().Be("Occurs the 8th of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[2].Description.Should().Be("Occurs the 8th of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[3].NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
-            outputList[3].Description.Should().Be("Occurs the 8th of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[3].Description.Should().Be("Occurs the 8th of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Shoud_Be_Next_Executions_For_Month_DayOption30th_Skipping_Months_And_Dates_That_Doesnt_Exist()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 0), null,
+            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(30, 1), null,
                 DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 30, 4, 0, 0));
-            outputList[0].Description.Should().Be("Occurs the 30th of very months and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[0].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 4, 0, 0));
-            outputList[1].Description.Should().Be("Occurs the 30th of very months and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[1].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 4, 30, 4, 0, 0));
-            outputList[2].Description.Should().Be("Occurs the 30th of very months and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[2].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 5, 30, 4, 0, 0));
-            outputList[3].Description.Should().Be("Occurs the 30th of very months and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[3].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
         public void Shoud_Be_Next_Executions_For_Month_DayOption31st_Skipping_Months_And_Dates_That_Doesnt_Exist()
         {
             var scheduler = new Scheduler();
-            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 0), null,
+            var configuration = new Configuration(new DateTime(2023, 12, 31, 4, 18, 0), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption(31, 1), null,
                 DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2023, 12, 31, 4, 18, 0));
-            outputList[0].Description.Should().Be("Occurs the 31st of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[0].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 3, 0, 0));
-            outputList[1].Description.Should().Be("Occurs the 31st of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[1].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 3, 0, 0));
-            outputList[2].Description.Should().Be("Occurs the 31st of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[2].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 3, 0, 0));
-            outputList[3].Description.Should().Be("Occurs the 31st of very months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
+            outputList[3].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
         [Fact]
