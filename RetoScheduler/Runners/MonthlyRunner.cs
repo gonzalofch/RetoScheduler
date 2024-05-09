@@ -11,6 +11,7 @@ namespace RetoScheduler.Runners
     {
         public static DateTime Run(MonthlyConfiguration monthlyConfiguration, DateTime dateTime, bool executed)
         {
+            ValidateMonthlyConfiguration(monthlyConfiguration);
             var date = dateTime.Date;
             int frecuency = monthlyConfiguration.Frecuency;
             if (monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
@@ -26,10 +27,15 @@ namespace RetoScheduler.Runners
                     {
                         if (dateTime.Day != dayNumber)
                         {
-                            //saltar mes y enviar al dia 1 sin perder la hora
-                            dateTime = dateTime.AddMonths(1).JumpToDayNumber(1);
-                            var possibleMonth = GetNextPossibleMonth(dateTime.AddMonths(frecuency - 1), dayNumber);
-                            return new DateTime(possibleMonth.Year, possibleMonth.MonthIndex, dayNumber).Add(dateTime.TimeOfDay);
+                            dateTime= dateTime.AddMonths(frecuency);
+                            if (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) >= dayNumber)
+                            {
+                                return dateTime.JumpToDayNumber(dayNumber);
+                            }
+                            else
+                            {
+                                return dateTime.JumpToDayNumber(DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
+                            }
                         }
                         else
                         {
@@ -47,6 +53,14 @@ namespace RetoScheduler.Runners
             else
             {
                 return NextDayOfWeekInMonth(monthlyConfiguration, date, executed);
+            }
+        }
+
+        private static void ValidateMonthlyConfiguration(MonthlyConfiguration monthlyConfiguration)
+        {
+            if (monthlyConfiguration.Frecuency < 1)
+            {
+                throw new SchedulerException("The month frequency can't be zero or negative");
             }
         }
 
