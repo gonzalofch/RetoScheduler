@@ -41,7 +41,7 @@ namespace RetoScheduler.Runners
                 new Month(nextMonth3.Year, nextMonth3.Month) };
 
             var possibleMonth = nextMonths.
-                Where(x => x.GetMonthDays().Count >= dayNumber)
+                Where(x => x.GetMonthDays().Count >= dayNumber && new DateTime(x.Year,x.MonthIndex,dayNumber)>=currentDate)
                 .Select(x => x)
                 .First();
 

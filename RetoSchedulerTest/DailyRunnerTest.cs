@@ -13,209 +13,132 @@ namespace RetoSchedulerTest
     public class DailyRunnerTest
     {
         [Fact]
-        public void Should_Be_Next_Time_OnceType1()
+        public void Should_Be_Next_Time_OnceType()
         {
-            DailyRunner.Run(
+            var output = DailyRunner.Run(
                 DailyConfiguration.Once(new TimeOnly(8, 30, 10)),
                 new DateTime(2024, 1, 1),
-                false)
-                .Should().Be(new DateTime(2024, 1, 1, 8, 30, 10));
+                false);
+            output.Should().Be(new DateTime(2024, 1, 1, 8, 30, 10));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_OnceType2()
+        public void Should_Be_Next_Time_OnceType_CurrentTime_Is_Same_Time()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Once(new TimeOnly(12, 30, 10)),
-                new DateTime(2024, 1, 1, 1, 1, 1),
-                false)
-                .Should().Be(new DateTime(2024, 1, 1, 12, 30, 10));
+            var output = DailyRunner.Run(
+                DailyConfiguration.Once(new TimeOnly(8, 30, 10)),
+                new DateTime(2024, 1, 1, 8, 30, 10),
+                false);
+            output.Should().Be(new DateTime(2024, 1, 1, 8, 30, 10));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_OnceType3()
+        public void Should_Be_Next_Time_OnceType_CurrentTime_Is_After_ExecutionTime()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Once(new TimeOnly(18, 30, 30)),
-                new DateTime(2024, 1, 5, 16, 30, 30),
-                false)
-                .Should().Be(new DateTime(2024, 1, 5, 18, 30, 30));
+            var output = DailyRunner.Run(
+                DailyConfiguration.Once(new TimeOnly(8, 30, 10)),
+                new DateTime(2024, 1, 1, 9, 0, 0),
+                false);
+            output.Should().Be(new DateTime(2024, 1, 2, 8, 30, 10));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_OnceType3_Executed()
+        public void Should_Be_Next_Time_Recurring_Before_StartTime()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Once(new TimeOnly(18, 30, 30)),
-                new DateTime(2024, 1, 5, 16, 30, 30),
-                true)
-                .Should().Be(new DateTime(2024, 1, 5, 18, 30, 30));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
+                    new DateTime(2024, 1, 1, 2, 0, 0), false);
+            output.Should().Be(new DateTime(2024, 1, 1, 3, 0, 0));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_RecurringType_Not_Executed1()
+        public void Should_Be_Next_Time_Recurring_Between_TimeLimits()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(0, 0, 0), new TimeOnly(1, 0, 0))),
-                new DateTime(2024, 1, 1, 0, 0, 0),
-                false
-                ).Should().Be(new DateTime(2024, 1, 1, 0, 0, 0));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
+                    new DateTime(2024, 1, 1, 4, 0, 0), false);
+            output.Should().Be(new DateTime(2024, 1, 1, 4, 0, 0));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Plus_Hours_Is_Before_StartTime_NotExecuted()
+        public void Should_Be_Next_Time_Recurring_Is_EndTime()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1, 0, 0, 0),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 5, 0, 0));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
+                    new DateTime(2024, 1, 1, 6, 0, 0), false);
+
+            output.Should().Be(new DateTime(2024, 1, 1, 6, 0, 0));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Plus_Hours_Is_After_StartTime_Not_Executed1()
+        public void Should_Be_Next_Time_Recurring_After_EndTime()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(5, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(4, 0, 0), new TimeOnly(8, 0, 0))),
-                new DateTime(2024, 1, 1, 0, 0, 0),
-                false
-                ).Should().Be(new DateTime(2024, 1, 1, 4, 0, 0));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
+                    new DateTime(2024, 1, 1, 8, 0, 0), false);
+
+            output.Should().Be(new DateTime(2024, 1, 2, 3, 0, 0));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Plus_Hours_Is_After_StartTime_Not_Executed2()
+        public void Should_Be_Next_Time_Recurring_Adding_Hours()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(5, 0, 0))),
-                new DateTime(2024, 1, 1, 0, 0, 0),
-                false
-                ).Should().Be(new DateTime(2024, 1, 1, 3, 0, 0));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(1, DailyFrecuency.Hours,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
+                    new DateTime(2024, 1, 1, 5, 0, 0), true);
+
+            output.Should().Be(new DateTime(2024, 1, 1, 6, 0, 0));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Is_After_StartTime_Not_Executed1()
+        public void Should_Be_Next_Time_Recurring_Adding_Minutes()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(9, 0, 0))),
-                new DateTime(2024, 1, 1, 5, 0, 0),
-                false
-                ).Should().Be(new DateTime(2024, 1, 1, 5, 0, 0));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(1, DailyFrecuency.Minutes,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
+                    new DateTime(2024, 1, 1, 5, 0, 0), true);
+
+            output.Should().Be(new DateTime(2024, 1, 1, 5, 1, 0));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Is_After_StartTime_Not_Executed2()
+        public void Should_Be_Next_Time_Recurring_Adding_Seconds()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(7, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 7, 0, 0));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(1, DailyFrecuency.Seconds,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))),
+                    new DateTime(2024, 1, 1, 5, 0, 0), true);
+
+            output.Should().Be(new DateTime(2024, 1, 1, 5, 0, 1));
         }
 
         [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Is_Before_StartTime_Executed1()
+        public void Should_Be_Next_Times_Once_Many_Times()
         {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 5, 0, 0));
+            var output1 = DailyRunner.Run(
+               DailyConfiguration.Once(new TimeOnly(8, 30, 10)),
+               new DateTime(2024, 1, 1, 8, 30, 10),
+               true);
+
+            output1.Should().Be(new DateTime(2024, 1, 2, 8, 30, 10));
         }
 
         [Fact]
-        public void Should_Throw_Exception_At_Next_Time_RecurringType_Stops_At_EndLimit()
+        public void Should_Be_Next_Times_Recurring_Many_Times()
         {
-            var res1 = DailyRunner.Run(
-                DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1),
-                true
-                );
-            res1.Should().Be(new DateTime(2024, 1, 1, 5, 0, 0));
+            var output = DailyRunner.Run(
+                    DailyConfiguration.Recurring(7, DailyFrecuency.Hours,
+                    new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(10, 0, 0))),
+                    new DateTime(2024, 1, 1, 3, 30, 0), true);
 
-            var res2 = DailyRunner.Run(
-                DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                res1,
-                true
-                );
-
-            res2.Should().Be(new DateTime(2024, 1, 1, 9, 0, 0));
-
-            FluentActions
-                 .Invoking(() => DailyRunner.Run(DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                res2,
-                true))
-                .Should()
-                .Throw<Exception>();
+            output.Should().Be(new DateTime(2024, 1, 2, 3, 0, 0));
         }
 
-        [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Is_Before_StartTime_Executed2()
-        {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 5, 0, 0));
-        }
 
-        [Fact]
-        public void Should_Be_Next_Time_RecurringType_DateTime_Is_Before_StartTime_Executed3()
-        {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1, 2, 0, 0),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 5, 0, 0));
-        }
-
-        [Fact]
-        public void Should_Be_Next_Time_RecurringType_Executed1()
-        {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(4, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1, 2, 2, 2),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 6, 2, 2));
-        }
-
-        [Fact]
-        public void Should_Be_Next_Time_RecurringType_Executed2()
-        {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 6, 0, 0));
-        }
-
-        [Fact]
-        public void Should_Be_Next_Time_RecurringType_Executed3()
-        {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(6, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1, 3, 0, 0),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 9, 0, 0));
-        }
-
-        [Fact]
-        public void Should_Be_Next_Time_RecurringType_Executed4()
-        {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(2, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1, 6, 0, 0),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 8, 0, 0));
-        }
-
-        [Fact]
-        public void Should_Be_Next_Time_RecurringType__Executed5()
-        {
-            DailyRunner.Run(
-                DailyConfiguration.Recurring(7, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(10, 0, 0))),
-                new DateTime(2024, 1, 1),
-                true
-                ).Should().Be(new DateTime(2024, 1, 1, 7, 0, 0));
-        }
     }
 }

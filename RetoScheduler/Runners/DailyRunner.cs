@@ -15,40 +15,42 @@ namespace RetoScheduler.Runners
     {
         public static DateTime Run(DailyConfiguration dailyConfiguration, DateTime dateTime, bool executed)
         {
-            var date = dateTime.Date;
-            TimeSpan addedTime = new(0);
-
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
-                addedTime = dailyConfiguration.OnceAt.ToTimeSpan();
-            }
-            else
-            {
-                var nextExecutionDailyTime = AddOccursEveryUnit(dailyConfiguration, TimeOnly.FromDateTime(dateTime)).ToTimeSpan();
-                var startTime = dailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
-                addedTime = executed
-                    ? GetMinExecutionTimeInDay(nextExecutionDailyTime, startTime)
-                    : GetMinExecutionTimeInDay(dateTime.TimeOfDay, startTime);
-            //aqui podriamos revisar que date.Add(addedTime) sea menor a endTime, sino excepcion para hacerle saber a la otra clase que debe saltar de dia y luego ejecutar otra vez
+                if (executed || dateTime.TimeOfDay > dailyConfiguration.OnceAt.ToTimeSpan())
+                {
+                    return dateTime.Date.AddDays(1).Add(dailyConfiguration.OnceAt.ToTimeSpan());
+                }
+                return dateTime.Date.Add(dailyConfiguration.OnceAt.ToTimeSpan());
             }
 
-            if (addedTime>dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
+            //recurring
+            if (dateTime.TimeOfDay <= dailyConfiguration.TimeLimits.StartTime.ToTimeSpan())
             {
-                throw new Exception();
+                return dateTime.Date.Add(dailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
             }
 
-            return date.Add(addedTime);
+            if (dateTime.TimeOfDay > dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
+            {
+                return dateTime.Date.AddDays(1).Add(dailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
+            }
+
+            if (executed)
+            {
+                if (AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan()> dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
+                {
+                    return dateTime.Date.AddDays(1).Add(dailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
+                }
+
+                return dateTime.Date.Add(AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan());
+            }
+
+            return dateTime;
         }
 
-        private static TimeSpan GetMinExecutionTimeInDay(TimeSpan time, TimeSpan startTime)
+        public static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, DateTime dateTime)
         {
-            return time < startTime
-                   ? startTime
-                   : time;
-        }
-
-        public static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, TimeOnly time)
-        {
+            var time = TimeOnly.FromDateTime(dateTime);
             return dailyConfiguration.DailyFrecuencyType switch
             {
                 DailyFrecuency.Hours => time.AddHours(dailyConfiguration.Frecuency.Value),

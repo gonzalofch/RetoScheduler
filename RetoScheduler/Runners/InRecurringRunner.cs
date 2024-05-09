@@ -65,7 +65,6 @@ namespace RetoScheduler.Runners
             //var endTimeLimit = config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
             //var endDate = config.DateLimits.EndDate;
 
-
             if (config.MonthlyConfiguration != null)
             {
                 //si es tipo Daily y recurring(podemos verificar esto) once es directamente monthlyRunner
