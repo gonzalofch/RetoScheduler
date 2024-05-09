@@ -67,28 +67,8 @@ namespace RetoScheduler.Runners
 
             if (config.MonthlyConfiguration != null)
             {
-                //si es tipo Daily y recurring(podemos verificar esto) once es directamente monthlyRunner
-                //si el siguiente tiempo de ejecucion (addedHours.timeofday > endTime.totimespan()) realizar la ejecucion del monthly
-                // si addedHours es menor a endTime, entonces ejecutar m
-                DateTime nextDateTime;
-                if (config.DailyConfiguration.Type == DailyConfigType.Recurring)
-                {
-                    if (hasLimits && addedHours.TimeOfDay <= config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan() )
-                    {
-
-                        nextDateTime = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime.JumpToDayNumber(1), Executed);
-                    }
-                    else
-                    {
-                        nextDateTime = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime.Date, Executed);
-                    }
-                }
-                else
-                {
-                    nextDateTime = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime, Executed);
-                }
-
-                return nextDateTime.Add(addedHours.TimeOfDay);
+                var monthlyDate = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime, Executed);
+                return DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
             }
 
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())

@@ -15,37 +15,36 @@ namespace RetoScheduler.Runners
     {
         public static DateTime Run(DailyConfiguration dailyConfiguration, DateTime dateTime, bool executed)
         {
+            var onlyDate = dateTime.Date;
+
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
-                if (executed || dateTime.TimeOfDay > dailyConfiguration.OnceAt.ToTimeSpan())
+                var onceAtTime = dailyConfiguration.OnceAt.ToTimeSpan();
+                if (executed || dateTime.TimeOfDay > onceAtTime)
                 {
-                    return dateTime.Date.AddDays(1).Add(dailyConfiguration.OnceAt.ToTimeSpan());
+                    return onlyDate.Add(onceAtTime).AddDays(1);
                 }
-                return dateTime.Date.Add(dailyConfiguration.OnceAt.ToTimeSpan());
+                return onlyDate.Add(onceAtTime);
             }
 
-            //recurring
-            if (dateTime.TimeOfDay <= dailyConfiguration.TimeLimits.StartTime.ToTimeSpan())
+            var startTime = dailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
+            var endTime = dailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
+
+            if (executed && AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan() > endTime || dateTime.TimeOfDay > endTime)
             {
-                return dateTime.Date.Add(dailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
+                return onlyDate.AddDays(1).Add(startTime);
             }
 
-            if (dateTime.TimeOfDay > dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
-            {
-                return dateTime.Date.AddDays(1).Add(dailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
-            }
+            return executed 
+                ? onlyDate.Add(AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan())
+                : GetMinExecutionTime(dateTime, onlyDate, startTime);
+        }
 
-            if (executed)
-            {
-                if (AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan()> dailyConfiguration.TimeLimits.EndTime.ToTimeSpan())
-                {
-                    return dateTime.Date.AddDays(1).Add(dailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
-                }
-
-                return dateTime.Date.Add(AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan());
-            }
-
-            return dateTime;
+        private static DateTime GetMinExecutionTime(DateTime dateTime, DateTime onlyDate, TimeSpan startTime)
+        {
+            return dateTime.TimeOfDay <= startTime
+                                ? onlyDate.Add(startTime)
+                                : dateTime;
         }
 
         public static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, DateTime dateTime)

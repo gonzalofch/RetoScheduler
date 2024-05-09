@@ -3,6 +3,7 @@ using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
 using RetoScheduler.Extensions;
 using System;
+using System.Security.Cryptography;
 
 namespace RetoScheduler.Runners
 {
@@ -11,22 +12,42 @@ namespace RetoScheduler.Runners
         public static DateTime Run(MonthlyConfiguration monthlyConfiguration, DateTime dateTime, bool executed)
         {
             var date = dateTime.Date;
+            int frecuency = monthlyConfiguration.Frecuency;
             if (monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                return NextDayInMonth(date, monthlyConfiguration);
+                var dayNumber = monthlyConfiguration.DayNumber;
+                if (executed)
+                {
+                    if (dateTime.Day == dayNumber)
+                    {
+                        return dateTime;
+                    }
+                    else
+                    {
+                        if (dateTime.Day != dayNumber)
+                        {
+                            //saltar mes y enviar al dia 1 sin perder la hora
+                            dateTime = dateTime.AddMonths(1).JumpToDayNumber(1);
+                            var possibleMonth = GetNextPossibleMonth(dateTime.AddMonths(frecuency - 1), dayNumber);
+                            return new DateTime(possibleMonth.Year, possibleMonth.MonthIndex, dayNumber).Add(dateTime.TimeOfDay);
+                        }
+                        else
+                        {
+                            var possibleDate = GetNextPossibleMonth(dateTime.AddMonths(frecuency), dayNumber);
+                            return new DateTime(possibleDate.Year, possibleDate.MonthIndex, dayNumber).Add(dateTime.TimeOfDay);
+                        }
+                    }
+                }
+                else
+                {
+                    var possibleDate = GetNextPossibleMonth(dateTime, dayNumber);
+                    return new DateTime(possibleDate.Year, possibleDate.MonthIndex, dayNumber).Add(dateTime.TimeOfDay);
+                }
             }
             else
             {
                 return NextDayOfWeekInMonth(monthlyConfiguration, date, executed);
             }
-        }
-
-        public static DateTime NextDayInMonth(DateTime dateTime, MonthlyConfiguration monthlyConfig)
-        {
-            int dayNumber = monthlyConfig.DayNumber;
-
-            var possibleDate = GetNextPossibleMonth(dateTime, dayNumber);
-            return new DateTime(possibleDate.Year, possibleDate.MonthIndex, dayNumber);
         }
 
         private static Month GetNextPossibleMonth(DateTime currentDate, int dayNumber)
@@ -41,7 +62,7 @@ namespace RetoScheduler.Runners
                 new Month(nextMonth3.Year, nextMonth3.Month) };
 
             var possibleMonth = nextMonths.
-                Where(x => x.GetMonthDays().Count >= dayNumber && new DateTime(x.Year,x.MonthIndex,dayNumber)>=currentDate)
+                Where(x => x.GetMonthDays().Count >= dayNumber && new DateTime(x.Year, x.MonthIndex, dayNumber, currentDate.Hour, currentDate.Minute, currentDate.Second) >= currentDate)
                 .Select(x => x)
                 .First();
 
