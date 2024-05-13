@@ -22,7 +22,7 @@ namespace RetoScheduler
             return Enumerable.Range(1, DateTime.DaysInMonth(Year, MonthIndex))
                         .Select(x => new DateTime(Year, MonthIndex, x))
                         .WhereIf(day != null, x => x.DayOfWeek == day)
-                        .WhereIf(currentDay!=null, x=> x.Day>currentDay)
+                        .WhereIf(currentDay!=null, x=> x.Day>=currentDay)
                         .ToList();
         }
     }

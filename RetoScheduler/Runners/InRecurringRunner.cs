@@ -21,8 +21,11 @@ namespace RetoScheduler.Runners
             {
                 throw new SchedulerException("Scheduler:Errors:NegativeDailyFrecuency");
             }
+            DateTime firstExecution = Executed
+                ? config.CurrentDate
+                : GetFirstExecutionDate(config);
 
-            var firstExecution = GetFirstExecutionDate(config);
+
             if (NextExecutionDate(config, firstExecution) < config.DateLimits.StartDate)
             {
                 int diffMonths = ((config.DateLimits.StartDate.Year - config.CurrentDate.Year) * 12) + config.DateLimits.StartDate.Month + 1 - config.CurrentDate.Month;
@@ -47,7 +50,6 @@ namespace RetoScheduler.Runners
             if (config.MonthlyConfiguration != null)
             {
                 var monthlyDate = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime, Executed);
-
                 var dailyDate = DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
 
                 if (dailyDate.Date != monthlyDate.Date)
@@ -56,10 +58,8 @@ namespace RetoScheduler.Runners
                     dailyDate = DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
                     return dailyDate;
                 }
-                else
-                {
-                    return DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
-                }
+
+                return dailyDate;
             }
 
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())

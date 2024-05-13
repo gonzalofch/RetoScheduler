@@ -20,10 +20,17 @@ namespace RetoScheduler.Runners
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
                 var onceAtTime = dailyConfiguration.OnceAt.ToTimeSpan();
-                if (dateTime.TimeOfDay>=onceAtTime)
+                if (executed)
                 {
-                    return onlyDate.AddDays(1).Add(onceAtTime);
+                    if (dateTime.TimeOfDay >= onceAtTime)
+                    {
+                        return onlyDate.Date.AddDays(1).Add(onceAtTime);
+                    }
+                }
 
+                if (dateTime.TimeOfDay > onceAtTime)
+                {
+                    return onlyDate.Date.AddDays(1).Add(onceAtTime);
                 }
                 return onlyDate.Add(onceAtTime);
             }
@@ -31,14 +38,9 @@ namespace RetoScheduler.Runners
             var startTime = dailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
             var endTime = dailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
 
-            if (!executed && dateTime.TimeOfDay> endTime)
+            if (executed && dateTime.TimeOfDay == new TimeSpan(0, 0, 0)) //executed &&
             {
-                onlyDate = dateTime.AddMonths(1).JumpToDayNumber(1).Date;
-                return new DateTime (onlyDate.Year, onlyDate.Month, onlyDate.Day,0,0,0);
-            }
 
-            if (dateTime.TimeOfDay == new TimeSpan(0, 0, 0)) //executed &&
-            {
                 return onlyDate.Add(startTime);
             }
 
@@ -52,14 +54,23 @@ namespace RetoScheduler.Runners
 
             return executed
                 ? onlyDate.Add(AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan())
-                : GetMinExecutionTime(dateTime, onlyDate, startTime);
+                : GetMinExecutionTime(dateTime, dailyConfiguration);
         }
 
-        private static DateTime GetMinExecutionTime(DateTime dateTime, DateTime onlyDate, TimeSpan startTime)
+        private static DateTime GetMinExecutionTime(DateTime dateTime, DailyConfiguration dailyConfiguration)
         {
-            return dateTime.TimeOfDay <= startTime
-                                ? onlyDate.Add(startTime)
-                                : dateTime;
+
+            var startTime = dailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
+            if (dateTime.TimeOfDay > startTime)
+            {
+                return dateTime;
+            }
+            if (true)
+            {
+
+            }
+            return dateTime.Date.Add(startTime);
+
         }
 
         public static TimeOnly AddOccursEveryUnit(DailyConfiguration dailyConfiguration, DateTime dateTime)
