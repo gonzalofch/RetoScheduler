@@ -344,6 +344,14 @@ namespace RetoSchedulerTest
             },
 
             new object[]{
+                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
+                    MonthlyConfiguration.DayOption(1, 5), null,
+            DailyConfiguration.Recurring( 5, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(6, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 3, 3))),
+                new OutPut(new DateTime(2020,4,1,6, 0, 0),"Occurs the 1st of very 5 months and every 5 hours between 06:00:00 and 16:00:00 starting on 3/3/2020")
+            },
+
+            new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.DayOption( 5, 5), null,
             DailyConfiguration.Once( new TimeOnly(17, 0, 0), null), new DateLimits(new DateTime(2020, 1, 4))),
                 new OutPut(new DateTime(2020,1,5,17, 0, 0),"Occurs the 5th of very 5 months one time at 17:00:00 starting on 1/4/2020")

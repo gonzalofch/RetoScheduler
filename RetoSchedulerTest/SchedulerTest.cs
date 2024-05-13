@@ -374,11 +374,11 @@ namespace RetoSchedulerTest
             var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2020, 4, 8, 3, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 8th of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 8, 8, 3, 0, 0));
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2020, 7, 8, 3, 0, 0));
             outputList[1].Description.Should().Be("Occurs the 8th of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 12, 8, 3, 0, 0));
+            outputList[2].NextExecutionTime.Should().Be(new DateTime(2020, 10, 8, 3, 0, 0));
             outputList[2].Description.Should().Be("Occurs the 8th of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[3].NextExecutionTime.Should().Be(new DateTime(2021, 4, 8, 3, 0, 0));
+            outputList[3].NextExecutionTime.Should().Be(new DateTime(2021, 1, 8, 3, 0, 0));
             outputList[3].Description.Should().Be("Occurs the 8th of very 3 months and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
@@ -410,11 +410,11 @@ namespace RetoSchedulerTest
             var outputList = scheduler.ExecuteMany(configuration, 4);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 30, 4, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 4, 0, 0));
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 4, 0, 0));
             outputList[1].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 4, 30, 4, 0, 0));
+            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 4, 0, 0));
             outputList[2].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 5, 30, 4, 0, 0));
+            outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 4, 30, 4, 0, 0));
             outputList[3].Description.Should().Be("Occurs the 30th of very 1 month and every 6 hours between 04:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
@@ -430,9 +430,9 @@ namespace RetoSchedulerTest
             outputList[0].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 1, 31, 3, 0, 0));
             outputList[1].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 3, 0, 0));
+            outputList[2].NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 3, 0, 0));
             outputList[2].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 3, 0, 0));
+            outputList[3].NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 3, 0, 0));
             outputList[3].Description.Should().Be("Occurs the 31st of very 1 month and every 6 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
@@ -732,7 +732,7 @@ namespace RetoSchedulerTest
             var outputList = scheduler.ExecuteMany(configuration, 2);
             outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 1, 30, 8, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 30th of very 1 month one time at 08:00:00 starting on 1/1/2024");
-            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 8, 0, 0));
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 8, 0, 0));
             outputList[1].Description.Should().Be("Occurs the 30th of very 1 month one time at 08:00:00 starting on 1/1/2024");
         }
 
@@ -744,9 +744,9 @@ namespace RetoSchedulerTest
                 DailyConfiguration.Once(new TimeOnly(12, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
 
             var outputList = scheduler.ExecuteMany(configuration, 2);
-            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 12, 0, 0));
+            outputList[0].NextExecutionTime.Should().Be(new DateTime(2024, 4, 30, 12, 0, 0));
             outputList[0].Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 starting on 1/1/2024");
-            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 8, 31, 12, 0, 0));
+            outputList[1].NextExecutionTime.Should().Be(new DateTime(2024, 7, 31, 12, 0, 0));
             outputList[1].Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 starting on 1/1/2024");
         }
 
@@ -802,7 +802,7 @@ namespace RetoSchedulerTest
                 DailyConfiguration.Once(new TimeOnly(12, 0, 0), null), new DateLimits(new DateTime(2024, 1, 1)));
 
             var output = scheduler.Execute(configuration);
-            output.NextExecutionTime.Should().Be(new DateTime(2024, 5, 31, 12, 0, 0));
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 4, 30, 12, 0, 0));
             output.Description.Should().Be("Occurs the 31st of very 3 months one time at 12:00:00 starting on 1/1/2024");
         }
 
@@ -850,15 +850,15 @@ namespace RetoSchedulerTest
             outputList[2].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
             outputList[3].NextExecutionTime.Should().Be(new DateTime(2020, 1, 10, 6, 0, 0));
             outputList[3].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[4].NextExecutionTime.Should().Be(new DateTime(2020, 5, 10, 3, 0, 0));
+            outputList[4].NextExecutionTime.Should().Be(new DateTime(2020, 4, 10, 3, 0, 0));
             outputList[4].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[5].NextExecutionTime.Should().Be(new DateTime(2020, 5, 10, 4, 0, 0));
+            outputList[5].NextExecutionTime.Should().Be(new DateTime(2020, 4, 10, 4, 0, 0));
             outputList[5].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[6].NextExecutionTime.Should().Be(new DateTime(2020, 5, 10, 5, 0, 0));
+            outputList[6].NextExecutionTime.Should().Be(new DateTime(2020, 4, 10, 5, 0, 0));
             outputList[6].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[7].NextExecutionTime.Should().Be(new DateTime(2020, 5, 10, 6, 0, 0));
+            outputList[7].NextExecutionTime.Should().Be(new DateTime(2020, 4, 10, 6, 0, 0));
             outputList[7].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
-            outputList[8].NextExecutionTime.Should().Be(new DateTime(2020, 9, 10, 3, 0, 0));
+            outputList[8].NextExecutionTime.Should().Be(new DateTime(2020, 7, 10, 3, 0, 0));
             outputList[8].Description.Should().Be("Occurs the 10th of very 3 months and every 1 hours between 03:00:00 and 06:00:00 starting on 1/1/2020");
         }
 
@@ -954,7 +954,7 @@ namespace RetoSchedulerTest
                 DailyConfiguration.Recurring(3, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(14, 0, 0), new TimeOnly(20, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var output = scheduler.Execute(configuration);
-            output.NextExecutionTime.Should().Be(new DateTime(2024, 3, 31, 14, 0, 0));
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 14, 0, 0));
             output.Description.Should().Be("Occurs the 31st of very 1 month and every 3 hours between 14:00:00 and 20:00:00 starting on 1/1/2020");
         }
 
@@ -966,7 +966,7 @@ namespace RetoSchedulerTest
                 DailyConfiguration.Recurring(8, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(5, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)));
 
             var output = scheduler.Execute(configuration);
-            output.NextExecutionTime.Should().Be(new DateTime(2024, 3, 30, 5, 0, 0));
+            output.NextExecutionTime.Should().Be(new DateTime(2024, 2, 29, 5, 0, 0));
             output.Description.Should().Be("Occurs the 30th of very 1 month and every 8 hours between 05:00:00 and 06:00:00 starting on 1/1/2020");
         }
 

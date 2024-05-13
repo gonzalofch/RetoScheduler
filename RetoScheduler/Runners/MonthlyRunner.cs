@@ -20,37 +20,57 @@ namespace RetoScheduler.Runners
 
                 if (executed)
                 {
-                    DateTime monthDay;
                     try
                     {
-                        monthDay = dateTime.AddMonths(frecuency).JumpToDayNumber(dayNumber);
+                        frecuency = dateTime.Day == 1
+                        ? frecuency - 1
+                        : frecuency;
 
+                        DateTime monthDay = dateTime.JumpToDayNumber(dayNumber);
+                        if (dateTime.Date == monthDay.Date)
+                        {
+                            return dateTime;
+                        }
+                        return dateTime.AddMonths(frecuency).JumpToDayNumber(dayNumber).Date;
                     }
                     catch (Exception)
                     {
-                        monthDay = dateTime.AddMonths(frecuency).JumpToDayNumber(DateTime.DaysInMonth(dateTime.AddMonths(frecuency).Year, dateTime.AddMonths(frecuency).Month));
+                        var daysInMonth = DateTime.DaysInMonth(dateTime.AddMonths(frecuency).Year, dateTime.AddMonths(frecuency).Month);
+                        daysInMonth = daysInMonth > dayNumber
+                            ? dayNumber
+                            : daysInMonth;
+                        return dateTime.AddMonths(frecuency).JumpToDayNumber(daysInMonth).Date;
                     }
-
-                    var monthDayLessThanCurrentDate = monthDay < dateTime;
-                    if (!monthDayLessThanCurrentDate)
-                    {
-                        return monthDay;
-                    }
-
-                    return monthDay.AddMonths(1);
                 }
                 else
                 {
-                    var monthDay = dateTime.JumpToDayNumber(dayNumber);
+                    if (!executed && dateTime.TimeOfDay == new TimeSpan(0, 0, 0))
+                    {
+                        try
+                        {
+                            return dateTime.JumpToDayNumber(dayNumber).Date;
+                        }
+                        catch (Exception)
+                        {
+
+                            return dateTime.JumpToDayNumber(DateTime.DaysInMonth(dateTime.Year, dateTime.Month)).Date;
+                        }
+                    }
+
+                    DateTime monthDay = dateTime.JumpToDayNumber(dayNumber);
+
+                    if (monthDay.Date == dateTime.Date)
+                    {
+                        return dateTime;
+                    }
+
                     //si monthDay es mayor o igual a dateTime, 
                     var monthDayLessThanCurrentDate = monthDay < dateTime;
                     if (!monthDayLessThanCurrentDate)
                     {
-                        return monthDay;
+                        return monthDay.Date;
                     }
-
-                    return monthDay.AddMonths(1);
-
+                    return monthDay.AddMonths(1).Date;
                 }
             }
 

@@ -20,9 +20,10 @@ namespace RetoScheduler.Runners
             if (dailyConfiguration.Type == DailyConfigType.Once)
             {
                 var onceAtTime = dailyConfiguration.OnceAt.ToTimeSpan();
-                if (executed || dateTime.TimeOfDay > onceAtTime)
+                if (dateTime.TimeOfDay>=onceAtTime)
                 {
-                    return onlyDate.Add(onceAtTime).AddDays(1);
+                    return onlyDate.AddDays(1).Add(onceAtTime);
+
                 }
                 return onlyDate.Add(onceAtTime);
             }
@@ -30,12 +31,26 @@ namespace RetoScheduler.Runners
             var startTime = dailyConfiguration.TimeLimits.StartTime.ToTimeSpan();
             var endTime = dailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
 
+            if (!executed && dateTime.TimeOfDay> endTime)
+            {
+                onlyDate = dateTime.AddMonths(1).JumpToDayNumber(1).Date;
+                return new DateTime (onlyDate.Year, onlyDate.Month, onlyDate.Day,0,0,0);
+            }
+
+            if (dateTime.TimeOfDay == new TimeSpan(0, 0, 0)) //executed &&
+            {
+                return onlyDate.Add(startTime);
+            }
+
+
             if (executed && AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan() > endTime || dateTime.TimeOfDay > endTime)
             {
                 return onlyDate.AddDays(1).Add(startTime);
             }
 
-            return executed 
+
+
+            return executed
                 ? onlyDate.Add(AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan())
                 : GetMinExecutionTime(dateTime, onlyDate, startTime);
         }

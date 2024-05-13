@@ -92,6 +92,7 @@ namespace RetoSchedulerTest
                     new DateLimits(new DateTime(2024,4,11)),Cultures.es_ES),
                     new OutPut(new DateTime(2024,4,11,16,55,55),"Ocurre una vez el 11/04/2024 una vez a las 16:55:55 comenzando el 11/04/2024")
             },
+
             new object[]
             {
                     new Configuration(
@@ -110,6 +111,7 @@ namespace RetoSchedulerTest
                     new DateLimits(new DateTime(2024,4,14),new DateTime(2024,4,18)),Cultures.es_ES),
                     new OutPut(new DateTime(2024,4,14,8,30,55),"Ocurre cada día una vez a las 08:30:55 comenzando el 14/04/2024 y terminando el 18/04/2024")
             },
+
             new object[]{
                 new Configuration
                 (new DateTime(2020,1,1,0,0,0), ConfigType.Recurring,true,null,Occurs.Weekly,null,new WeeklyConfiguration(1,
@@ -166,6 +168,7 @@ namespace RetoSchedulerTest
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,1,3,0,0),"Ocurre el primer día de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
+
               new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption(  Ordinal.Last, KindOfDay.Day, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
@@ -183,6 +186,7 @@ namespace RetoSchedulerTest
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,1,3,3,0,0),"Ocurre el tercer día de semana de cada 3 meses y cada 1 horas entre las 03:00:00 y 06:00:00 comenzando el 01/01/2020")
             },
+
             new object[]{
                 new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly, MonthlyConfiguration.WeekDayOption( Ordinal.Fourth, KindOfDay.WeekEndDay, 3), null,
             DailyConfiguration.Recurring( 1, DailyFrecuency.Hours, new TimeLimits(new TimeOnly(3, 0, 0), new TimeOnly(6, 0, 0))), new DateLimits(new DateTime(2020, 1, 1)),Cultures.es_ES),
@@ -205,11 +209,19 @@ namespace RetoSchedulerTest
             },
 
             new object[]{
-                new Configuration(new DateTime(2020, 1, 1), ConfigType.Recurring, true, null, Occurs.Monthly,
+                new Configuration(new DateTime(2020, 1, 1,1,0,0), ConfigType.Recurring, true, null, Occurs.Monthly,
                      MonthlyConfiguration.DayOption (1, 5), null,
             DailyConfiguration.Recurring( 5, DailyFrecuency.Hours,
                 new TimeLimits(new TimeOnly(6, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 1, 3)),Cultures.es_ES),
                 new OutPut(new DateTime(2020,2,1,6, 0, 0),"Ocurre el 1ero de cada 5 meses y cada 5 horas entre las 06:00:00 y 16:00:00 comenzando el 03/01/2020")
+            },
+
+            new object[]{
+                new Configuration(new DateTime(2020, 1, 1,1,0,0), ConfigType.Recurring, true, null, Occurs.Monthly,
+                     MonthlyConfiguration.DayOption (1, 5), null,
+            DailyConfiguration.Recurring( 5, DailyFrecuency.Hours,
+                new TimeLimits(new TimeOnly(6, 0, 0), new TimeOnly(16, 0, 0))), new DateLimits(new DateTime(2020, 3, 3)),Cultures.es_ES),
+                new OutPut(new DateTime(2020,4,1,6, 0, 0),"Ocurre el 1ero de cada 5 meses y cada 5 horas entre las 06:00:00 y 16:00:00 comenzando el 03/03/2020")
             },
 
             new object[]{

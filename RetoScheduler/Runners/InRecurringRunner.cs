@@ -23,32 +23,14 @@ namespace RetoScheduler.Runners
             }
 
             var firstExecution = GetFirstExecutionDate(config);
-
-            var nextExecution = NextExecutionDate(config, firstExecution);
-            //if (nextExecution > nextExecution.Add(config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan()))
-            //{
-
-            //}
-
-            bool hasJumpedDays = config.CurrentDate.Date != nextExecution.Date;
-
-            return NextExecutionTime(config.DailyConfiguration, nextExecution, hasJumpedDays);
-        }
-
-        private DateTime NextExecutionTime(DailyConfiguration dailyConfiguration, DateTime dateTime, bool? hasJumpedDays = false)
-        {
-            //AQUI UTILIZAR DAILYRUNNER PARA QUE FUNCIONE DE IGUAL MANERA
-            bool hasTimeLimits = dailyConfiguration.TimeLimits != null;
-            TimeOnly startTime = hasTimeLimits
-                ? dailyConfiguration.TimeLimits.StartTime
-                : TimeOnly.MinValue;
-
-            if (hasJumpedDays == true && dailyConfiguration.Type == DailyConfigType.Recurring && hasTimeLimits)
+            if (NextExecutionDate(config, firstExecution) < config.DateLimits.StartDate)
             {
-                return dateTime.Date.Add(startTime.ToTimeSpan());
+                int diffMonths = ((config.DateLimits.StartDate.Year - config.CurrentDate.Year) * 12) + config.DateLimits.StartDate.Month + 1 - config.CurrentDate.Month;
+                DateTime possibleStartDate = config.CurrentDate.AddMonths(diffMonths).JumpToDayNumber(config.DateLimits.StartDate.Day).Date;
+                return NextExecutionDate(config, possibleStartDate);
             }
+            return NextExecutionDate(config, firstExecution);
 
-            return DailyRunner.Run(dailyConfiguration, dateTime, Executed);
         }
 
         private DateTime GetFirstExecutionDate(Configuration config)
@@ -61,19 +43,28 @@ namespace RetoScheduler.Runners
         private DateTime NextExecutionDate(Configuration config, DateTime dateTime)
         {
             bool hasLimits = config.DailyConfiguration.TimeLimits != null;
-            var addedHours = DailyRunner.Run(config.DailyConfiguration, dateTime, Executed);
-            //var endTimeLimit = config.DailyConfiguration.TimeLimits.EndTime.ToTimeSpan();
-            //var endDate = config.DateLimits.EndDate;
 
             if (config.MonthlyConfiguration != null)
             {
                 var monthlyDate = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime, Executed);
-                return DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
+
+                var dailyDate = DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
+
+                if (dailyDate.Date != monthlyDate.Date)
+                {
+                    monthlyDate = MonthlyRunner.Run(config.MonthlyConfiguration, dailyDate, Executed);
+                    dailyDate = DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
+                    return dailyDate;
+                }
+                else
+                {
+                    return DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
+                }
             }
 
             if (config.WeeklyConfiguration == null || !config.WeeklyConfiguration.SelectedDays.Any())
             {
-                return dateTime;
+                return DailyRunner.Run(config.DailyConfiguration, dateTime, Executed);
             }
 
             List<DayOfWeek> sortedDays = config.WeeklyConfiguration.SelectedDays.OrderBy(_ => _).ToList();
