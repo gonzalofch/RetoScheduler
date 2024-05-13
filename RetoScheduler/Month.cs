@@ -17,12 +17,12 @@ namespace RetoScheduler
             Year = year;
             MonthIndex = monthIndex;
         }
-        public IReadOnlyList<DateTime> GetMonthDays(DayOfWeek? day = null,int? currentDay =null)
+        public IReadOnlyList<DateTime> GetMonthDays(DateTime? currentDay = null,DayOfWeek? day = null)
         {
             return Enumerable.Range(1, DateTime.DaysInMonth(Year, MonthIndex))
                         .Select(x => new DateTime(Year, MonthIndex, x))
                         .WhereIf(day != null, x => x.DayOfWeek == day)
-                        .WhereIf(currentDay!=null, x=> x.Day>=currentDay)
+                        .WhereIf(currentDay!=null, x=> x>=currentDay)
                         .ToList();
         }
     }
