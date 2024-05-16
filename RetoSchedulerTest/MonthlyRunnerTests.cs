@@ -5,6 +5,7 @@ using RetoScheduler;
 using RetoScheduler.Configurations;
 using RetoScheduler.Enums;
 using RetoScheduler.Exceptions;
+using RetoScheduler.Extensions;
 using RetoScheduler.Runners;
 
 namespace RetoSchedulerTest
@@ -274,6 +275,39 @@ namespace RetoSchedulerTest
             var outPut = MonthlyRunner.Run(MonthlyConfiguration.DayOption(1, 2), new DateTime(2024, 1, 1, 14, 0, 0), false);
 
             outPut.Should().Be(new DateTime(2024, 1, 1, 14, 0, 0));
+        }
+
+        [Fact]
+        public void Should_Be_Next_Executions_And_Next_Time_For_Same_DayOptionNumber_SkippingMonths()
+        {
+            var outPut = MonthlyRunner.Run(MonthlyConfiguration.DayOption(1, 3), new DateTime(2024, 1, 1, 14, 0, 0), true);
+
+            outPut.Should().Be(new DateTime(2024, 1, 1, 14, 0, 0));
+
+            var outPut2 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(1, 3), outPut.AddHours(2), true);
+            outPut2.Should().Be(new DateTime(2024, 1, 1, 16, 0, 0));
+        }
+
+        [Fact]
+        public void Should_Be_Next_Executions_And_Next_Time_For_Same_DayOptionNumber31_SkippingMonths()
+        {
+            var outPut = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), new DateTime(2024, 1, 31, 14, 0, 0), false);
+
+            outPut.Should().Be(new DateTime(2024, 1, 31, 14, 0, 0));
+
+            var outPut2 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut.AddHours(12), true);
+            outPut2.Should().Be(new DateTime(2024, 4, 30, 0, 0, 0));
+        }
+
+        [Fact]
+        public void Should_Be_Next_Executions_And_Next_Time_For_Same_DayOptionNumber31_SkippingMonths_And_Skipping_Days_At_First_Execution()
+        {
+            var outPut = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), new DateTime(2024, 1, 20, 14, 0, 0), false);
+
+            outPut.Should().Be(new DateTime(2024, 1, 31, 0, 0, 0));
+
+            var outPut2 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut.AddDays(1), true);
+            outPut2.Should().Be(new DateTime(2024, 4, 30, 0, 0, 0));
         }
 
         [Fact]

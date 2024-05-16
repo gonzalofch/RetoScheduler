@@ -15,64 +15,48 @@ namespace RetoScheduler.Runners
             int frecuency = monthlyConfiguration.Frecuency;
             if (monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
             {
-                var dayNumber = monthlyConfiguration.DayNumber;
-
-                if (executed)
-                {
-                    try
-                    {
-                        frecuency = dateTime.Day == 1
-                        ? frecuency - 1
-                        : frecuency;
-
-                        DateTime monthDay = dateTime.JumpToDayNumber(dayNumber);
-                        if (dateTime.Date == monthDay.Date)
-                        {
-                            return dateTime;
-                        }
-                        return dateTime.AddMonths(frecuency).JumpToDayNumber(dayNumber).Date;
-                    }
-                    catch (Exception)
-                    {
-                        var daysInMonth = DateTime.DaysInMonth(dateTime.AddMonths(frecuency).Year, dateTime.AddMonths(frecuency).Month);
-                        daysInMonth = daysInMonth > dayNumber
-                            ? dayNumber
-                            : daysInMonth;
-                        return dateTime.AddMonths(frecuency).JumpToDayNumber(daysInMonth).Date;
-                    }
-                }
-                else
-                {
-                    DateTime monthDay;
-                    try
-                    {
-                        monthDay = dateTime.JumpToDayNumber(dayNumber);
-                    }
-                    catch (Exception)
-                    {
-
-                        monthDay = dateTime.JumpToDayNumber(DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
-                    }
-
-                    if (monthDay.Date == dateTime.Date)
-                    {
-                        return dateTime;
-                    }
-
-                    //si monthDay es mayor o igual a dateTime, 
-                    var monthDayLessThanCurrentDate = monthDay < dateTime;
-                    if (!monthDayLessThanCurrentDate)
-                    {
-                        return monthDay.Date;
-                    }
-                    else
-                    {
-                        return monthDay.AddMonths(1).Date;
-                    }
-                }
+                return NextMonthlyDayOptionDate(monthlyConfiguration, dateTime, executed, ref frecuency);
             }
-
             return NextDayOfWeekInMonth(monthlyConfiguration, dateTime, executed);
+        }
+
+        private static DateTime NextMonthlyDayOptionDate(MonthlyConfiguration monthlyConfiguration, DateTime dateTime, bool executed, ref int frecuency)
+        {
+            var dayNumber = monthlyConfiguration.DayNumber;
+            int daysInCurrentMonth = DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
+
+            if (executed)
+            {
+                frecuency -= dateTime.Day == 1
+                        ? 1 : 0;
+                var nextMonth = dateTime.AddMonths(frecuency).Date;
+                int daysInNextMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
+
+                return dayNumber > daysInCurrentMonth || dateTime.Date != dateTime.JumpToDayNumber(dayNumber).Date
+                ? JumpToLowest(nextMonth, dayNumber, daysInNextMonth)
+                : dateTime;
+            }
+            else
+            {
+                DateTime monthDay = JumpToLowest(dateTime, dayNumber, daysInCurrentMonth);
+
+                return monthDay >= dateTime.Date
+                    ? GetDateInThisMonth(dateTime, monthDay)
+                    : monthDay.AddMonths(1);
+            }
+        }
+
+        private static DateTime JumpToLowest(DateTime dateTime, int dayNumber, int daysInNextMonth)
+        {
+            int validDayNumber = Math.Min(dayNumber, daysInNextMonth);
+            return dateTime.JumpToDayNumber(validDayNumber).Date;
+        }
+
+        private static DateTime GetDateInThisMonth(DateTime dateTime, DateTime monthDay)
+        {
+            return monthDay == dateTime.Date
+                ? dateTime
+                : monthDay;
         }
 
         private static void ValidateMonthlyConfiguration(MonthlyConfiguration monthlyConfiguration)
@@ -92,16 +76,9 @@ namespace RetoScheduler.Runners
 
             if (executed)
             {
-                frecuency = dateTime.Day == 1  /*&& dateTime.Hour ==0*/
-                        ? frecuency - 1
-                        : frecuency;
+                frecuency -= dateTime.Day == 1
+                        ? 1 : 0;
 
-                //ejecutar y obtener el siguiente día, si el día actual, es el mismo al proximo día.date, retornar la  fecha actual
-                //sino, sumar meses y buscar desde el dia 1
-                //SOLUCIONAR ESTA PARTE, EN LA PRIMERA EJECUCION COGE DESDE EL INICIO 1/1 Y EN LA SEGUNDA  COGE DESDE ESA FECHA, POR LO QUE NO PUEDO COMPROBAR
-                //NOMBRE DEL TEST Q ESTABA ARREGLANDO Should_Be_Next_Executions_For_Month_WeekDayOption_Third_WeekDay_Skipping_1_Months_With_DailyConfiguration_RecurringType_And_Adding_Hours
-                
-                
                 Month executedMonth = new Month(dateTime.Year, dateTime.Month);
                 IReadOnlyList<DateTime> listOfDays = executedMonth.GetMonthDays()
                 .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
@@ -143,9 +120,8 @@ namespace RetoScheduler.Runners
                 {
                     return dateTime;
                 }
-                if (selectedOrdinal.Date<dateTime.Date)
+                if (selectedOrdinal.Date < dateTime.Date)
                 {
-                    
                     var nextMonth = new Month(dateTime.AddMonths(1).Year, dateTime.AddMonths(1).Month);
                     listOfDays = nextMonth.GetMonthDays()
                     .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
