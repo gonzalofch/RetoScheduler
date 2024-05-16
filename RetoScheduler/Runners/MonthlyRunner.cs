@@ -28,8 +28,9 @@ namespace RetoScheduler.Runners
             if (executed)
             {
                 frecuency -= dateTime.Day == 1
-                        ? 1 : 0;
-                var nextMonth = dateTime.AddMonths(frecuency).Date;
+                        ? 1
+                        : 0;
+                var nextMonth = GetNextMonth(dateTime, frecuency).Date;
                 int daysInNextMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
 
                 return dayNumber > daysInCurrentMonth || dateTime.Date != dateTime.JumpToDayNumber(dayNumber).Date
@@ -42,7 +43,7 @@ namespace RetoScheduler.Runners
 
                 return monthDay >= dateTime.Date
                     ? GetDateInThisMonth(dateTime, monthDay)
-                    : monthDay.AddMonths(1);
+                    : GetNextMonth(monthDay);
             }
         }
 
@@ -70,68 +71,51 @@ namespace RetoScheduler.Runners
         private static DateTime NextDayOfWeekInMonth(MonthlyConfiguration monthlyConfig, DateTime dateTime, bool executed)
         {
             int frecuency = monthlyConfig.Frecuency;
-
+            Month month = new(dateTime.Year, dateTime.Month);
             List<DayOfWeek> selectedDays = GetSelectedDays(monthlyConfig);
             bool manyDays = selectedDays.Count != 1;
+            IReadOnlyList<DateTime> listOfDays = GetListOfSelectedDays(month, selectedDays, manyDays);
+            var selectedOrdinal = GetSelectedOrdinals(listOfDays, monthlyConfig);
+            DateTime dateWithAddedMonths = dateTime;
 
+            if (selectedOrdinal.Date == dateTime.Date)
+            {
+                return dateTime;
+            }
             if (executed)
             {
                 frecuency -= dateTime.Day == 1
                         ? 1 : 0;
-
-                Month executedMonth = new Month(dateTime.Year, dateTime.Month);
-                IReadOnlyList<DateTime> listOfDays = executedMonth.GetMonthDays()
-                .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
-                .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
-                .Select(x => x)
-                .ToList();
-
-                var selectedOrdinal = GetSelectedOrdinals(listOfDays, monthlyConfig);
-                if (selectedOrdinal.Date == dateTime.Date)
-                {
-                    return dateTime;
-                }
-                else
-                {
-                    var addingMonths = dateTime.AddMonths(frecuency);
-                    executedMonth = new Month(addingMonths.Year, addingMonths.Month);
-                    listOfDays = executedMonth.GetMonthDays()
-                   .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
-                   .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
-                   .Select(x => x.Date)
-                   .ToList();
-                    selectedOrdinal = GetSelectedOrdinals(listOfDays, monthlyConfig);
-
-                }
-                return selectedOrdinal;
+                dateWithAddedMonths = GetNextMonth(dateTime, frecuency);
             }
-            else
+            if (!executed && selectedOrdinal.Date < dateTime.Date)
             {
-                Month month = new(dateTime.Year, dateTime.Month);
-
-                IReadOnlyList<DateTime> listOfDays = month.GetMonthDays()
-                    .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
-                    .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
-                    .Select(x => x)
-                    .ToList();
-
-                var selectedOrdinal = GetSelectedOrdinals(listOfDays, monthlyConfig);
-                if (selectedOrdinal.Date == dateTime.Date)
-                {
-                    return dateTime;
-                }
-                if (selectedOrdinal.Date < dateTime.Date)
-                {
-                    var nextMonth = new Month(dateTime.AddMonths(1).Year, dateTime.AddMonths(1).Month);
-                    listOfDays = nextMonth.GetMonthDays()
-                    .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
-                    .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
-                    .Select(x => x)
-                    .ToList();
-                }
-
-                return GetSelectedOrdinals(listOfDays, monthlyConfig);
+                dateWithAddedMonths = GetNextMonth(dateTime);
             }
+
+            month = new Month(dateWithAddedMonths.Year, dateWithAddedMonths.Month);
+            listOfDays = GetListOfSelectedDays(month, selectedDays, manyDays);
+
+            return GetSelectedOrdinals(listOfDays, monthlyConfig);
+
+        }
+
+        private static DateTime GetNextMonth(DateTime dateTime, int frecuency = 1)
+        {
+            if (frecuency != 1)
+            {
+                return dateTime.AddMonths(frecuency).Date;
+            }
+            return dateTime.AddMonths(frecuency);
+        }
+
+        private static IReadOnlyList<DateTime> GetListOfSelectedDays(Month month, List<DayOfWeek> selectedDays, bool manyDays)
+        {
+            return month.GetMonthDays()
+                           .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
+                           .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
+                           .Select(x => x)
+                           .ToList();
         }
 
         private static DateTime GetSelectedOrdinals(IReadOnlyList<DateTime> listOfDays, MonthlyConfiguration monthlyConfig)
