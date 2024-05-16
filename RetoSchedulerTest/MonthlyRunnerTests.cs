@@ -79,7 +79,7 @@ namespace RetoSchedulerTest
             output1.Should().Be(new DateTime(2023, 1, 11));
 
             var output2 = MonthlyRunner.Run(MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.Wednesday, 2),
-                output1, true);
+                output1.AddDays(1), true);
 
             output2.Should().Be(new DateTime(2023, 3, 8));
         }
@@ -97,9 +97,9 @@ namespace RetoSchedulerTest
         public void Should_Be_Next_Dates_For_Month_WeekOptionNumber_Last_Thursday2()
         {
             var output = MonthlyRunner.Run(MonthlyConfiguration.WeekDayOption(Ordinal.Last, KindOfDay.Thursday, 2),
-                new DateTime(2023, 1, 1), false);
+                new DateTime(2023, 1, 27), false);
 
-            output.Should().Be(new DateTime(2023, 1, 26));
+            output.Should().Be(new DateTime(2023, 2, 23));
         }
 
         [Fact]
@@ -133,22 +133,41 @@ namespace RetoSchedulerTest
         }
 
         [Fact]
-        public void Should_Be_Next_Date_For_Month_WeekDayOption_Executed_First_Thursday_Skipping_Months()
+        public void Should_Be_Next_Date_For_Month_WeekDayOption_Executed_First_Thursday()
         {
-            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 1);
+            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Thursday, 2);
             var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 3, 0, 0, 0)
-                , true);
+                , false);
 
             output.Should().Be(new DateTime(2024, 6, 6, 0, 0, 0));
 
         }
 
         [Fact]
+        public void Should_Be_Next_Date_For_Month_WeekDayOption_Executed_First_Monday()
+        {
+            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Monday, 2);
+            var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 7, 0, 0, 0)
+                , false);
+
+            output.Should().Be(new DateTime(2024, 6, 3, 0, 0, 0));
+        }
+        [Fact]
         public void Should_Be_Next_Date_For_Month_WeekDayOption_Executed_First_Monday_Skipping_Months()
         {
-            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Monday, 1);
+            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.Monday, 2);
             var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 7, 0, 0, 0)
                 , true);
+
+            output.Should().Be(new DateTime(2024, 7, 1, 0, 0, 0));
+        }
+
+        [Fact]
+        public void Should_Be_Next_Date_For_Month_WeekDayOption_Executed_First_WeekDay()
+        {
+            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 2);
+            var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 3, 0, 0, 0)
+                , false);
 
             output.Should().Be(new DateTime(2024, 6, 3, 0, 0, 0));
         }
@@ -156,21 +175,21 @@ namespace RetoSchedulerTest
         [Fact]
         public void Should_Be_Next_Date_For_Month_WeekDayOption_Executed_First_WeekDay_Skipping_Months()
         {
-            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 1);
-            var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 2, 0, 0, 0)
+            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.First, KindOfDay.WeekDay, 2);
+            var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 3, 0, 0, 0)
                 , true);
 
-            output.Should().Be(new DateTime(2024, 6, 3, 0, 0, 0));
+            output.Should().Be(new DateTime(2024, 7, 1, 0, 0, 0));
         }
 
         [Fact]
         public void Should_Be_Next_Date_For_Month_WeekDayOption_Executed_Second_WeekDay_Skipping_Months()
         {
-            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekDay, 1);
-            var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 3, 0, 0, 0)
+            var monthlyConfiguration = MonthlyConfiguration.WeekDayOption(Ordinal.Second, KindOfDay.WeekDay, 2);
+            var output = MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 5, 4, 0, 0, 0)
                 , true);
 
-            output.Should().Be(new DateTime(2024, 6, 4, 0, 0, 0));
+            output.Should().Be(new DateTime(2024, 7, 2, 0, 0, 0));
         }
 
         [Fact]

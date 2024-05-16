@@ -73,8 +73,9 @@ namespace RetoScheduler.Runners
             bool skipDay = excedsLimits || (config.DailyConfiguration.Type == DailyConfigType.Once && Executed);
 
             return skipDay
-                ? GetNextDayInWeek(sortedDays, actualDayOfWeek, dateTime, config)
-                : NextDay(sortedDays, actualDayOfWeek, dateTime);
+                ? DailyRunner.Run(config.DailyConfiguration, GetNextDayInWeek(sortedDays, actualDayOfWeek, dateTime, config), Executed)
+            
+                : DailyRunner.Run(config.DailyConfiguration, NextDay(sortedDays, actualDayOfWeek, dateTime), Executed) ;
         }
 
         private static DateTime NextDay(List<DayOfWeek> sortedDays, DayOfWeek actualDay, DateTime dateTime)

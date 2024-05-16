@@ -92,7 +92,7 @@ namespace RetoScheduler.Runners
 
             if (executed)
             {
-                frecuency = dateTime.Day == 1
+                frecuency = dateTime.Day == 1  /*&& dateTime.Hour ==0*/
                         ? frecuency - 1
                         : frecuency;
 
@@ -100,9 +100,10 @@ namespace RetoScheduler.Runners
                 //sino, sumar meses y buscar desde el dia 1
                 //SOLUCIONAR ESTA PARTE, EN LA PRIMERA EJECUCION COGE DESDE EL INICIO 1/1 Y EN LA SEGUNDA  COGE DESDE ESA FECHA, POR LO QUE NO PUEDO COMPROBAR
                 //NOMBRE DEL TEST Q ESTABA ARREGLANDO Should_Be_Next_Executions_For_Month_WeekDayOption_Third_WeekDay_Skipping_1_Months_With_DailyConfiguration_RecurringType_And_Adding_Hours
+                
+                
                 Month executedMonth = new Month(dateTime.Year, dateTime.Month);
                 IReadOnlyList<DateTime> listOfDays = executedMonth.GetMonthDays()
-                .Where(x => x.Date >= dateTime.Date)
                 .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
                 .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
                 .Select(x => x)
@@ -132,7 +133,6 @@ namespace RetoScheduler.Runners
                 Month month = new(dateTime.Year, dateTime.Month);
 
                 IReadOnlyList<DateTime> listOfDays = month.GetMonthDays()
-                    .Where(x => x.Date >= dateTime.Date)
                     .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
                     .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
                     .Select(x => x)
@@ -142,6 +142,16 @@ namespace RetoScheduler.Runners
                 if (selectedOrdinal.Date == dateTime.Date)
                 {
                     return dateTime;
+                }
+                if (selectedOrdinal.Date<dateTime.Date)
+                {
+                    
+                    var nextMonth = new Month(dateTime.AddMonths(1).Year, dateTime.AddMonths(1).Month);
+                    listOfDays = nextMonth.GetMonthDays()
+                    .WhereIf(!manyDays, _ => selectedDays.First() == _.DayOfWeek)
+                    .WhereIf(manyDays, _ => selectedDays.Contains(_.DayOfWeek))
+                    .Select(x => x)
+                    .ToList();
                 }
 
                 return GetSelectedOrdinals(listOfDays, monthlyConfig);
