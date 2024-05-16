@@ -12,38 +12,82 @@ namespace RetoScheduler.Runners
         public static DateTime Run(MonthlyConfiguration monthlyConfiguration, DateTime dateTime, bool executed)
         {
             ValidateMonthlyConfiguration(monthlyConfiguration);
-            int frecuency = monthlyConfiguration.Frecuency;
-            if (monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption)
-            {
-                return NextMonthlyDayOptionDate(monthlyConfiguration, dateTime, executed, ref frecuency);
-            }
-            return NextDayOfWeekInMonth(monthlyConfiguration, dateTime, executed);
+            return monthlyConfiguration.Type == MonthlyConfigType.DayNumberOption
+                ? NextMonthlyDayOptionDate(monthlyConfiguration, dateTime, executed)
+                : NextDayOfWeekInMonth(monthlyConfiguration, dateTime, executed);
         }
 
-        private static DateTime NextMonthlyDayOptionDate(MonthlyConfiguration monthlyConfiguration, DateTime dateTime, bool executed, ref int frecuency)
+        private static DateTime NextMonthlyDayOptionDate(MonthlyConfiguration monthlyConfiguration, DateTime dateTime, bool executed)
         {
+
             var dayNumber = monthlyConfiguration.DayNumber;
             int daysInCurrentMonth = DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
 
             if (executed)
             {
-                frecuency -= dateTime.Day == 1
-                        ? 1
-                        : 0;
-                var nextMonth = GetNextMonth(dateTime, frecuency).Date;
+                var nextMonth = GetNextMonth(dateTime, monthlyConfiguration.Frecuency).Date;
                 int daysInNextMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
+                int validDayNumber = Math.Min(dayNumber, daysInNextMonth);
 
-                return dayNumber > daysInCurrentMonth || dateTime.Date != dateTime.JumpToDayNumber(dayNumber).Date
-                ? JumpToLowest(nextMonth, dayNumber, daysInNextMonth)
-                : dateTime;
+                //va a pasar, que llega el mismo datetime que el jumptodaynumber
+                //va a pasar que llega es diferente del jumptodaynumber
+                if (dateTime.Day > dayNumber)
+                {
+                    if (daysInNextMonth >= dayNumber)
+                    {
+                        return nextMonth.JumpToDayNumber(dayNumber).Date;
+
+                    }
+                    return nextMonth.JumpToDayNumber(daysInNextMonth).Date;
+                }
+
+                if (dateTime.Day < dayNumber)
+                {
+                    //aqui entra
+                    if (daysInCurrentMonth >= dayNumber)
+                    {
+                        return nextMonth.JumpToDayNumber(dayNumber).Date;
+                    }
+                    return nextMonth.JumpToDayNumber(daysInNextMonth).Date;
+                }
+
+                if (dateTime == dateTime.JumpToDayNumber(dayNumber).Add(dateTime.TimeOfDay))
+                {
+                    return dateTime;
+                }
+                return dateTime;
             }
             else
             {
-                DateTime monthDay = JumpToLowest(dateTime, dayNumber, daysInCurrentMonth);
+                var nextMonth = GetNextMonth(dateTime).Date;
+                int daysInNextMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
 
-                return monthDay >= dateTime.Date
-                    ? GetDateInThisMonth(dateTime, monthDay)
-                    : GetNextMonth(monthDay);
+                if (dateTime.Day < dayNumber)
+                {
+                    if (daysInCurrentMonth >= dayNumber)
+                    {
+                        return dateTime.JumpToDayNumber(dayNumber).Date;
+                    }
+                    return dateTime.JumpToDayNumber(daysInCurrentMonth).Date;
+                }
+
+
+                if (dateTime.Day > dayNumber)
+                {
+                    if (daysInNextMonth >= dayNumber)
+                    {
+                        return nextMonth.JumpToDayNumber(dayNumber).Date;
+
+                    }
+                    return nextMonth.JumpToDayNumber(daysInNextMonth).Date;
+                }
+
+                if (dateTime == dateTime.JumpToDayNumber(dayNumber).Add(dateTime.TimeOfDay))
+                {
+                    return dateTime;
+                }
+
+                return dateTime;
             }
         }
 
@@ -87,14 +131,24 @@ namespace RetoScheduler.Runners
                 frecuency -= dateTime.Day == 1
                         ? 1 : 0;
                 dateWithAddedMonths = GetNextMonth(dateTime, frecuency);
+                month = new Month(dateWithAddedMonths.Year, dateWithAddedMonths.Month);
+
+                listOfDays = GetListOfSelectedDays(month, selectedDays, manyDays);
+
+                var selectedOrdinalExec = GetSelectedOrdinals(listOfDays, monthlyConfig);
+                if (selectedOrdinal != selectedOrdinalExec)
+                {
+                    return selectedOrdinalExec;
+                }
             }
-            if (!executed && selectedOrdinal.Date < dateTime.Date)
+            if (!executed && selectedOrdinal < dateTime)
             {
                 dateWithAddedMonths = GetNextMonth(dateTime);
             }
 
             month = new Month(dateWithAddedMonths.Year, dateWithAddedMonths.Month);
             listOfDays = GetListOfSelectedDays(month, selectedDays, manyDays);
+
 
             return GetSelectedOrdinals(listOfDays, monthlyConfig);
 

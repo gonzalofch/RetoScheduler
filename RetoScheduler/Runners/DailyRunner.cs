@@ -44,7 +44,6 @@ namespace RetoScheduler.Runners
                 return onlyDate.Add(startTime);
             }
 
-
             if (executed && AddOccursEveryUnit(dailyConfiguration, dateTime).ToTimeSpan() > endTime || dateTime.TimeOfDay > endTime)
             {
                 return onlyDate.AddDays(1).Add(startTime);

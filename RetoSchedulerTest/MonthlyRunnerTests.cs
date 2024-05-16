@@ -295,7 +295,7 @@ namespace RetoSchedulerTest
 
             outPut.Should().Be(new DateTime(2024, 1, 31, 14, 0, 0));
 
-            var outPut2 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut.AddHours(12), true);
+            var outPut2 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut, true);
             outPut2.Should().Be(new DateTime(2024, 4, 30, 0, 0, 0));
         }
 
@@ -319,6 +319,46 @@ namespace RetoSchedulerTest
                .Invoking(() => MonthlyRunner.Run(monthlyConfiguration, new DateTime(2024, 1, 31, 4, 0, 0), true))
                .Should()
                .Throw<SchedulerException>();
+        }
+
+        [Fact]
+        public void Should_Be_Next_Executions_And_Next_Time_DayOption_Repeating_Execution()
+        {
+            var outPut = MonthlyRunner.Run(MonthlyConfiguration.DayOption(20, 3), new DateTime(2024, 1, 10, 14, 0, 0), false);
+            outPut.Should().Be(new DateTime(2024, 1, 20));
+
+            var outPut2 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(20, 3), outPut, true);
+            outPut2.Should().Be(new DateTime(2024, 1, 20));
+
+            var outPut3 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(20, 3), outPut2, true);
+            outPut3.Should().Be(new DateTime(2024, 1, 20));
+
+            var outPut4 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(20, 3), outPut3, true);
+            outPut4.Should().Be(new DateTime(2024, 1, 20));
+
+            //jump
+            var outPut5 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(20, 3), outPut4, true);
+            outPut5.Should().Be(new DateTime(2024, 4, 20));
+        }
+
+        [Fact]
+        public void Should_Be_Next_Executions_And_Next_Time_DayOption31_Repeating_Execution()
+        {
+            var outPut = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), new DateTime(2024, 1, 10, 14, 0, 0), false);
+            outPut.Should().Be(new DateTime(2024, 1, 20, 0, 0, 0));
+
+            var outPut2 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut.AddHours(7), true);
+            outPut2.Should().Be(new DateTime(2024, 1, 20, 7, 0, 0));
+
+            var outPut3 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut2.AddHours(7), true);
+            outPut3.Should().Be(new DateTime(2024, 1, 20, 14, 0, 0));
+
+            var outPut4 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut3.AddHours(7), true);
+            outPut4.Should().Be(new DateTime(2024, 1, 31, 21, 0, 0));
+
+            //jump
+            var outPut5 = MonthlyRunner.Run(MonthlyConfiguration.DayOption(31, 3), outPut4.AddHours(7), true);
+            outPut5.Should().Be(new DateTime(2024, 4, 30, 0, 0, 0));
         }
 
     }

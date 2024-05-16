@@ -45,19 +45,13 @@ namespace RetoScheduler.Runners
 
         private DateTime NextExecutionDate(Configuration config, DateTime dateTime)
         {
+       
             bool hasLimits = config.DailyConfiguration.TimeLimits != null;
 
             if (config.MonthlyConfiguration != null)
             {
                 var monthlyDate = MonthlyRunner.Run(config.MonthlyConfiguration, dateTime, Executed);
                 var dailyDate = DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
-
-                if (dailyDate.Date != monthlyDate.Date)
-                {
-                    monthlyDate = MonthlyRunner.Run(config.MonthlyConfiguration, dailyDate, Executed);
-                    dailyDate = DailyRunner.Run(config.DailyConfiguration, monthlyDate, Executed);
-                    return dailyDate;
-                }
 
                 return dailyDate;
             }
