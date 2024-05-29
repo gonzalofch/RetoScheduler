@@ -371,5 +371,6 @@ namespace RetoScheduler
                 _ => throw new SchedulerException(_stringLocalizer["DescriptionBuilder:Errors:NotSupportedDailyFrequency"]),
             };
         }
+        public void mondongo() { }
     }
 }
