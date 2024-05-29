@@ -65,19 +65,6 @@ namespace RetoScheduler
                 throw new SchedulerException(_stringLocalizer["Scheduler:Errors:EndDateEarlierThanStartDate"]);
             }
         }
-        private DateTime InOnce(Configuration config)
-        {
-            if (config.ConfigDateTime.HasValue == false)
-            {
-                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:RequiredConfigDateTimeInOnce"]);
-            }
-            DateTime configDateTime = config.ConfigDateTime.Value;
-
-            return config.DailyConfiguration.Type == DailyConfigType.Once
-                ? configDateTime.Add(config.DailyConfiguration.OnceAt.ToTimeSpan())
-                : configDateTime.Add(config.DailyConfiguration.TimeLimits.StartTime.ToTimeSpan());
-        }
-
         private DateTime InRecurring(Configuration config)
         {
             if (config.DailyConfiguration.Frecuency <= 0)
