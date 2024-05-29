@@ -65,18 +65,6 @@ namespace RetoScheduler
                 throw new SchedulerException(_stringLocalizer["Scheduler:Errors:EndDateEarlierThanStartDate"]);
             }
         }
-
-        private void ValidateTimeLimitsAreInRange(Configuration config)
-        {
-            bool isRecurring = config.DailyConfiguration.Type == DailyConfigType.Recurring;
-            bool hasTimeLimits = config.DailyConfiguration.TimeLimits != null;
-            bool endTimeIsShorter = isRecurring && config.DailyConfiguration.TimeLimits.EndTime < config.DailyConfiguration.TimeLimits.StartTime;
-            if (hasTimeLimits && endTimeIsShorter)
-            {
-                throw new SchedulerException(_stringLocalizer["Scheduler:Errors:EndTimeEarlierThanStartTime"]);
-            }
-        }
-
         private DateTime InOnce(Configuration config)
         {
             if (config.ConfigDateTime.HasValue == false)
